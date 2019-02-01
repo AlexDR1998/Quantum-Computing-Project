@@ -45,6 +45,12 @@ def tensor(b,a):
 
 
 def main():
+
+
+	"""
+	Stuff to test any functions defined here - DELETE LATER -AR
+	"""
+
 	x = np.array([1,2,3])
 	y = np.array([1,-1])
 	#x = np.random.rand(1,5)
