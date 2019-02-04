@@ -12,23 +12,25 @@ class QMatrix:
     def __init__(self, typ):
         self.type = str(typ) #Differentiates between Qubits and Gates
 
+
+
     def __mul__(self,other):
         #magic method turning all * into matrix multiplication
-        
-
         if (self.type=="Gate") and (other.type=="Gate"):
             return Gate(np.matmul(self.array,other.array))
         else:
             return Qubit(np.matmul(self.array,other.array))
 
         
+
     def __str__(self):
         #String function for printing contents of QMatrix
         return str(self.array)
 
+
+
     def __and__(self,other):
         #Magic method turning & into tensor products
-
         if (self.type=="Gate") and (other.type=="Gate"):
             return Gate(tensor(self.array,other.array))
         elif (self.type=="Qubit") and (other.type=="Qubit"):
@@ -86,7 +88,7 @@ class Qubit(QMatrix):
     #Class for Qubit
     def __init__(self,data):
         QMatrix.__init__(self,"Qubit")
-        assert (len(data) & (len(data) - 1)==0),"Qubit register length must be a power of 2"
+        assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
         self.array = np.array(data)
 
 
@@ -99,8 +101,7 @@ def main():
 
 
 
-    #q1 = a*q
-    q1 = Qubit([1/np.sqrt(2),1/np.sqrt(2)])
+    
     q2 = Qubit([0,1])
 
     q12 = q1&q2
