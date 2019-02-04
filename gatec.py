@@ -28,6 +28,9 @@ class QMatrix:
         return str(self.array)
 
 
+    def get_size(self):
+        return np.log2(len(self.array))
+
 
     def __and__(self,other):
         #Magic method turning & into tensor products
@@ -48,6 +51,7 @@ class Hadamard(QMatrix):
     def __init__(self):
         QMatrix.__init__(self,"Gate")
         self.array = np.array([[1,1],[1,-1]])*(2**(-0.5))
+
 
 class V(QMatrix):
     def __init__(self):
@@ -76,10 +80,18 @@ class CPhase(QMatrix):
         self.array = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,np.exp(1j*phase)]])
 
 
+
+
+
+
+
+
+
 class Gate(QMatrix):
     #Generic gate class - used as output for multiplication or tensor of other gates
     def __init__(self,data):
         QMatrix.__init__(self,"Gate")
+        assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
         self.array = np.array(data)
 
 
@@ -92,33 +104,32 @@ class Qubit(QMatrix):
         self.array = np.array(data)
 
 
-    def get_size(self):
-        return np.log2(len(self.array))
+    
 
 
 
 def main():
 
+    #Just about manages 10 qubits, but will get uncomfortably slow beyond that
 
-
+    q = Qubit([1,0])
     
-    q2 = Qubit([0,1])
+    q6 = q&q&q&q&q&q&q&q&q&q
 
-    q12 = q1&q2
+    h = Hadamard()
 
+    h6 = h&h&h&h&h&h&h&h&h&h
 
-    h1 = Hadamard()
-    h2 = Hadamard()
+    print(h6*q6)
+    
+    
+    
+    #f1 = q112*h3
 
-    h12 = h1&h2
+    #f2 = (q1*h1)&(q2*h2)
 
-
-    f1 = q12*h12
-
-    f2 = (q1*h1)&(q2*h2)
-
-    print(f1)
-    print(f2)
+    #print(f1)
+    #print(f2)
     #b = V()
     #c = a*b
     #print(c.array)
