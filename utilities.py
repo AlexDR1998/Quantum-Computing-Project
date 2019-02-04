@@ -1,11 +1,13 @@
 import numpy as np
 import scipy as scp
 import time
+import cmath
 
 """
 A file for storing various mathematical helper functions that could be used in various places.
  - AR
 """
+
 
 
 def tensor(b,a):
@@ -28,7 +30,7 @@ def tensor(b,a):
 	outdim = (a0*b0,a1*b1)
 	
 	#Initialise output matrix with zeros
-	output = np.zeros(outdim)
+	output = np.zeros(outdim,dtype=complex)
 	
 	#Calculate output matrix
 	for x in range(outdim[0]):
@@ -51,19 +53,23 @@ def main():
 	Stuff to test any functions defined here - DELETE LATER -AR
 	"""
 
-	x = np.array([1,2,3])
-	y = np.array([1,-1])
+	#x = np.array([1,2,3])
+	#y = np.array([1,-1])
 	#x = np.random.rand(1,5)
 	#y = np.random.rand(1,3)
-	t1 = time.time()
-	a = tensor(x,y)
-	t2 = time.time()
+	#t1 = time.time()
+	#a = tensor(x,y)
+	#t2 = time.time()
 
-	print("Time taken: "+str(t2-t1))
-	print(x)
-	print(y)
-	print(a)
-	print (a==np.kron(x,y)).all()
+	#print("Time taken: "+str(t2-t1))
+	#print(x)
+	#print(y)
+	#print(a)
+	#print (a==np.kron(x,y)).all()
 	
 
-main()
+	for n in range(10):
+		x = 2**n
+		print(x&(x-1))
+
+#main()
