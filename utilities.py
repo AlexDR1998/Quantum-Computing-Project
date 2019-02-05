@@ -46,7 +46,7 @@ def tensor(b,a):
 
 
 
-def main():
+#def main():
 
 
 	"""
@@ -68,8 +68,8 @@ def main():
 	#print (a==np.kron(x,y)).all()
 	
 
-	for n in range(10):
-		x = 2**n
-		print(x&(x-1))
+	#for n in range(10):
+	#	x = 2**n
+	#	print(x&(x-1))
 
 #main()

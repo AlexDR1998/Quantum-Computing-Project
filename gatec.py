@@ -90,7 +90,10 @@ class Phase(QMatrix):
         self.phase = phase
         self.array = np.array([[1,0],[0,np.exp(1j*phase)]])
 
-
+class I(QMatrix):
+    def __init__(self,n=1):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.identity(2**n)
 
 
 # 2 Qubit Gates
@@ -147,8 +150,8 @@ def main():
     #h = q&h2
     
     
-    print(q2)
-    print(h2*2)
+    #print(q2)
+    print(I(1)&Hadamard(2))
 
     #print(f1)
     #print(f2)
