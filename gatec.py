@@ -16,9 +16,29 @@ class QMatrix:
 
     def __mul__(self,other):
         #magic method turning all * into matrix multiplication
-        if (self.type=="Gate") and (other.type=="Gate"):
+
+        #multiplication order:
+        #    Gate*Qubit
+        #    Gate*Scalar
+        #    Qubit*Scalar
+        #
+        if (type(other)==int):
+            if (self.type=="Gate"):
+                return Gate(self.array*other)
+            else:
+                return Qubit(self.array*other)
+
+        elif (self.type=="Gate") and (other.type=="Gate"):
+            assert self.array.shape==other.array.shape, "Gates must be of same size"
             return Gate(np.matmul(self.array,other.array))
+
+        elif (self.type=="Qubit") and (other.type=="Qubit"):
+            assert self.array.shape==other.array.shape, "Qubit registers must have same size"
+            return Gate(np.outer(self.array,other.array))
+        
         else:
+            assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
+            assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
             return Qubit(np.matmul(self.array,other.array))
 
         
@@ -34,6 +54,7 @@ class QMatrix:
 
     def __and__(self,other):
         #Magic method turning & into tensor products
+        assert self.type==other.type, "Cannot tensor a Gate with a Qubit register"
         if (self.type=="Gate") and (other.type=="Gate"):
             return Gate(tensor(self.array,other.array))
         elif (self.type=="Qubit") and (other.type=="Qubit"):
@@ -48,9 +69,14 @@ class QMatrix:
 # Single Qubit Gates
 
 class Hadamard(QMatrix):
-    def __init__(self):
+    def __init__(self,n=1):
         QMatrix.__init__(self,"Gate")
-        self.array = np.array([[1,1],[1,-1]])*(2**(-0.5))
+        h = np.array([[1,1],[1,-1]])
+        hn = h
+        for i in range(n-1):
+            hn = tensor(h,hn)
+        hn = hn*(2**(-0.5*n))
+        self.array = np.array(hn)
 
 
 class V(QMatrix):
@@ -83,10 +109,6 @@ class CPhase(QMatrix):
 
 
 
-
-
-
-
 class Gate(QMatrix):
     #Generic gate class - used as output for multiplication or tensor of other gates
     def __init__(self,data):
@@ -114,19 +136,19 @@ def main():
 
     q = Qubit([1,0])
     
-    q6 = q&q&q&q&q&q&q&q&q&q
+    
 
-    h = Hadamard()
+    #h4 = Hadamard(4)
+    h2 = Hadamard(2)
+    q2 = h2*(q&q)
 
-    h6 = h&h&h&h&h&h&h&h&h&h
 
-    print(h6*q6)
+
+    #h = q&h2
     
     
-    
-    #f1 = q112*h3
-
-    #f2 = (q1*h1)&(q2*h2)
+    print(q2)
+    print(h2*2)
 
     #print(f1)
     #print(f2)
