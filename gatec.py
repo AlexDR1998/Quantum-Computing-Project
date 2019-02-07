@@ -1,5 +1,4 @@
 import numpy as np
-from scipy import stats
 import math
 import cmath
 from utilities import tensor
@@ -36,13 +35,13 @@ class QMatrix:
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             assert self.array.shape==other.array.shape, "Qubit registers must have same size"
             return Gate(np.outer(self.array,other.array))
-        
+
         else:
             assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
             assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
             return Qubit(np.matmul(self.array,other.array))
 
-        
+
 
     def __str__(self):
         #String function for printing contents of QMatrix
@@ -97,6 +96,10 @@ class Identity(QMatrix):
         self.array = np.identity(2**n)
 
 
+class PauliX(QMatrix):
+    def __init__(self):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.array([[0,1],[1,0]])
 # 2 Qubit Gates
 
 class CNot(QMatrix):
@@ -109,9 +112,10 @@ class CPhase(QMatrix):
         QMatrix.__init__(self,"Gate")
         self.array = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,np.exp(1j*phase)]])
 
-
-
-
+class Swap(QMatrix):
+    def __init__(self):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.array([[1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]])
 
 class Gate(QMatrix):
     #Generic gate class - used as output for multiplication or tensor of other gates
@@ -128,16 +132,3 @@ class Qubit(QMatrix):
         QMatrix.__init__(self,"Qubit")
         assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
         self.array = np.array(data)
-
-
-    def measure(self):
-        #method to collapse qubit register into 1 state.
-        pos = np.arange(len(self.array))
-        probs = np.abs(np.square(self.array))
-        dist = stats.rv_discrete(values=(pos,probs))
-        self.array = np.zeros(self.array.shape)
-        self.array[dist.rvs()] = 1
-        return self.array
-
-    
-
