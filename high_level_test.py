@@ -1,5 +1,6 @@
 import numpy as np
 from gatec import *
+
 import matplotlib.pyplot as plt
 
 def main():
@@ -15,6 +16,7 @@ def main():
 	#print(q1)
 	alg = (h&h&h)*(b&i)*(v&i&v)*(i&h&i)
 	
+
 	q_in = q&q&q
 
 	hist = np.zeros(8)
