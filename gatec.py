@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 import math
 import cmath
 from utilities import tensor
@@ -129,7 +130,14 @@ class Qubit(QMatrix):
         self.array = np.array(data)
 
 
+    def measure(self):
+        #method to collapse qubit register into 1 state.
+        pos = np.arange(len(self.array))
+        probs = np.abs(np.square(self.array))
+        dist = stats.rv_discrete(values=(pos,probs))
+        self.array = np.zeros(self.array.shape)
+        self.array[dist.rvs()] = 1
+        return self.array
+
     
-
-
 
