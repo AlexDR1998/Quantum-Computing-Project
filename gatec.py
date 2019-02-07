@@ -90,7 +90,7 @@ class Phase(QMatrix):
         self.phase = phase
         self.array = np.array([[1,0],[0,np.exp(1j*phase)]])
 
-class I(QMatrix):
+class identity(QMatrix):
     def __init__(self,n=1):
         QMatrix.__init__(self,"Gate")
         self.array = np.identity(2**n)
@@ -126,6 +126,7 @@ class Qubit(QMatrix):
     def __init__(self,data):
         QMatrix.__init__(self,"Qubit")
         assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
+        assert (np.sum(np.square(data))==1), "Qubit must be normalised"
         self.array = np.array(data)
 
 
