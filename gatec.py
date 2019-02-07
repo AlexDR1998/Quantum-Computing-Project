@@ -90,7 +90,7 @@ class Phase(QMatrix):
         self.phase = phase
         self.array = np.array([[1,0],[0,np.exp(1j*phase)]])
 
-class identity(QMatrix):
+class Identity(QMatrix):
     def __init__(self,n=1):
         QMatrix.__init__(self,"Gate")
         self.array = np.identity(2**n)
@@ -126,7 +126,6 @@ class Qubit(QMatrix):
     def __init__(self,data):
         QMatrix.__init__(self,"Qubit")
         assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
-        assert (np.sum(np.square(data))==1), "Qubit must be normalised"
         self.array = np.array(data)
 
 
@@ -134,30 +133,3 @@ class Qubit(QMatrix):
 
 
 
-def main():
-
-    #Just about manages 10 qubits, but will get uncomfortably slow beyond that
-
-    q = Qubit([1,0])
-    
-    
-
-    #h4 = Hadamard(4)
-    h2 = Hadamard(2)
-    q2 = h2*(q&q)
-
-
-
-    #h = q&h2
-    
-    
-    #print(q2)
-    print(I(1)&Hadamard(2))
-
-    #print(f1)
-    #print(f2)
-    #b = V()
-    #c = a*b
-    #print(c.array)
-
-main()
