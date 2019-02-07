@@ -13,8 +13,6 @@ class QMatrix:
     def __init__(self, typ):
         self.type = str(typ) #Differentiates between Qubits and Gates
 
-
-
     def __mul__(self,other):
         #magic method turning all * into matrix multiplication
 
@@ -133,6 +131,17 @@ class Qubit(QMatrix):
         QMatrix.__init__(self,"Qubit")
         assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
         self.array = np.array(data)
+        #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
+        if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
+            pass
+        else:
+            self.normalise()
+
+    def normalise(self):
+        div = np.sqrt(np.sum(np.square(self.array)))
+        a = np.empty(len(self.array))
+        a.fill(div)
+        self.array = np.divide(self.array,a)
 
     def measure(self):
         #method to collapse qubit register into 1 state.
@@ -142,3 +151,10 @@ class Qubit(QMatrix):
         self.array = np.zeros(self.array.shape)
         self.array[dist.rvs()] = 1
         return self.array
+
+def main():
+    q = Qubit([4,2])
+    a = Qubit([1.00000001,0])
+    print q.array
+    print a.array
+main()
