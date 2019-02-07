@@ -47,8 +47,8 @@ class QMatrix:
         return str(self.array)
 
 
-    def get_size(self):
-        return np.log2(len(self.array))
+    def __len__(self):
+        return int(np.log2(len(self.array)))
 
 
     def __and__(self,other):
@@ -151,10 +151,3 @@ class Qubit(QMatrix):
         self.array = np.zeros(self.array.shape)
         self.array[dist.rvs()] = 1
         return self.array
-
-def main():
-    q = Qubit([4,2])
-    a = Qubit([1.00000001,0])
-    print q.array
-    print a.array
-main()
