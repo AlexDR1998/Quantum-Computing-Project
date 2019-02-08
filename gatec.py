@@ -132,10 +132,10 @@ class Qubit(QMatrix):
         assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
         self.array = np.array(data)
         #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
-        if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
-            pass
-        else:
-            self.normalise()
+        #if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
+        #    pass
+        #else:
+        #    self.normalise()
 
     def normalise(self):
         div = np.sqrt(np.sum(np.square(self.array)))
