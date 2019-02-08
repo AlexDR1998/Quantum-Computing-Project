@@ -53,7 +53,7 @@ def main():
     Tof = Toffoli()   #for 3 qubit Grover Iteration
     O = Oracle(n, target)   #Oracle for qubit reg size 2^n and target value in Fock space
 
-    #NOTE: Section to make sure the Qreg gets put to |0>&n
+    #NOTE: Section to make sure the Qreg gets put to |0>^&n
 
     # --- Formation of superposition from |0>&n state ---
     q = H*q
