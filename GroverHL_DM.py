@@ -22,8 +22,8 @@ def main():
     x = PauliX()
 
     # --- HARDCODED VALUES; Adjust to I/O later ---
-    n = 1.3
-    target = 4
+    n = 2
+    target = 3
 
     # --- QReg size ---
     N = 2**n
@@ -54,6 +54,7 @@ def main():
     cNOT = CNot()   #for 2 qubit Grover Iteration
     Tof = Toffoli()   #for 3 qubit Grover Iteration
     O = Oracle(n, TAR)   #Oracle for qubit reg size 2^n and target value in Fock space
+    D = Diffusion()
 
     #NOTE: Section to make sure the Qreg gets put to |0>^&n
 
@@ -65,11 +66,7 @@ def main():
 
     for i in range(its):
         q = O*q   #Oracle application
-        if n == 2:
-            GI = H * X * h1 * cNOT * h1 * X * H
-        elif n == 3:
-            GI = H * X * h1 * Tof * h1 * X * H
-        q = GI*q
+        q = D*q   #Diffusion gate application
 
     # --- Measure and Display ---
     q.measure()
