@@ -22,13 +22,13 @@ def main():
     x = PauliX()
 
     # --- HARDCODED VALUES; Adjust to I/O later ---
-    n = 3
+    n = 1.3
     target = 4
 
     # --- QReg size ---
     N = 2**n
-    assert type(n) == int, "n must be an integer"
-    assert n >= 2, "n must be greater than or equal to 2"
+    assert type(n) == int, "n must be an integer greater than or equal to 2"
+    assert n >= 2, "n must be an integer greater than or equal to 2"
 
     # --- Formation of QReg ---
     q = q0&q0
