@@ -3,7 +3,7 @@
 ALright kids this is your handy guide to using our low level quantum stuff. relevant 7/2/2019
 
 1. What you need:
-to use this stuff you need to import gatec.py into your code
+to use this stuff you need to from gatec.py import * into your code
 its also a good idea to get numpy just in case
 
 2. Creating Objects:

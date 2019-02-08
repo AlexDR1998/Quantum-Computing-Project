@@ -147,6 +147,8 @@ class Qubit(QMatrix):
         #method to collapse qubit register into 1 state.
         pos = np.arange(len(self.array))
         probs = np.abs(np.square(self.array))
+        #If probs is not normalised (usually due to rounding errors), re-normalise
+        probs = probs/np.sum(probs)
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(self.array.shape)
         self.array[dist.rvs()] = 1
