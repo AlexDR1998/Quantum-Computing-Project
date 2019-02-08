@@ -47,10 +47,10 @@ def main():
     # --- Grover gates --- #
     H = Hadamard(n)   #Hadamard all gates
     h1 = I&h   #Hadamard to one gate for n=2
-    X = PauliX(n)   #PauliX to n qubits
     if n > 2:
         for i in range(n-2):
             h1 = I&h1   #Hadamard to one gate for n>2
+    X = PauliX(n)   #PauliX to n qubits
     cNOT = CNot()   #for 2 qubit Grover Iteration
     Tof = Toffoli()   #for 3 qubit Grover Iteration
     O = Oracle(n, TAR)   #Oracle for qubit reg size 2^n and target value in Fock space
