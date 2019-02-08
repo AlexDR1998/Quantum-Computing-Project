@@ -116,6 +116,29 @@ class Swap(QMatrix):
         QMatrix.__init__(self,"Gate")
         self.array = np.array([[1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]])
 
+# 3 qubit gates
+
+class Toffoli(QMatrix):
+    def __init__(self):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.array([[1,0,0,0,0,0,0,0],
+                               [0,1,0,0,0,0,0,0],
+                               [0,0,1,0,0,0,0,0],
+                               [0,0,0,1,0,0,0,0],
+                               [0,0,0,0,1,0,0,0],
+                               [0,0,0,0,0,1,0,0],
+                               [0,0,0,0,0,0,0,1],
+                               [0,0,0,0,0,0,1,0]])
+
+
+
+
+class Oracle(QMatrix):
+    def __init__(self,reg_size,target):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.identity(2**reg_size)
+        self.array[target][target] = -1
+
 class Gate(QMatrix):
     #Generic gate class - used as output for multiplication or tensor of other gates
     def __init__(self,data):
@@ -132,6 +155,7 @@ class Qubit(QMatrix):
         assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
         self.array = np.array(data)
         #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
+        #Causes errors, commented out for now
         #if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
         #    pass
         #else:
