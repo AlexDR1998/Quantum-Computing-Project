@@ -6,15 +6,15 @@ def main():
 
     pio2 = m.pi/2.0
 
-    q = Qubit([0, 1])
+    q1 = Qubit([1, 0])
+    q2 = Qubit([0, 1])
     h = Hadamard()
     I = Identity()
     cNOT = CNot()
     X = PauliX()
     S = Phase(pio2)
 
-    qreg = q&q
-
+    qreg = q1&q1
     h1 = I&h #h on qubit 1
     hh = h&h #h on both quibits
     XX = X&X #PauliX on both
@@ -31,7 +31,7 @@ def main():
     qf = hh*qreg
 
     #For 2 quibits in here the phase gate is inserted for either 1, both or neither quibits
-    #qf = SS*qf #phase both
+    qf = SS*qf #phase both
 
     #If it is inserted then it has to be mirrored after the cNOT group
 
@@ -40,7 +40,7 @@ def main():
     qf = h1*qf
 
     #Here is where the mirroring occurs
-    #qf = SS*qf
+    qf = SS*qf
 
     #This section is untouched in the 2 quibit Grover
 
@@ -51,8 +51,8 @@ def main():
     qf = cNOT*qf
     qf = h1*qf
 
-    qf = hh*qf
     qf = XX*qf
+    qf = hh*qf
 
     qf.measure()
     print(qf)
