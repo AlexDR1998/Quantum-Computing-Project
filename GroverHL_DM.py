@@ -30,7 +30,7 @@ def main():
     q = q0&q0
     if n > 2:
         for i in range(n-2):
-            q = q&q0
+            q = q0&q
 
     # --- Target ---
     desire = 6   #HARDCODE; amend later
