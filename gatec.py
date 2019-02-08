@@ -59,7 +59,9 @@ class QMatrix:
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             return Qubit(tensor(self.array,other.array))
 
-
+    def ret(self):
+        #returns array for plotting; not of type Qubit so works properly
+        return self.array
 
 #------------------------------------------------------
 #---some gates and qubits under QMatrix parent class.

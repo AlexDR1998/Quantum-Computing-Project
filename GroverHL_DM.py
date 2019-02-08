@@ -14,6 +14,7 @@ import numpy as np
 import math as m
 import time as t
 from gatec import *
+import InOut as IO
 
 def main():
     ti = t.time()
@@ -24,7 +25,7 @@ def main():
     x = PauliX()
 
     # --- HARDCODED VALUES; Adjust to I/O later ---
-    n = 10
+    n = 4
     target = 2
 
     # --- QReg size ---
@@ -75,8 +76,9 @@ def main():
 
     tt = t.time() - ti
 
+    qf = q.ret()
     print(q)
-
+    IO.Hist(qf)
     print(tt)
 
 main()
