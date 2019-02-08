@@ -12,9 +12,11 @@ Initial test file for high level implementation of Grover's Algorithm
 
 import numpy as np
 import math as m
+import time as t
 from gatec import *
 
 def main():
+    ti = t.time()
 
     q0 = Qubit([1, 0])   #|0> qubit
     h = Hadamard()
@@ -22,8 +24,8 @@ def main():
     x = PauliX()
 
     # --- HARDCODED VALUES; Adjust to I/O later ---
-    n = 4
-    target = 3
+    n = 10
+    target = 2
 
     # --- QReg size ---
     N = 2**n
@@ -70,6 +72,11 @@ def main():
 
     # --- Measure and Display ---
     q.measure()
+
+    tt = t.time() - ti
+
     print(q)
+
+    print(tt)
 
 main()
