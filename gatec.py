@@ -96,9 +96,9 @@ class Identity(QMatrix):
 
 
 class PauliX(QMatrix):
-    def __init__(self):
+    def __init__(self,n=1):
         QMatrix.__init__(self,"Gate")
-        self.array = np.array([[0,1],[1,0]])
+        self.array = np.flip(np.identity(2**n),0)
 # 2 Qubit Gates
 
 class CNot(QMatrix):
@@ -137,7 +137,7 @@ class Oracle(QMatrix):
     def __init__(self,reg_size,target):
         QMatrix.__init__(self,"Gate")
         self.array = np.identity(2**reg_size)
-        self.array[target][target] = -1
+        self.array[target,target] = -1
 
 class Gate(QMatrix):
     #Generic gate class - used as output for multiplication or tensor of other gates
