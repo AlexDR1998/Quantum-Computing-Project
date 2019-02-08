@@ -77,6 +77,12 @@ class Hadamard(QMatrix):
         hn = hn*(2**(-0.5*n))
         self.array = np.array(hn)
 
+class Diffusion(QMatrix):
+    def __init__(self,n):
+        QMatrix.__init__(self,"Gate")
+        N = 2**n
+        c = 2.0/N
+        self.array = np.full((N, N), c) - np.identity(N)
 
 class V(QMatrix):
     def __init__(self):
@@ -124,7 +130,7 @@ class CPhase(QMatrix):
 class Swap(QMatrix):
     def __init__(self,n=2,index1=0,index2=1):
         QMatrix.__init__(self,"Gate")
-        
+
         self.array = perm_matrix(n,index1,index2)
 
         #self.array = np.array([[1,0,0,0],
@@ -200,4 +206,3 @@ class Qubit(QMatrix):
         outs = np.arange(0,len(self.array),1)
         res = np.array(np.sum(outs*self.array.astype(int)))
         return np.binary_repr(res)
-
