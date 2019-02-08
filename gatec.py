@@ -2,7 +2,7 @@ import numpy as np
 from scipy import stats
 import math
 import cmath
-from utilities import tensor
+from utilities import *
 
 
 
@@ -84,10 +84,14 @@ class V(QMatrix):
         self.array = np.array([[1,0],[0,1j]])
 
 class Phase(QMatrix):
-    def __init__(self,phase):
+    def __init__(self,phase,n=1):
         QMatrix.__init__(self,"Gate")
         self.phase = phase
-        self.array = np.array([[1,0],[0,np.exp(1j*phase)]])
+        ph = np.array([[1,0],[0,np.exp(1j*phase)]])
+        phn = ph
+        for i in range(n-1):
+            ph = tensor(ph,phn)
+        self.array = ph
 
 class Identity(QMatrix):
     def __init__(self,n=1):
@@ -104,17 +108,29 @@ class PauliX(QMatrix):
 class CNot(QMatrix):
     def __init__(self):
         QMatrix.__init__(self,"Gate")
-        self.array = np.array([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]])
+        self.array = np.array([[1,0,0,0],
+                               [0,1,0,0],
+                               [0,0,0,1],
+                               [0,0,1,0]])
 
 class CPhase(QMatrix):
     def __init__(self,phase):
         QMatrix.__init__(self,"Gate")
-        self.array = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,np.exp(1j*phase)]])
+        self.array = np.array([[1,0,0,0],
+                               [0,1,0,0],
+                               [0,0,1,0],
+                               [0,0,0,np.exp(1j*phase)]])
 
 class Swap(QMatrix):
-    def __init__(self):
+    def __init__(self,n=2,index1=0,index2=1):
         QMatrix.__init__(self,"Gate")
-        self.array = np.array([[1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]])
+        
+        self.array = perm_matrix(n,index1,index2)
+
+        #self.array = np.array([[1,0,0,0],
+        #                       [0,0,1,0],
+        #                       [0,1,0,0],
+        #                       [0,0,0,1]])
 
 # 3 qubit gates
 
@@ -177,3 +193,11 @@ class Qubit(QMatrix):
         self.array = np.zeros(self.array.shape)
         self.array[dist.rvs()] = 1
         return self.array
+
+    def split_register(self):
+        #Only run after measured. returns individual qubit values
+
+        outs = np.arange(0,len(self.array),1)
+        res = np.array(np.sum(outs*self.array.astype(int)))
+        return np.binary_repr(res)
+

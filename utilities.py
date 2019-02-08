@@ -30,7 +30,7 @@ def tensor(b,a):
 	outdim = (a0*b0,a1*b1)
 	
 	#Initialise output matrix with zeros
-	output = np.zeros(outdim,dtype=complex)
+	output = np.zeros(outdim)#,dtype=complex)
 	
 	#Calculate output matrix
 	for x in range(outdim[0]):
@@ -44,11 +44,49 @@ def tensor(b,a):
 	return(output)
 	
 
+def perm_matrix(n,index1,index2):
+	#generates a permutation matrix from a list of pairs of numbers to swap
+	assert index1!=index2, "Cant swap qubit with itself"
+	assert (index1<n) and (index2<n), "Cant swap qubits beyond size of gate"
+	b = 2**index1 + 2**index2
+
+	swaps = []
+	for x in range(2**n):
+		for y in range(x):
+			if((x^y==b) and (count_bits(x)==count_bits(y))):
+				swaps.append((x,y))
+
+	#print(swaps)
+	size = 2**n
+	i = np.identity(size)
+	for pairs in swaps:
+		temp = i[pairs[0]].copy()
+		i[pairs[0]] = i[pairs[1]]
+		i[pairs[1]] = temp
+	return i
+
+def count_bits(n):
+	if n==0:
+		return 0
+	else:
+		return (n&1)+count_bits(n>>1)
 
 
 #def main():
 
+	#q1 = 0
+	#q2 = 1
 
+	#b = 2**q1+2**q2
+
+	#b = int("101",2)
+	#swaps = []
+	#for x in range(8):
+	#	for y in range(x):
+	#		if((x^y==b) and (count_bits(x)==count_bits(y))):
+	#			swaps.append((x,y))
+	#			#print(x,y)
+	#print(perm_matrix(3,swaps))
 	"""
 	Stuff to test any functions defined here - DELETE LATER -AR
 	"""
