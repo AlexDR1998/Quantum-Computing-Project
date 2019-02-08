@@ -63,12 +63,13 @@ def main():
     # --- Grover's Iteration ---
     #NOTE: This section I need to check what parts actually get looped
 
-    q = O*q   #Oracle application
-    if n == 2:
-        GI = H * X * h1 * cNOT * h1 * X * H
-    elif n == 3:
-        GI = H * X * h1 * Tof * h1 * X * H
-    q = GI*q
+    for i in range(its):
+        q = O*q   #Oracle application
+        if n == 2:
+            GI = H * X * h1 * cNOT * h1 * X * H
+        elif n == 3:
+            GI = H * X * h1 * Tof * h1 * X * H
+        q = GI*q
 
     # --- Measure and Display ---
     q.measure()
