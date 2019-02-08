@@ -133,6 +133,12 @@ class Toffoli(QMatrix):
 
 
 
+class Oracle(QMatrix):
+    def __init__(self,reg_size,target):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.identity(2**reg_size)
+        self.array[target][target] = -1
+
 class Gate(QMatrix):
     #Generic gate class - used as output for multiplication or tensor of other gates
     def __init__(self,data):
