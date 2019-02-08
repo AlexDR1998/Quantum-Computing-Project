@@ -11,6 +11,7 @@ def main():
 	i = Identity()
 	v = V()
 	s = Swap()
+	t = Toffoli()
 	#q1 = h*(q&q&q&q)
 
 	#q1.measure()
@@ -18,8 +19,8 @@ def main():
 	
 	qft = (i&i&h)*(i&s)*(c2&i)*(i&s)*(c1&i)*(i&h&i)*(c1&i)*(h&i&i)
 	
-
 	q_in = q&q&q
+	print(t*q_in)
 	#q_in.measure()
 
 	hist = np.zeros(8)
