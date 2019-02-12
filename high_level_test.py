@@ -1,5 +1,7 @@
 import numpy as np
 from gatec import *
+import InOut as IO
+
 
 import matplotlib.pyplot as plt
 
@@ -17,8 +19,8 @@ def main():
 	#q1.measure()
 	#print(q1)
 	
-	qft = (i&i&h)*(i&s)*(c2&i)*(i&s)*(c1&i)*(i&h&i)*(c1&i)*(h&i&i)
-	
+	qft = (h&i&h)*(i&s)*(c2&i)*(i&s)*(c1&i)*t*(i&h&i)*(c1&i)*(h&i&i)
+	IO.Display(qft)
 	q_in = q&q&q
 	print(t*q_in)
 	#q_in.measure()

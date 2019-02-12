@@ -30,7 +30,7 @@ def tensor(b,a):
 	outdim = (a0*b0,a1*b1)
 	
 	#Initialise output matrix with zeros
-	output = np.zeros(outdim)#,dtype=complex)
+	output = np.zeros(outdim,dtype=complex)
 	
 	#Calculate output matrix
 	for x in range(outdim[0]):

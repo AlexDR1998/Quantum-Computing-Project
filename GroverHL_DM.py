@@ -25,8 +25,8 @@ def main():
     x = PauliX()
 
     # --- HARDCODED VALUES; Adjust to I/O later ---
-    n = 4
-    target = 2
+    n = 10
+    target = 270
 
     # --- QReg size ---
     N = 2**n
@@ -58,7 +58,8 @@ def main():
     Tof = Toffoli()   #for 3 qubit Grover Iteration
     O = Oracle(n, TAR)   #Oracle for qubit reg size 2^n and target value in Fock space
     D = Diffusion(n)
-
+    
+    IO.Display(Tof)
     #NOTE: Section to make sure the Qreg gets put to |0>^&n
 
     # --- Formation of superposition from |0>&n state ---
@@ -77,7 +78,7 @@ def main():
     tt = t.time() - ti
 
     qf = q.ret()
-    print(q)
+    print(int(q.split_register(),2))
     IO.Hist(qf)
     print(tt)
 
