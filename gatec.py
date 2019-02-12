@@ -110,7 +110,7 @@ class Identity(QMatrix):
 class PauliX(QMatrix):
     def __init__(self,n=1):
         QMatrix.__init__(self,"Gate")
-        self.array = np.flip(np.identity(2**n),0)
+        self.array = np.flipud(np.identity(2**n))
 # 2 Qubit Gates
 
 class CNot(QMatrix):
