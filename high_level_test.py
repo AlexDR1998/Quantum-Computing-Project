@@ -19,23 +19,24 @@ def main():
 	#q1.measure()
 	#print(q1)
 	
-	qft = (h&i&h)*(i&s)*(c2&i)*(i&s)*(c1&i)*t*(i&h&i)*(c1&i)*(h&i&i)
+	qft1 = ((i&i&h)*(i&s)*(c2&i)*(i&s)*(c1&i)*(i&h&i)*(c1&i)*(h&i&i))
+	qft = qft1&qft1
 	IO.Display(qft)
-	q_in = q&q&q
-	print(t*q_in)
+	#q_in = q&q&q&q&q&q&q&q&q
+	#print(t*q_in)
 	#q_in.measure()
 
-	hist = np.zeros(8)
-	n = 1000
-	for x in range(n):
-		q_out = qft*q_in
+	#hist = np.zeros(512)
+	#n = 1000
+	#for x in range(n):
+	#	q_out = qft*q_in
 	#print(q_out)
-		hist = hist + q_out.measure() 
+	#	hist = hist + q_out.measure() 
 		#print(q_out.measure())
 
 	
-	plt.bar(np.arange(len(hist)),hist/n)
-	plt.show()
+	#plt.bar(np.arange(len(hist)),hist/n)
+	#plt.show()
 	#print(q_out)
 
 
