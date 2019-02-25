@@ -21,7 +21,7 @@ def main():
 	
 	qft1 = ((i&i&h)*(i&s)*(c2&i)*(i&s)*(c1&i)*(i&h&i)*(c1&i)*(h&i&i))
 	qft = qft1&qft1
-	IO.Display(qft)
+	IO.Display(h&qft1)
 	#q_in = q&q&q&q&q&q&q&q&q
 	#print(t*q_in)
 	#q_in.measure()

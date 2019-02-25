@@ -59,7 +59,7 @@ def main():
     O = Oracle(n, TAR)   #Oracle for qubit reg size 2^n and target value in Fock space
     D = Diffusion(n)
     
-    IO.Display(Tof)
+    #IO.Display(Tof)
     #NOTE: Section to make sure the Qreg gets put to |0>^&n
 
     # --- Formation of superposition from |0>&n state ---

@@ -2,6 +2,7 @@ import numpy as np
 import scipy as scp
 import time
 import cmath
+from scipy import sparse as sp
 
 """
 A file for storing various mathematical helper functions that could be used in various places.
@@ -43,6 +44,11 @@ def tensor(b,a):
 		output = output[0]
 	return(output)
 	
+
+def tensor_sparse(a,b):
+	#Numpy implementation for now - will replace with my own soon - AR
+	return sp.kron(a,b)
+
 
 def perm_matrix(n,index1,index2):
 	#generates a permutation matrix from a list of pairs of numbers to swap
