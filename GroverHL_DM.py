@@ -13,7 +13,8 @@ Initial test file for high level implementation of Grover's Algorithm
 import numpy as np
 import math as m
 import time as t
-from gatec import *
+#from gatec import *
+from sparse import *
 import InOut as IO
 
 def main():
@@ -26,7 +27,7 @@ def main():
 
     # --- HARDCODED VALUES; Adjust to I/O later ---
     n = 10
-    target = 270
+    target = 3
 
     # --- QReg size ---
     N = 2**n
@@ -77,9 +78,9 @@ def main():
 
     tt = t.time() - ti
 
-    qf = q.ret()
-    print(int(q.split_register(),2))
-    IO.Hist(qf)
+    #qf = q.ret()
+    print(int(q.split_register(),2)+1)
+    #IO.Hist(qf)
     print(tt)
 
 main()

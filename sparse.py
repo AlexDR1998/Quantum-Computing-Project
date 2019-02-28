@@ -33,7 +33,7 @@ class SMatrix:
 
         elif (self.type=="Gate") and (other.type=="Gate"):
             assert self.array.shape==other.array.shape, "Gates must be of same size"
-            return Gate(sp.matmul(self.array,other.array))
+            return Gate(other.array*self.array)
 
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             assert self.array.shape==other.array.shape, "Qubit registers must have same size"
@@ -41,8 +41,8 @@ class SMatrix:
 
         else:
             assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
-            assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
-            return Qubit(sp.matmul(self.array,other.array))
+            #assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
+            return Qubit(other.array*self.array)
 
 
 
@@ -52,7 +52,7 @@ class SMatrix:
 
 
     def __len__(self):
-        return int(np.log2(len(self.array)))
+        return int(np.log2(self.array.shape[1]))
 
 
     def __and__(self,other):
@@ -60,25 +60,26 @@ class SMatrix:
         assert self.type==other.type, "Cannot tensor a Gate with a Qubit register"
         if (self.type=="Gate") and (other.type=="Gate"):
             
-            #return Gate(tensor(self.array,other.array))
-            return Gate(sp.kron(self.array,other.array))
+            return Gate(tensor_sparse(self.array,other.array))
+            #return Gate(sp.kron(self.array,other.array))
         elif (self.type=="Qubit") and (other.type=="Qubit"):
-            #return Qubit(tensor(self.array,other.array))
-            return Qubit(sp.kron(self.array,other.array))
+            return Qubit(tensor_sparse(self.array,other.array))
+            #return Qubit(sp.kron(self.array,other.array))
     def ret(self):
         #returns array for plotting; not of type Qubit so works properly
-        return self.array
+        return self.array.toarray()
 
 
 class Hadamard(SMatrix):
     def __init__(self,n=1):
         SMatrix.__init__(self,"Gate")
-        h = np.array([[1,1],[1,-1]])
+        h = sp.bsr_matrix([[1,1],[1,-1]])
         hn = h
         for i in range(n-1):
-            hn = tensor(h,hn)
+            hn = tensor_sparse(h,hn)
         hn = hn*(2**(-0.5*n))
-        self.array = sp.bsr_matrix(np.array(hn))
+        self.array = sp.bsr_matrix(hn)
+
 
 class Diffusion(SMatrix):
     def __init__(self,n):
@@ -90,22 +91,22 @@ class Diffusion(SMatrix):
 class V(SMatrix):
     def __init__(self):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix(np.array([[1,0],[0,1j]]))
+        self.array = sp.bsr_matrix([[1,0],[0,1j]])
 
 class Phase(SMatrix):
     def __init__(self,phase,n=1):
         SMatrix.__init__(self,"Gate")
         self.phase = phase
-        ph = np.array([[1,0],[0,np.exp(1j*phase)]])
+        ph = sp.bsr_matrix([[1,0],[0,np.exp(1j*phase)]])
         phn = ph
         for i in range(n-1):
-            ph = tensor(ph,phn)
+            ph = tensor_sparse(ph,phn)
         self.array = sp.bsr_matrix(ph)
 
 class Identity(SMatrix):
     def __init__(self,n=1):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix(np.identity(2**n))
+        self.array = sp.identity(2**n)
 
 
 class PauliX(SMatrix):
@@ -117,18 +118,18 @@ class PauliX(SMatrix):
 class CNot(SMatrix):
     def __init__(self):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix(np.array([[1,0,0,0],
-                               [0,1,0,0],
-                               [0,0,0,1],
-                               [0,0,1,0]]))
+        self.array = sp.bsr_matrix([[1,0,0,0],
+                                    [0,1,0,0],
+                                    [0,0,0,1],
+                                    [0,0,1,0]])
 
 class CPhase(SMatrix):
     def __init__(self,phase):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix(np.array([[1,0,0,0],
-                               [0,1,0,0],
-                               [0,0,1,0],
-                               [0,0,0,np.exp(1j*phase)]]))
+        self.array = sp.bsr_matrix([[1,0,0,0],
+                                    [0,1,0,0],
+                                    [0,0,1,0],
+                                    [0,0,0,np.exp(1j*phase)]])
 
 class Swap(SMatrix):
     def __init__(self,n=2,index1=0,index2=1):
@@ -136,33 +137,34 @@ class Swap(SMatrix):
 
         self.array = sp.bsr_matrix(perm_matrix(n,index1,index2))
 
-        #self.array = np.array([[1,0,0,0],
-        #                       [0,0,1,0],
-        #                       [0,1,0,0],
-        #                       [0,0,0,1]])
+        
 
 # 3 qubit gates
 
 class Toffoli(SMatrix):
     def __init__(self):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix(np.array([[1,0,0,0,0,0,0,0],
-                               [0,1,0,0,0,0,0,0],
-                               [0,0,1,0,0,0,0,0],
-                               [0,0,0,1,0,0,0,0],
-                               [0,0,0,0,1,0,0,0],
-                               [0,0,0,0,0,1,0,0],
-                               [0,0,0,0,0,0,0,1],
-                               [0,0,0,0,0,0,1,0]]))
-
+        self.array = sp.bsr_matrix([[1,0,0,0,0,0,0,0],
+                                    [0,1,0,0,0,0,0,0],
+                                    [0,0,1,0,0,0,0,0],
+                                    [0,0,0,1,0,0,0,0],
+                                    [0,0,0,0,1,0,0,0],
+                                    [0,0,0,0,0,1,0,0],
+                                    [0,0,0,0,0,0,0,1],
+                                    [0,0,0,0,0,0,1,0]])
 
 
 
 class Oracle(SMatrix):
     def __init__(self,reg_size,target):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix(np.identity(2**reg_size))
+        diags = np.ones(2**reg_size)
+        #offsets = np.arange(0,2**reg_size,1)
+        diags[target] = -1
+        self.array = sp.csr_matrix(sp.identity(2**reg_size))
         self.array[target,target] = -1
+        self.array = sp.bsr_matrix(self.array)
+        #self.array = sp.dia_matrix(diags)
 
 class Gate(SMatrix):
     #Generic gate class - used as output for multiplication or tensor of other gates
@@ -177,8 +179,9 @@ class Qubit(SMatrix):
     #Class for Qubit
     def __init__(self,data):
         SMatrix.__init__(self,"Qubit")
-        assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
+        #assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
         self.array = sp.bsr_matrix(data)
+        #print(self.array.shape)
         #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
         #Causes errors, commented out for now
         #if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
@@ -194,28 +197,44 @@ class Qubit(SMatrix):
 
     def measure(self):
         #method to collapse qubit register into 1 state.
-        pos = np.arange(len(self.array))
-        probs = np.abs(np.square(self.array))
+        data = self.array.toarray()[0]
+        pos = np.arange(len(data))
+        #print(pos)
+        probs = np.abs(np.square(data))
         #If probs is not normalised (usually due to rounding errors), re-normalise
         probs = probs/np.sum(probs)
+        #print(probs)
         dist = stats.rv_discrete(values=(pos,probs))
-        self.array = np.zeros(self.array.shape)
+        self.array = np.zeros(data.shape)
         self.array[dist.rvs()] = 1
         return self.array
 
     def split_register(self):
         #Only run after measured. returns individual qubit values
 
-        outs = np.arange(1,len(self.array)+1,1)
+        outs = np.arange(0,len(self.array),1)
         res = np.array(np.sum(outs*self.array.astype(int)))
         return np.binary_repr(res)
 
 
 
 
-def main():
-    h = Hadamard(1)
-    print(h&h)
-    print(Hadamard(2))
+#def main():
+    #h = Hadamard(10)
+    #q = Qubit([1,0])
+    #v = V()
+    #i = Identity()
+    #print(v)
+    #print(h)
+    #print(q)
+    #print(i&h)
+    #print(v*h*q)
+    #q1 = h*q
+    #print(q1)
+    #print(v*q1)
+    #g = v*h
+    #print(g*q)
 
-main()
+    #print(Hadamard(2))
+
+#main()

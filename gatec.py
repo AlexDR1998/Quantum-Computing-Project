@@ -206,6 +206,6 @@ class Qubit(QMatrix):
     def split_register(self):
         #Only run after measured. returns individual qubit values
 
-        outs = np.arange(1,len(self.array)+1,1)
+        outs = np.arange(0,len(self.array),1)
         res = np.array(np.sum(outs*self.array.astype(int)))
         return np.binary_repr(res)

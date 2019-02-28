@@ -11,6 +11,10 @@ A file for storing various mathematical helper functions that could be used in v
 
 
 
+
+
+
+
 def tensor(b,a):
 	
 	"""
@@ -45,9 +49,36 @@ def tensor(b,a):
 	return(output)
 	
 
-def tensor_sparse(a,b):
+def tensor_sparse(A,B):
 	#Numpy implementation for now - will replace with my own soon - AR
-	return sp.kron(a,b)
+	#return sp.kron(a,b)
+
+	
+	# B is fairly dense, use BSR
+	A = sp.csr_matrix(A,copy=True)
+
+	output_shape = (A.shape[0]*B.shape[0], A.shape[1]*B.shape[1])
+
+	if A.nnz == 0 or B.nnz == 0:
+	    # kronecker product is the zero matrix
+	    return sp.coo_matrix(output_shape)
+
+	B = B.toarray()
+	data = A.data.repeat(B.size).reshape(-1,B.shape[0],B.shape[1])
+	data = data * B
+
+	return sp.bsr_matrix((data,A.indices,A.indptr), shape=output_shape)
+
+
+
+
+
+
+
+
+
+
+
 
 
 def perm_matrix(n,index1,index2):
