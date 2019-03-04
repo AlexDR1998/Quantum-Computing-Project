@@ -4,12 +4,34 @@ import time
 import cmath
 from scipy import sparse as sp
 from lazyarray import larray
-
+from lazyarray import matmul
 """
 A file for storing various mathematical helper functions that could be used in various places.
  - AR
 """
 
+def lazy_mul(b,a):
+	#Dimension of output
+	a0 = a.shape[0]
+	a1 = a.shape[1]
+	b0 = b.shape[0]
+	b1 = b.shape[1]
+	outdim = (a0,b1)
+
+	
+	#Calculate output matrix
+	def mul(i,j):
+		n=0
+		element = 0
+		for n in range( outdim[0]):
+			element += (a[i,n]*b[n,j])
+		return element	
+	
+	output = larray(mul,shape=outdim)
+	
+	if output.shape[0]==1:
+		output = output[0]
+	return(output)
 
 def tensor(b,a):
 	
@@ -62,15 +84,13 @@ def tensor_lazy(b,a):
 	b0 = b.shape[0]
 	b1 = b.shape[1]
 	outdim = (a0*b0,a1*b1)
-	
-	#Initialise output matrix with zeros
-	output = np.zeros(outdim,dtype=complex)
+
 	
 	#Calculate output matrix
-	for x in range(outdim[0]):
-		for y in range(outdim[1]):
-			output[x,y] = a[x%a0,y%a1]*b[x//a0,y//a1]
-	
+	def kron(i,j):
+		return a[i%a0,j%a1]*b[i//a0,j//a1]
+			
+	output = larray(kron,shape=outdim)
 	
 	#If output matrix is (1,n), then just convert to n vector
 	if output.shape[0]==1:
@@ -78,13 +98,13 @@ def tensor_lazy(b,a):
 	return(output)
 	
 def tensor_sparse(A,B):
-	#Numpy implementation for now - will replace with my own soon - AR
-	#return sp.kron(a,b)
-
+	
+	#return sp.kron(A,B)
+	#sp.kron and tensor_sparse give the same result
 	
 	# B is fairly dense, use BSR
-	A = sp.csr_matrix(A,copy=True)
-
+	A = sp.csc_matrix(A,copy=True)
+    
 	output_shape = (A.shape[0]*B.shape[0], A.shape[1]*B.shape[1])
 
 	if A.nnz == 0 or B.nnz == 0:
