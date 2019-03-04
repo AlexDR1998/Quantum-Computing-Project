@@ -111,7 +111,7 @@ class Phase(LMatrix):
 class Identity(LMatrix):
     def __init__(self,n=1):
         LMatrix.__init__(self,"Gate")
-        self.array = sp.identity(2**n)
+        self.array = larray(sp.identity(2**n))
 
 
 class PauliX(LMatrix):
@@ -121,12 +121,19 @@ class PauliX(LMatrix):
 # 2 Qubit Gates
 
 class CNot(LMatrix):
-    def __init__(self):
-        LMatrix.__init__(self,"Gate")
-        self.array = larray([[1,0,0,0],
-                                    [0,1,0,0],
-                                    [0,0,0,1],
-                                    [0,0,1,0]])
+    def __init__(self,n=2):
+        SMatrix.__init__(self,"Gate")
+        self.array = sp.csr_matrix(sp.identity(2**n))
+        self.array[2**n-2,2**n-2] = 0
+        self.array[2**n-1,2**n-1] = 0
+        self.array[2**n-1,2**n-2] = 1
+        self.array[2**n-2,2**n-1] = 1
+        self.array = larray(self.array)
+        #LMatrix.__init__(self,"Gate")
+        #self.array = larray([[1,0,0,0],
+        #                            [0,1,0,0],
+        #                            [0,0,0,1],
+        #                            [0,0,1,0]])
 
 class CPhase(LMatrix):
     def __init__(self,phase):
