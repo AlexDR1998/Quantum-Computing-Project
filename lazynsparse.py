@@ -117,12 +117,14 @@ class PauliX(SMatrix):
 # 2 Qubit Gates
 
 class CNot(SMatrix):
-    def __init__(self):
+    def __init__(self,n=2):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix([[1,0,0,0],
-                                    [0,1,0,0],
-                                    [0,0,0,1],
-                                    [0,0,1,0]])
+        self.array = sp.csr_matrix(sp.identity(2**n))
+        self.array[2**n-2,2**n-2] = 0
+        self.array[2**n-1,2**n-1] = 0
+        self.array[2**n-1,2**n-2] = 1
+        self.array[2**n-2,2**n-1] = 1
+        self.array = sp.bsr_matrix(self.array)
 
 class CPhase(SMatrix):
     def __init__(self,phase):

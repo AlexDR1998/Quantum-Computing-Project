@@ -123,7 +123,7 @@ class CNot(SMatrix):
         self.array[2**n-1,2**n-1] = 0
         self.array[2**n-1,2**n-2] = 1
         self.array[2**n-2,2**n-1] = 1
-
+        self.array = sp.bsr_matrix(self.array)
         #self.array = sp.bsr_matrix([[1,0,0,0],
         #                            [0,1,0,0],
         #                            [0,0,0,1],
