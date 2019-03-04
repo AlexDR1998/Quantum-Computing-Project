@@ -115,12 +115,19 @@ class PauliX(QMatrix):
 # 2 Qubit Gates
 
 class CNot(QMatrix):
-    def __init__(self):
+    def __init__(self,n=2):
         QMatrix.__init__(self,"Gate")
-        self.array = np.array([[1,0,0,0],
-                               [0,1,0,0],
-                               [0,0,0,1],
-                               [0,0,1,0]])
+
+        self.array = np.identity(2**n)
+
+        self.array[2**n-2,2**n-2] = 0
+        self.array[2**n-1,2**n-1] = 0
+        self.array[2**n-1,2**n-2] = 1
+        self.array[2**n-2,2**n-1] = 1
+        #self.array = np.array([[1,0,0,0],
+        #                       [0,1,0,0],
+        #                       [0,0,0,1],
+        #                       [0,0,1,0]])
 
 class CPhase(QMatrix):
     def __init__(self,phase):

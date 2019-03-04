@@ -1,6 +1,6 @@
 import numpy as np
-#from gatec import *
-from sparse import *
+from gatec import *
+#from sparse import *
 import InOut as IO
 import time
 
@@ -27,10 +27,11 @@ def main():
 	#print(q.split_register())
 
 
+	c = CNot(3)
+	print(c)
 
-
-	o = Oracle(3,1)
-	print(o)
+	#o = Oracle(3,1)
+	#print(o)
 
 
 
