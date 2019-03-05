@@ -30,7 +30,6 @@ def main():
     # --- Number of Iterations calculation ---
     its = int((m.pi/4.0)*(N)**(1/2))
 
-
     # --- Fock to Binary Array Conversion ---
     B = [int(x) for x in bin(target)[2:]]
     while len(B) != n:
