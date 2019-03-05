@@ -1,12 +1,14 @@
 import numpy as np
 import math as m
-#from gatec import *
-from sparse import *
+import time as t
+from gatec import *
+#from sparse import *
 
 def main():
+    init = t.time()
     # --- Number of qubits and Target Fock value ---
-    n = 5
-    target = 2
+    n = 8
+    target = 7
     N = 2**n
 
     # --- Initialised qubits ---
@@ -36,7 +38,7 @@ def main():
         B = np.insert(B, 0, 0)
     Binaryform = B
 
-    # --- Oracle PauliX application dependent on Fock ---
+    # --- Oracle PauliX application dependent on Fock Target ---
     #Initialise
     i = Binaryform[n-1]
     if i == 0:
@@ -66,5 +68,11 @@ def main():
     # --- Measure and Display ---
     q.measure()
     print(q)
+    q.split_register()
+    for i in range(len(q)):
+        if q[i] == 1:
+            print('The Fock space value found is ' + str(i))
+    totalt = t.time() - init
+    print('This took '+str(totalt)+' s to run')
 
 main()
