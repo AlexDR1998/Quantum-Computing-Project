@@ -5,11 +5,18 @@ from gatec import *
 #from sparse import *
 
 def main():
-    init = t.time()
     # --- Number of qubits and Target Fock value ---
-    n = 10
-    target = 4
+    n = int(input('How many qubits? '))
+    assert type(n) == int, "n must be an integer greater than or equal to 2"
+    assert n >= 2, "n must be an integer greater than or equal to 2"
     N = 2**n
+    target = int(input('What Fock space value would you like to find? '))
+    assert type(target) == int, "Target must be an integer greater than or equal to 2"
+    assert target >= 0, "Target must be an integer greater than or equal to 0"
+    assert target <= N-1, "Target must be an integer less than or equal to " + str(N-1)
+
+    # --- Timer Initialise ---
+    init = t.time()
 
     # --- Initialised qubits ---
     q0 = Qubit([1, 0])
@@ -67,7 +74,9 @@ def main():
 
     # --- Measure and Display ---
     q.measure()
-    print('The binary value of the ouput is ' + str(q.split_register()))
+    print('The state of the ouput(in binary) is |' + str(q.split_register()) + '>')
+    print('The target state(in binary) was |' + str(bin(target)[2:]) + '>')
+    print('In Fock space this is |' + str(target) + '>')
     totalt = t.time() - init
     print('This took '+str(totalt)+' s to run')
 
