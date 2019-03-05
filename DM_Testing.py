@@ -1,8 +1,8 @@
 import numpy as np
 import math as m
 import time as t
-#from gatec import *
-from sparse import *
+from gatec import *
+#from sparse import *
 
 def main():
     init = t.time()
@@ -67,9 +67,7 @@ def main():
 
     # --- Measure and Display ---
     q.measure()
-    print(q)
-    q.split_register()
-    print(q.split_register())
+    print('The binary value of the ouput is ' + str(q.split_register()))
     totalt = t.time() - init
     print('This took '+str(totalt)+' s to run')
 
