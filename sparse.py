@@ -60,10 +60,10 @@ class SMatrix:
         assert self.type==other.type, "Cannot tensor a Gate with a Qubit register"
         if (self.type=="Gate") and (other.type=="Gate"):
             
-            return Gate(tensor_sparse(self.array,other.array))
+            return Gate(tensor_sparse_gate(self.array,other.array))
             #return Gate(sp.kron(self.array,other.array))
         elif (self.type=="Qubit") and (other.type=="Qubit"):
-            return Qubit(tensor_sparse(self.array,other.array))
+            return Qubit(tensor_sparse_qubit(self.array,other.array))
             #return Qubit(sp.kron(self.array,other.array))
     def ret(self):
         #returns array for plotting; not of type Qubit so works properly
@@ -78,7 +78,7 @@ class Hadamard(SMatrix):
         h = sp.bsr_matrix([[1,1],[1,-1]])
         hn = h
         for i in range(n-1):
-            hn = tensor_sparse(h,hn)
+            hn = tensor_sparse_gate(h,hn)
         hn = hn*(2**(-0.5*n))
         self.array = sp.bsr_matrix(hn)
 
@@ -95,7 +95,7 @@ class Phase(SMatrix):
         ph = sp.bsr_matrix([[1,0],[0,np.exp(1j*phase)]])
         phn = ph
         for i in range(n-1):
-            ph = tensor_sparse(ph,phn)
+            ph = tensor_sparse_gate(ph,phn)
         self.array = sp.bsr_matrix(ph)
 
 class Identity(SMatrix):
@@ -247,13 +247,13 @@ class Qubit(SMatrix):
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(data.shape)
         self.array[dist.rvs()] = 1
-        return self.array
+        self.array = sp.bsr_matrix(self.array)
 
     def split_register(self):
         #Only run after measured. returns individual qubit values
-
-        outs = np.arange(0,len(self.array),1)
-        res = np.array(np.sum(outs*self.array.astype(int)))
+        t = self.array.toarray()[0]
+        outs = np.arange(0,len(t),1)
+        res = np.array(np.sum(outs*t.astype(int)))
         return np.binary_repr(res)
 
 

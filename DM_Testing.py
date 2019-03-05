@@ -5,8 +5,8 @@ from sparse import *
 
 def main():
     # --- Number of qubits and Target Fock value ---
-    n = 5
-    target = 2
+    n = 10
+    target = 4
     N = 2**n
 
     # --- Initialised qubits ---
@@ -20,7 +20,7 @@ def main():
     x = PauliX()
     z = PauliZ()
     cZ = Controlled(z, n)   #controlled z all
-
+    
     # --- Qreg formation ---
     q = q0&q0
     if n > 2:
@@ -66,6 +66,6 @@ def main():
 
     # --- Measure and Display ---
     q.measure()
-    print(q)
+    print(q.split_register())
 
 main()
