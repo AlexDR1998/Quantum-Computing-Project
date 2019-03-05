@@ -97,25 +97,51 @@ def tensor_lazy(b,a):
 		output = output[0]
 	return(output)
 	
-def tensor_sparse(A,B):
+def tensor_sparse_gate(A,B):
 	
 	#return sp.kron(A,B)
 	#sp.kron and tensor_sparse give the same result
 	
 	# B is fairly dense, use BSR
 	A = sp.csc_matrix(A,copy=True)
-    
+	
 	output_shape = (A.shape[0]*B.shape[0], A.shape[1]*B.shape[1])
 
 	if A.nnz == 0 or B.nnz == 0:
 	    # kronecker product is the zero matrix
 	    return sp.coo_matrix(output_shape)
-
+	
 	B = B.toarray()
 	data = A.data.repeat(B.size).reshape(-1,B.shape[0],B.shape[1])
 	data = data * B
 
 	return sp.bsr_matrix((data,A.indices,A.indptr), shape=output_shape)
+
+
+def tensor_sparse_qubit(A,B):
+	
+	#For sparse qubits, probably just easier to convert to dense arrays.
+	#As 1D, gains made from sparse optimisations are minimal
+
+	a = A.toarray()[0]
+	b = B.toarray()[0]
+
+	#Dimension of output
+	a0 = a.shape[0]
+	b0 = b.shape[0]
+	outdim = (1,a0*b0)
+	
+	#Initialise output matrix with zeros
+	output = np.zeros(outdim,dtype=complex)
+	
+	#Calculate output matrix
+	for x in range(outdim[0]):
+		output[0,x] = a[x%a0]*b[x//a0]
+	
+	return(output)
+
+
+
 
 def perm_matrix(n,index1,index2):
 	#generates a permutation matrix from a list of pairs of numbers to swap
@@ -144,43 +170,3 @@ def count_bits(n):
 	else:
 		return (n&1)+count_bits(n>>1)
 
-
-#def main():
-
-	#q1 = 0
-	#q2 = 1
-
-	#b = 2**q1+2**q2
-
-	#b = int("101",2)
-	#swaps = []
-	#for x in range(8):
-	#	for y in range(x):
-	#		if((x^y==b) and (count_bits(x)==count_bits(y))):
-	#			swaps.append((x,y))
-	#			#print(x,y)
-	#print(perm_matrix(3,swaps))
-	"""
-	Stuff to test any functions defined here - DELETE LATER -AR
-	"""
-
-	#x = np.array([1,2,3])
-	#y = np.array([1,-1])
-	#x = np.random.rand(1,5)
-	#y = np.random.rand(1,3)
-	#t1 = time.time()
-	#a = tensor(x,y)
-	#t2 = time.time()
-
-	#print("Time taken: "+str(t2-t1))
-	#print(x)
-	#print(y)
-	#print(a)
-	#print (a==np.kron(x,y)).all()
-	
-
-	#for n in range(10):
-	#	x = 2**n
-	#	print(x&(x-1))
-
-#main()

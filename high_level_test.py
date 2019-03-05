@@ -1,6 +1,6 @@
 import numpy as np
-from gatec import *
-#from sparse import *
+#from gatec import *
+from sparse import *
 import InOut as IO
 import time
 
@@ -26,9 +26,15 @@ def main():
 	#print(q.measure())
 	#print(q.split_register())
 
-
-	c = CNot(3)
-	print(c)
+	z = PauliZ()
+	x = PauliX()
+	c = Controlled(x,2)
+	q0 = Qubit([1,0])
+	q1 = Qubit([0,1])
+	print(q0)
+	print(q0&q0)
+	#c = CNot(3)
+	#print(c)
 
 	#o = Oracle(3,1)
 	#print(o)
