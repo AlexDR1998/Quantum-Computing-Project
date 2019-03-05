@@ -127,10 +127,11 @@ class Controlled(SMatrix):
     def __init__(self,other_gate,n=2):
         SMatrix.__init__(self,"Gate")
         self.array = sp.csr_matrix(sp.identity(2**n))
-        self.array[2**n-2,2**n-2] = other_gate.array[0,0]
-        self.array[2**n-1,2**n-1] = other_gate.array[1,1]
-        self.array[2**n-1,2**n-2] = other_gate.array[1,0]
-        self.array[2**n-2,2**n-1] = other_gate.array[0,1]
+        t = other_gate.array.toarray()
+        self.array[2**n-2,2**n-2] = t[0,0]
+        self.array[2**n-1,2**n-1] = t[1,1]
+        self.array[2**n-1,2**n-2] = t[1,0]
+        self.array[2**n-2,2**n-1] = t[0,1]
         self.array = sp.bsr_matrix(self.array)
 
 
