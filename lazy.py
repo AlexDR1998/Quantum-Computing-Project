@@ -118,7 +118,15 @@ class PauliX(LMatrix):
     def __init__(self,n=1):
         LMatrix.__init__(self,"Gate")
         self.array = larray(np.flipud(np.identity(2**n)))
+        
+class PauliZ(LMatrix):
+    def __init__(self):
+        LMatrix.__init__(self,"Gate")
+        self.array = larray([[1,0],
+                             [0,-1]])
 # 2 Qubit Gates
+
+
 
 class CNot(LMatrix):
     def __init__(self,n=2):
@@ -185,7 +193,18 @@ class Gate(LMatrix):
         #assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
         self.array = larray(data)
 
-
+class Controlled(LMatrix):
+    #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
+    def __init__(self,other_gate,n=2):
+        LMatrix.__init__(self,"Gate")
+        self.array = (np.identity(2**n))
+        t = other_gate.array.evaluate()
+        self.array[2**n-2,2**n-2] = t[0,0]
+        self.array[2**n-1,2**n-1] = t[1,1]
+        self.array[2**n-1,2**n-2] = t[1,0]
+        self.array[2**n-2,2**n-1] = t[0,1]
+        self.array = larray(self.array)
+        print(self.array.evaluate())
 
 class Qubit(LMatrix):
     #Class for Qubit
