@@ -70,6 +70,8 @@ class SMatrix:
         return self.array.toarray()
 
 
+
+
 class Hadamard(SMatrix):
     def __init__(self,n=1):
         SMatrix.__init__(self,"Gate")
@@ -80,13 +82,6 @@ class Hadamard(SMatrix):
         hn = hn*(2**(-0.5*n))
         self.array = sp.bsr_matrix(hn)
 
-
-class Diffusion(SMatrix):
-    def __init__(self,n):
-        SMatrix.__init__(self,"Gate")
-        N = 2**n
-        c = 2.0/N
-        self.array = sp.bsr_matrix(np.full((N, N), c) - np.identity(N))
 
 class V(SMatrix):
     def __init__(self):
@@ -108,12 +103,39 @@ class Identity(SMatrix):
         SMatrix.__init__(self,"Gate")
         self.array = sp.identity(2**n)
 
+class PauliZ(SMatrix):
+    def __init__(self):
+        SMatrix.__init__(self,"Gate")
+        self.array = sp.bsr_matrix([[1,0],
+                                    [0,-1]])
+
+
+
 
 class PauliX(SMatrix):
     def __init__(self,n=1):
         SMatrix.__init__(self,"Gate")
         self.array = sp.bsr_matrix(np.flipud(np.identity(2**n)))
-# 2 Qubit Gates
+
+
+
+##############################################################################################
+#Control Gates
+
+class Controlled(SMatrix):
+    #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
+    def __init__(self,other_gate,n=2):
+        SMatrix.__init__(self,"Gate")
+        self.array = sp.csr_matrix(sp.identity(2**n))
+        t = other_gate.array.toarray()
+        self.array[2**n-2,2**n-2] = t[0,0]
+        self.array[2**n-1,2**n-1] = t[1,1]
+        self.array[2**n-1,2**n-2] = t[1,0]
+        self.array[2**n-2,2**n-1] = t[0,1]
+        self.array = sp.bsr_matrix(self.array)
+
+
+
 
 class CNot(SMatrix):
     def __init__(self,n=2):
@@ -124,28 +146,7 @@ class CNot(SMatrix):
         self.array[2**n-1,2**n-2] = 1
         self.array[2**n-2,2**n-1] = 1
         self.array = sp.bsr_matrix(self.array)
-        #self.array = sp.bsr_matrix([[1,0,0,0],
-        #                            [0,1,0,0],
-        #                            [0,0,0,1],
-        #                            [0,0,1,0]])
 
-class CPhase(SMatrix):
-    def __init__(self,phase):
-        SMatrix.__init__(self,"Gate")
-        self.array = sp.bsr_matrix([[1,0,0,0],
-                                    [0,1,0,0],
-                                    [0,0,1,0],
-                                    [0,0,0,np.exp(1j*phase)]])
-
-class Swap(SMatrix):
-    def __init__(self,n=2,index1=0,index2=1):
-        SMatrix.__init__(self,"Gate")
-
-        self.array = sp.bsr_matrix(perm_matrix(n,index1,index2))
-
-        
-
-# 3 qubit gates
 
 class Toffoli(SMatrix):
     def __init__(self):
@@ -158,6 +159,38 @@ class Toffoli(SMatrix):
                                     [0,0,0,0,0,1,0,0],
                                     [0,0,0,0,0,0,0,1],
                                     [0,0,0,0,0,0,1,0]])
+
+
+class CPhase(SMatrix):
+    def __init__(self,phase,n=2):
+        SMatrix.__init__(self,"Gate")
+        
+        self.array = sp.csr_matrix(sp.identity(2**n))
+        self.array[2**n-1,2**n-1]=np.exp(1j*phase)
+        self.array = sp.bsr_matrix(self.array)
+        #self.array = sp.bsr_matrix([[1,0,0,0],
+        #                            [0,1,0,0],
+        #                            [0,0,1,0],
+        #                            [0,0,0,np.exp(1j*phase)]])
+
+
+################################################################################
+#Other useful gates
+
+class Swap(SMatrix):
+    def __init__(self,n=2,index1=0,index2=1):
+        SMatrix.__init__(self,"Gate")
+
+        self.array = sp.bsr_matrix(perm_matrix(n,index1,index2))
+
+        
+
+class Diffusion(SMatrix):
+    def __init__(self,n):
+        SMatrix.__init__(self,"Gate")
+        N = 2**n
+        c = 2.0/N
+        self.array = sp.bsr_matrix(np.full((N, N), c) - np.identity(N))
 
 
 

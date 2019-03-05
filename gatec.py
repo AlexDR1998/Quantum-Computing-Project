@@ -8,6 +8,7 @@ from utilities import *
 
 
 
+
 class QMatrix:
 # abstract parent class for all gates and qubits
 
@@ -107,35 +108,70 @@ class Identity(QMatrix):
         QMatrix.__init__(self,"Gate")
         self.array = np.identity(2**n)
 
+class PauliZ(QMatrix):
+    def __init__(self):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.array([[1,0],[0,-1]])
 
 class PauliX(QMatrix):
     def __init__(self,n=1):
         QMatrix.__init__(self,"Gate")
         self.array = np.flipud(np.identity(2**n))
-# 2 Qubit Gates
+
+
+##############################################################################################
+#Control Gates
+
+
+class Controlled(QMatrix):
+    #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
+    def __init__(self,other_gate,n=2):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.identity(2**n)
+        self.array[2**n-2,2**n-2] = other_gate.array[0,0]
+        self.array[2**n-1,2**n-1] = other_gate.array[1,1]
+        self.array[2**n-1,2**n-2] = other_gate.array[1,0]
+        self.array[2**n-2,2**n-1] = other_gate.array[0,1]
+        
+
 
 class CNot(QMatrix):
     def __init__(self,n=2):
         QMatrix.__init__(self,"Gate")
-
         self.array = np.identity(2**n)
-
         self.array[2**n-2,2**n-2] = 0
         self.array[2**n-1,2**n-1] = 0
         self.array[2**n-1,2**n-2] = 1
         self.array[2**n-2,2**n-1] = 1
-        #self.array = np.array([[1,0,0,0],
-        #                       [0,1,0,0],
-        #                       [0,0,0,1],
-        #                       [0,0,1,0]])
+        
+class Toffoli(QMatrix):
+    def __init__(self):
+        QMatrix.__init__(self,"Gate")
+        self.array = np.array([[1,0,0,0,0,0,0,0],
+                               [0,1,0,0,0,0,0,0],
+                               [0,0,1,0,0,0,0,0],
+                               [0,0,0,1,0,0,0,0],
+                               [0,0,0,0,1,0,0,0],
+                               [0,0,0,0,0,1,0,0],
+                               [0,0,0,0,0,0,0,1],
+                               [0,0,0,0,0,0,1,0]])
+
 
 class CPhase(QMatrix):
-    def __init__(self,phase):
+    def __init__(self,phase,n=2):
         QMatrix.__init__(self,"Gate")
-        self.array = np.array([[1,0,0,0],
-                               [0,1,0,0],
-                               [0,0,1,0],
-                               [0,0,0,np.exp(1j*phase)]])
+        self.array = np.identity(2**n)
+        self.array[2**n-1,2**n-1]=np.exp(1j*phase)
+
+        #self.array = np.array([[1,0,0,0],
+        #                       [0,1,0,0],
+        #                       [0,0,1,0],
+        #                       [0,0,0,np.exp(1j*phase)]])
+
+################################################################
+#Other useful gates
+
+
 
 class Swap(QMatrix):
     def __init__(self,n=2,index1=0,index2=1):
@@ -150,17 +186,6 @@ class Swap(QMatrix):
 
 # 3 qubit gates
 
-class Toffoli(QMatrix):
-    def __init__(self):
-        QMatrix.__init__(self,"Gate")
-        self.array = np.array([[1,0,0,0,0,0,0,0],
-                               [0,1,0,0,0,0,0,0],
-                               [0,0,1,0,0,0,0,0],
-                               [0,0,0,1,0,0,0,0],
-                               [0,0,0,0,1,0,0,0],
-                               [0,0,0,0,0,1,0,0],
-                               [0,0,0,0,0,0,0,1],
-                               [0,0,0,0,0,0,1,0]])
 
 
 
