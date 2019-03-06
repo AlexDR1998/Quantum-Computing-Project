@@ -1,8 +1,8 @@
 import numpy as np
 import math as m
 import time as t
-from gatec import *
-#from sparse import *
+#from gatec import *
+from sparse import *
 
 def main():
     # --- Number of qubits and Target Fock value ---
