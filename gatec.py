@@ -96,7 +96,7 @@ class V(QMatrix):
 class Phase(QMatrix):
     def __init__(self,phase,n=1):
         QMatrix.__init__(self,"Gate")
-        self.phase = phase
+        #self.phase = phase
         ph = np.array([[1,0],[0,np.exp(1j*phase)]])
         phn = ph
         for i in range(n-1):
@@ -160,7 +160,7 @@ class Toffoli(QMatrix):
 class CPhase(QMatrix):
     def __init__(self,phase,n=2):
         QMatrix.__init__(self,"Gate")
-        self.array = np.identity(2**n)
+        self.array = np.identity(2**n,dtype=complex)
         self.array[2**n-1,2**n-1]=np.exp(1j*phase)
 
         #self.array = np.array([[1,0,0,0],
@@ -207,16 +207,17 @@ class Gate(QMatrix):
 
 class Qubit(QMatrix):
     #Class for Qubit
-    def __init__(self,data):
+    def __init__(self,data,fock=0):
+        
         QMatrix.__init__(self,"Qubit")
-        assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
-        self.array = np.array(data)
-        #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
-        #Causes errors, commented out for now
-        #if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
-        #    pass
-        #else:
-        #    self.normalise()
+        if type(data) is int:
+            #If only 1 number is input for data, treat as length of qubit register
+            self.array = np.zeros(2**data)
+            self.array[fock] = 1
+        else:    
+            assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
+            self.array = np.array(data)
+        
 
     def normalise(self):
         div = np.sqrt(np.sum(np.square(self.array)))

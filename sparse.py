@@ -3,6 +3,7 @@ from scipy import stats
 from scipy import sparse as sp
 import math
 import cmath
+
 from utilities import *
 
 
@@ -33,7 +34,7 @@ class SMatrix:
 
         elif (self.type=="Gate") and (other.type=="Gate"):
             assert self.array.shape==other.array.shape, "Gates must be of same size"
-            return Gate(other.array*self.array)
+            return Gate(self.array*other.array)
 
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             assert self.array.shape==other.array.shape, "Qubit registers must have same size"
@@ -91,7 +92,7 @@ class V(SMatrix):
 class Phase(SMatrix):
     def __init__(self,phase,n=1):
         SMatrix.__init__(self,"Gate")
-        self.phase = phase
+        #self.phase = phase
         ph = sp.bsr_matrix([[1,0],[0,np.exp(1j*phase)]])
         phn = ph
         for i in range(n-1):
@@ -126,7 +127,7 @@ class Controlled(SMatrix):
     #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
     def __init__(self,other_gate,n=2):
         SMatrix.__init__(self,"Gate")
-        self.array = sp.csr_matrix(sp.identity(2**n))
+        self.array = sp.lil_matrix(sp.identity(2**n))
         t = other_gate.array.toarray()
         self.array[2**n-2,2**n-2] = t[0,0]
         self.array[2**n-1,2**n-1] = t[1,1]
@@ -165,9 +166,9 @@ class CPhase(SMatrix):
     def __init__(self,phase,n=2):
         SMatrix.__init__(self,"Gate")
         
-        self.array = sp.csr_matrix(sp.identity(2**n))
+        self.array = sp.csr_matrix(sp.identity(2**n),dtype=complex)
         self.array[2**n-1,2**n-1]=np.exp(1j*phase)
-        self.array = sp.bsr_matrix(self.array)
+        self.array = sp.bsr_matrix(self.array,dtype=complex)
         #self.array = sp.bsr_matrix([[1,0,0,0],
         #                            [0,1,0,0],
         #                            [0,0,1,0],
@@ -217,10 +218,17 @@ class Gate(SMatrix):
 
 class Qubit(SMatrix):
     #Class for Qubit
-    def __init__(self,data):
+    def __init__(self,data,fock=0):
         SMatrix.__init__(self,"Qubit")
-        #assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
-        self.array = sp.bsr_matrix(data)
+        if type(data) is int:
+            self.array = np.zeros(2**data)
+            self.array[fock] = 1
+            self.array = sp.bsr_matrix(self.array) 
+        else:
+            self.array = sp.bsr_matrix(data)
+        
+
+
         #print(self.array.shape)
         #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
         #Causes errors, commented out for now
