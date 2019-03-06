@@ -65,6 +65,10 @@ class QMatrix:
         #returns array for plotting; not of type Qubit so works properly
         return self.array
 
+    def ret_mod(self):
+        #Returns modulus squared of array i.e. Qubit register probabilities
+        return np.abs(np.square(self.array))
+
 #------------------------------------------------------
 #---some gates and qubits under QMatrix parent class.
 #------------------------------------------------------
