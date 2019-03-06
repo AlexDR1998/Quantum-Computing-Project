@@ -7,7 +7,7 @@ from sparse import *
 
 def main():
     # --- Number of qubits and Target Fock value ---
-    n = int(input('How many qubits? '))
+    n = int(input('\nHow many qubits? '))
     assert type(n) == int, "n must be an integer greater than or equal to 2"
     assert n >= 2, "n must be an integer greater than or equal to 2"
     N = 2**n
@@ -19,25 +19,20 @@ def main():
     # --- Timer Initialise ---
     t1 = t.time()
 
-    # --- Initialised qubits ---
-    q0 = Qubit([1, 0])
-    q1 = Qubit([0, 1])
-
     # --- Initialised gates ---
+    print('\nInitialising gates...')
     I = Identity()
     H = Hadamard(n)   #hadamard all
     X = PauliX(n)   #paulix all
     x = PauliX()
     z = PauliZ()
     cZ = Controlled(z, n)   #controlled z all
+    print('Gate initialisation took ' + str(t.time()-t1) + ' s')
 
     # --- Qreg formation ---
     print('\nForming quantum register...')
     t2 = t.time()
-    q = q0&q0
-    if n > 2:
-        for i in range(n-2):
-            q = q0&q
+    q = Qubit(n)
     print('Quantum register formation took ' + str(t.time()-t2) + ' s')
 
     # --- Number of Iterations calculation ---
