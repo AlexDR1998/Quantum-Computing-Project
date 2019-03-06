@@ -99,6 +99,14 @@ def main():
     t6 = t.time()
     print(t6-t5)
 
+<<<<<<< HEAD
+
+
+
+
+
+=======
+>>>>>>> 5db1831f69580965df4f491fdbce321901376fac
     print('\nThe binary value of the ouput is ' + str(q.split_register()))
     #totalt = t.time() - init
     print("\nTotal time:")
