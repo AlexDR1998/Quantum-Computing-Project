@@ -16,6 +16,7 @@ def Hist(qreg):
 
 
 def Graph(qreg):
+
 	x = range(len(qreg))
 	plt.plot(x,qreg)
 	plt.show()
