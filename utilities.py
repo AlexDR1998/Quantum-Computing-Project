@@ -3,8 +3,8 @@ import scipy as scp
 import time
 import cmath
 from scipy import sparse as sp
-from lazyarray import larray
-from lazyarray import matmul
+#from lazyarray import larray
+#from lazyarray import matmul
 """
 A file for storing various mathematical helper functions that could be used in various places.
  - AR
@@ -18,23 +18,23 @@ def lazy_mul(b,a):
 	b1 = b.shape[1]
 	outdim = (a0,b1)
 
-	
+
 	#Calculate output matrix
 	def mul(i,j):
 		n=0
 		element = 0
 		for n in range( outdim[0]):
 			element += (a[i,n]*b[n,j])
-		return element	
-	
+		return element
+
 	output = larray(mul,shape=outdim)
-	
+
 	if output.shape[0]==1:
 		output = output[0]
 	return(output)
 
 def tensor(b,a):
-	
+
 	"""
 	Function that takes the tensor product of 2 matrices or vectors.
 	Behaves identically to np.kron()
@@ -51,23 +51,23 @@ def tensor(b,a):
 	b0 = b.shape[0]
 	b1 = b.shape[1]
 	outdim = (a0*b0,a1*b1)
-	
+
 	#Initialise output matrix with zeros
 	output = np.zeros(outdim,dtype=complex)
-	
+
 	#Calculate output matrix
 	for x in range(outdim[0]):
 		for y in range(outdim[1]):
 			output[x,y] = a[x%a0,y%a1]*b[x//a0,y//a1]
-	
-	
+
+
 	#If output matrix is (1,n), then just convert to n vector
 	if output.shape[0]==1:
 		output = output[0]
 	return(output)
-	
+
 def tensor_lazy(b,a):
-	
+
 	"""
 	Function that takes the tensor product of 2 matrices or vectors.
 	Behaves identically to np.kron()
@@ -85,32 +85,32 @@ def tensor_lazy(b,a):
 	b1 = b.shape[1]
 	outdim = (a0*b0,a1*b1)
 
-	
+
 	#Calculate output matrix
 	def kron(i,j):
 		return a[i%a0,j%a1]*b[i//a0,j//a1]
-			
+
 	output = larray(kron,shape=outdim)
-	
+
 	#If output matrix is (1,n), then just convert to n vector
 	if output.shape[0]==1:
 		output = output[0]
 	return(output)
-	
+
 def tensor_sparse_gate(A,B):
-	
+
 	#return sp.kron(A,B)
 	#sp.kron and tensor_sparse give the same result
-	
+
 	# B is fairly dense, use BSR
 	A = sp.csc_matrix(A,copy=True)
-	
+
 	output_shape = (A.shape[0]*B.shape[0], A.shape[1]*B.shape[1])
 
 	if A.nnz == 0 or B.nnz == 0:
 	    # kronecker product is the zero matrix
 	    return sp.coo_matrix(output_shape)
-	
+
 	B = B.toarray()
 	data = A.data.repeat(B.size).reshape(-1,B.shape[0],B.shape[1])
 	data = data * B
@@ -119,7 +119,7 @@ def tensor_sparse_gate(A,B):
 
 
 def tensor_sparse_qubit(A,B):
-	
+
 	#For sparse qubits, probably just easier to convert to dense arrays.
 	#As 1D, gains made from sparse optimisations are minimal
 
@@ -130,14 +130,14 @@ def tensor_sparse_qubit(A,B):
 	a0 = a.shape[0]
 	b0 = b.shape[0]
 	outdim = (1,a0*b0)
-	
+
 	#Initialise output matrix with zeros
 	output = np.zeros(outdim,dtype=complex)
-	
+
 	#Calculate output matrix
 	for x in range(outdim[0]):
 		output[0,x] = a[x%a0]*b[x//a0]
-	
+
 	return(output)
 
 
@@ -169,4 +169,3 @@ def count_bits(n):
 		return 0
 	else:
 		return (n&1)+count_bits(n>>1)
-

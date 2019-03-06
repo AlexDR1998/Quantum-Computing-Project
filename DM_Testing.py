@@ -1,15 +1,16 @@
 import numpy as np
 import math as m
 import time as t
-from gatec import *
-#from sparse import *
+import InOut as IO
+#from gatec import *
+from sparse import *
 
 def main():
     t1 = t.time()
     print("\nInitialise things:")
     # --- Number of qubits and Target Fock value ---
-    n = 10
-    target = 4
+    n = 4
+    target = 15
     N = 2**n
 
     # --- Initialised qubits ---
@@ -60,11 +61,19 @@ def main():
             Search = I&Search
     t4 = t.time()
     print(t4-t3)
-    print("\nCalculate oracle and diffusion gates")
-    # --- Oracle and Diffusion Gate Calculation ---
-    Oracle = Search*cZ*Search
-    Diffusion = H*X*cZ*X*H
+    # print("\nCalculate oracle and diffusion gates")
+    # # --- Oracle and Diffusion Gate Calculation ---
+    # Oracle = Search*cZ*Search
+    # tcheck1 = t.time()
+    # tcheck = tcheck1 - t4
+    # print('Time for Orcacle calc '+str(tcheck))
+    # Diffusion = H*X*cZ*X*H
+    # tcheck2 = t.time()
+    # tcheck = tcheck2 - tcheck1
+    # print('Time for Diffusion calc '+str(tcheck))
 
+    IO.Display(Search)
+    IO.Display(cZ)
     # --- Initialising Superposition State ---
     q = H*q
 
@@ -73,18 +82,22 @@ def main():
     print(t5-t4)
     print("\nRun grover's")
     for i in range(its):
-        q = Oracle*q
-        q = Diffusion*q
+        tloop = t.time()
+        q = Search*q
+        q = cZ*q
+        q = Search*q
+
+        q = H*q
+        q = X*q
+        q = cZ*q
+        q = X*q
+        q = H*q
+        print('1 GI time: ' + str(t.time()-tloop))
 
     # --- Measure and Display ---
     q.measure()
     t6 = t.time()
     print(t6-t5)
-
-    
-
-
-
 
     print('\nThe binary value of the ouput is ' + str(q.split_register()))
     #totalt = t.time() - init
