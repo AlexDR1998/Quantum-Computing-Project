@@ -26,8 +26,8 @@ def main():
     x = PauliX()
 
     # --- HARDCODED VALUES; Adjust to I/O later ---
-    n = 10
-    target = 3
+    n = 2
+    target = 1
 
     # --- QReg size ---
     N = 2**n

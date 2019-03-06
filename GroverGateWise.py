@@ -5,12 +5,18 @@ from gatec import *
 #from sparse import *
 
 def main():
-    t1 = t.time()
-    print("\nInitialise things:")
     # --- Number of qubits and Target Fock value ---
-    n = 10
-    target = 4
+    n = int(input('How many qubits? '))
+    assert type(n) == int, "n must be an integer greater than or equal to 2"
+    assert n >= 2, "n must be an integer greater than or equal to 2"
     N = 2**n
+    target = int(input('What Fock space value would you like to find? '))
+    assert type(target) == int, "Target must be an integer greater than or equal to 2"
+    assert target >= 0, "Target must be an integer greater than or equal to 0"
+    assert target <= N-1, "Target must be an integer less than or equal to " + str(N-1)
+
+    # --- Timer Initialise ---
+    init = t.time()
 
     # --- Initialised qubits ---
     q0 = Qubit([1, 0])
@@ -23,10 +29,7 @@ def main():
     x = PauliX()
     z = PauliZ()
     cZ = Controlled(z, n)   #controlled z all
-    t2 = t.time()
 
-    print(t2-t1)
-    print("\nSome initial calculations")
     # --- Qreg formation ---
     q = q0&q0
     if n > 2:
@@ -41,9 +44,7 @@ def main():
     while len(B) != n:
         B = np.insert(B, 0, 0)
     Binaryform = B
-    t3 = t.time()
-    print(t3-t2)
-    print("\nBinary looping")
+
     # --- Oracle PauliX application dependent on Fock Target ---
     #Initialise
     i = Binaryform[n-1]
@@ -58,9 +59,7 @@ def main():
             Search = x&Search
         elif Binaryform[i] == 1:
             Search = I&Search
-    t4 = t.time()
-    print(t4-t3)
-    print("\nCalculate oracle and diffusion gates")
+
     # --- Oracle and Diffusion Gate Calculation ---
     Oracle = Search*cZ*Search
     Diffusion = H*X*cZ*X*H
@@ -69,27 +68,16 @@ def main():
     q = H*q
 
     # --- Grover's Iteration ---
-    t5 = t.time()
-    print(t5-t4)
-    print("\nRun grover's")
     for i in range(its):
         q = Oracle*q
         q = Diffusion*q
 
     # --- Measure and Display ---
     q.measure()
-    t6 = t.time()
-    print(t6-t5)
-
-    
-
-
-
-
-    print('\nThe binary value of the ouput is ' + str(q.split_register()))
-    #totalt = t.time() - init
-    print("\nTotal time:")
-    print(t6-t1)
-    #print('This took '+str(totalt)+' s to run')
+    print('The state of the ouput(in binary) is |' + str(q.split_register()) + '>')
+    print('The target state(in binary) was |' + str(bin(target)[2:]) + '>')
+    print('In Fock space this is |' + str(target) + '>')
+    totalt = t.time() - init
+    print('This took '+str(totalt)+' s to run')
 
 main()
