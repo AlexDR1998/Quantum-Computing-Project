@@ -5,7 +5,8 @@ from gatec import *
 #from sparse import *
 
 def main():
-    init = t.time()
+    t1 = t.time()
+    print("\nInitialise things:")
     # --- Number of qubits and Target Fock value ---
     n = 10
     target = 4
@@ -22,7 +23,10 @@ def main():
     x = PauliX()
     z = PauliZ()
     cZ = Controlled(z, n)   #controlled z all
+    t2 = t.time()
 
+    print(t2-t1)
+    print("\nSome initial calculations")
     # --- Qreg formation ---
     q = q0&q0
     if n > 2:
@@ -37,7 +41,9 @@ def main():
     while len(B) != n:
         B = np.insert(B, 0, 0)
     Binaryform = B
-
+    t3 = t.time()
+    print(t3-t2)
+    print("\nBinary looping")
     # --- Oracle PauliX application dependent on Fock Target ---
     #Initialise
     i = Binaryform[n-1]
@@ -52,7 +58,9 @@ def main():
             Search = x&Search
         elif Binaryform[i] == 1:
             Search = I&Search
-
+    t4 = t.time()
+    print(t4-t3)
+    print("\nCalculate oracle and diffusion gates")
     # --- Oracle and Diffusion Gate Calculation ---
     Oracle = Search*cZ*Search
     Diffusion = H*X*cZ*X*H
@@ -61,14 +69,25 @@ def main():
     q = H*q
 
     # --- Grover's Iteration ---
+    t5 = t.time()
+    print(t5-t4)
+    print("\nRun grover's")
     for i in range(its):
         q = Oracle*q
         q = Diffusion*q
 
     # --- Measure and Display ---
     q.measure()
-    print('The binary value of the ouput is ' + str(q.split_register()))
-    totalt = t.time() - init
-    print('This took '+str(totalt)+' s to run')
+    t6 = t.time()
+    print(t6-t5)
+
+    
+
+
+
+
+    print('\nThe binary value of the ouput is ' + str(q.split_register()))
+    #totalt = t.time() - init
+    #print('This took '+str(totalt)+' s to run')
 
 main()
