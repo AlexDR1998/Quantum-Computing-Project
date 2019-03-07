@@ -68,7 +68,7 @@ class SMatrix:
             #return Qubit(sp.kron(self.array,other.array))
     def ret(self):
         #returns array for plotting; not of type Qubit so works properly
-        return self.array.toarray()[0]
+        return self.array.toarray()
 
     def ret_mod(self):
         #Returns modulus squared of array i.e. Qubit register probabilities
