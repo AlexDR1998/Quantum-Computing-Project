@@ -2,8 +2,12 @@ import numpy as np
 import math as m
 import time as t
 import InOut as IO
-#import gatec
-import sparse
+#from gatec import *
+from sparse import *
+
+def numits(n):
+    its = int((m.pi/4.0)*(2**n)**(1/2))
+    return its
 
 def findBinary(n, target):
     print('\nConverting Fock value to binary array...')
@@ -88,12 +92,12 @@ def main():
     print('Quantum register formation took ' + str(t.time()-t2) + ' s')
 
     # --- Number of Iterations calculation ---
-    its = int((m.pi/4.0)*(2**n)**(1/2))
+    its = numits(n)
 
     # --- Fock to Binary Array Conversion ---
     Binaryform = findBinary(n, target)
 
-    # --- Oracle PauliX application dependent on Fock Target ---
+    # --- Determining PauliX application to Qubits for Oracle ---
     Search = oracleX(n, Binaryform, x, I)
 
     # --- Create Superposition and Grover's Iteration ---
@@ -101,9 +105,7 @@ def main():
 
     # --- Measure and Display ---
     q.measure()
-    print('\nThe state of the ouput(in binary) is |' + str(q.split_register()) + '>')
-    print('The target state(in binary) was |' + str(bin(target)[2:]) + '>')
-    print('In Fock space this is |' + str(target) + '>')
+    IO.printOut(q, target)
     print('\nThis took '+str(t.time()-t1)+' s to run\n')
 
 main()
