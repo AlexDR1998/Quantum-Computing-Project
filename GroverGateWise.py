@@ -53,8 +53,6 @@ def grover(q, Search, cZ, H, X, its):
     print('\nBeginning Grovers Iteration...')
     ti = t.time()
     for i in range(its):
-        print("Search is " + str(Search))
-        print("of type: " + str(type(Search)))
         q = Search*q
         q = cZ*q
         q = Search*q
@@ -96,7 +94,7 @@ def main():
     print('Quantum register formation took ' + str(t.time()-t2) + ' s')
 
     # --- Number of Iterations calculation ---
-    its = its(n)
+    its = numits(n)
 
     # --- Fock to Binary Array Conversion ---
     Binaryform = findBinary(n, target)
