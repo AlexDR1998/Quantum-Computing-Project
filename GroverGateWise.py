@@ -5,16 +5,68 @@ import InOut as IO
 #from gatec import *
 from sparse import *
 
+def findBinary(n, target):
+    print('\nConverting Fock value to binary array...')
+    ti = t.time()
+    B = [int(x) for x in bin(target)[2:]]
+    while len(B) != n:
+        B = np.insert(B, 0, 0)
+    Binaryform = B
+    print('Binary array was formed in ' + str(t.time()-ti) + ' s')
+
+    return Binaryform
+
+def oracleX(n, Binaryform, x, I):
+    print('\nAssigning PauliX gates to qubits for Oracle search...')
+    ti = t.time()
+    #Initialise
+    i = Binaryform[n-1]
+    if i == 0:
+        Search = x
+    elif i == 1:
+        Search = I
+
+    #Loop for rest of binary value
+    for i in range(n-2, -1, -1):
+        if Binaryform[i] == 0:
+            Search = x&Search
+        elif Binaryform[i] == 1:
+            Search = I&Search
+    print('Assigning the PauliX gates took ' +str(t.time() - ti) + ' s')
+
+    return Search
+
+def grover(q, Search, cZ, H, X, its):
+    #Create Superposition of states
+    print('\nCreating superposition state...')
+    t1 = t.time()
+    q = H*q
+    print('Creating superposition state took ' + str(t.time()-t1) + ' s')
+
+    #Grover's Iteration
+    print('\nBeginning Grovers Iteration...')
+    ti = t.time()
+    for i in range(its):
+        q = Search*q
+        q = cZ*q
+        q = Search*q
+
+        q = H*q
+        q = X*q
+        q = cZ*q
+        q = X*q
+        q = H*q
+        if i == 0:
+            print('One Grover iteration took ' + str(t.time()-ti) + ' s')
+    print('All of Grovers iteration took ' + str(t.time()-ti) + ' s')
+
+    return q
+
 def main():
-    # --- Number of qubits and Target Fock value ---
-    n = int(input('\nHow many qubits? '))
-    assert type(n) == int, "n must be an integer greater than or equal to 2"
-    assert n >= 2, "n must be an integer greater than or equal to 2"
-    N = 2**n
-    target = int(input('What Fock space value would you like to find? '))
-    assert type(target) == int, "Target must be an integer greater than or equal to 2"
-    assert target >= 0, "Target must be an integer greater than or equal to 0"
-    assert target <= N-1, "Target must be an integer less than or equal to " + str(N-1)
+    # --- How to run ---
+    io = IO.start()
+    n = io[0]
+    target = io[1]
 
     # --- Timer Initialise ---
     t1 = t.time()
@@ -36,57 +88,16 @@ def main():
     print('Quantum register formation took ' + str(t.time()-t2) + ' s')
 
     # --- Number of Iterations calculation ---
-    its = int((m.pi/4.0)*(N)**(1/2))
+    its = int((m.pi/4.0)*(2**n)**(1/2))
 
     # --- Fock to Binary Array Conversion ---
-    print('\nConverting Fock value to binary array...')
-    t3 = t.time()
-    B = [int(x) for x in bin(target)[2:]]
-    while len(B) != n:
-        B = np.insert(B, 0, 0)
-    Binaryform = B
-    print('Binary array was formed in ' + str(t.time()-t3) + ' s')
+    Binaryform = findBinary(n, target)
 
     # --- Oracle PauliX application dependent on Fock Target ---
-    print('\nAssigning PauliX gates to qubits for Oracle search...')
-    t4 = t.time()
-    #Initialise
-    i = Binaryform[n-1]
-    if i == 0:
-        Search = x
-    elif i == 1:
-        Search = I
+    Search = oracleX(n, Binaryform, x, I)
 
-    #Loop for rest of binary value
-    for i in range(n-2, -1, -1):
-        if Binaryform[i] == 0:
-            Search = x&Search
-        elif Binaryform[i] == 1:
-            Search = I&Search
-    print('Assigning the PauliX gates took ' +str(t.time() - t4) + ' s')
-
-    # --- Initialising Superposition State ---
-    print('\nCreating superposition state...')
-    t5 = t.time()
-    q = H*q
-    print('Creating superposition state took ' + str(t.time()-t5) + ' s')
-
-    # --- Grover's Iteration ---
-    print('\nBeginning Grovers Iteration...')
-    t6 = t.time()
-    for i in range(its):
-        q = Search*q
-        q = cZ*q
-        q = Search*q
-
-        q = H*q
-        q = X*q
-        q = cZ*q
-        q = X*q
-        q = H*q
-        if i == 0:
-            print('One Grover iteration took ' + str(t.time()-t6) + ' s')
-    print('All of Grovers iteration took ' + str(t.time()-t6) + ' s')
+    # --- Create Superposition and Grover's Iteration ---
+    q = grover(q, Search, cZ, H, X, its)
 
     # --- Measure and Display ---
     q.measure()
