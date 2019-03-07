@@ -7,18 +7,20 @@ import math as m
 import matplotlib.pyplot as plt
 import matplotlib
 import random as ran
-from gatec import *
+import sys
+#from gatec import *
+from sparse import *
 
 #================================   INPUT   ===================================#
 
 def start():
     print('The following methods available for Grovers are:')
-    print('input - Enter the number of qubits and target value')
-    print('random - Enter the number of qubits and generate a random fock value')
-    print('test12 - auto start with 12 qubits for fock 12')
-    print('test11 - auto start with 11 qubits for fock 11')
-    print('test4 - auto start with 4 qubits for fock 4')
-    method = input('Which method would you like: ')
+    print('input - Enter the number of qubits and target value(in Fock space)')
+    print('random - Enter the number of qubits and generate a random Fock space value')
+    print('test12 - auto start with 12 qubits searching for |12>')
+    print('test11 - auto start with 11 qubits searching for |11>')
+    print('test4 - auto start with 4 qubits searching for |4>')
+    method = input('Enter the method would you like: ')
     if method == 'input':
         io = enterVal()
     elif method == 'random':
@@ -31,11 +33,12 @@ def start():
         io = [4, 4]
     else:
         print('Not a valid option')
+        sys.exit()
 
     return io
 
 def enterVal():
-    n = int(input('\nHow many qubits? '))
+    n = int(input('\nEnter the number of qubits? '))
     assert type(n) == int, "n must be an integer greater than or equal to 2"
     assert n >= 2, "n must be an integer greater than or equal to 2"
     N = 2**n
@@ -49,7 +52,7 @@ def enterVal():
     return io
 
 def randVal():
-    n = int(input('\nHow many qubits? '))
+    n = int(input('\nEnter the number of qubits? '))
     assert type(n) == int, "n must be an integer greater than or equal to 2"
     assert n >= 2, "n must be an integer greater than or equal to 2"
     N = 2**n
@@ -60,14 +63,17 @@ def randVal():
 
 #===============================   OUTPUT   ===================================#
 
+def printOut(q, target):
+    print('\nThe state of the ouput(in binary) is |' + str(q.split_register()) + '>')
+    print('The target state(in binary) was |' + str(bin(target)[2:]) + '>')
+    print('In Fock space this is |' + str(target) + '>')
+
 def Hist(qreg):
     x = range(len(qreg.ret_mod()))
     plt.bar(x,qreg.ret_mod())
     plt.show()
 
-
 def Graph(qreg):
-
 	x = range(len(qreg.ret_mod()))
 	plt.plot(x,qreg.ret_mod())
 	plt.show()

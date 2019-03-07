@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import stats
-from scipy import sparse as sp
+#from scipy import sparse as sp
 import lazyarray
 from lazyarray import larray
 from lazyarray import matmul
@@ -46,6 +46,9 @@ class LMatrix:
         else:
             assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
             #assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
+            print(type(other.array))
+            print(other.array)
+
             return Qubit(lazy_mul(other.array,self.array))
         
        
@@ -82,6 +85,7 @@ class Hadamard(LMatrix):
         hn = h
         for i in range(n-1):
             hn = tensor_lazy(h,hn)
+            print (type(hn))
         hn = hn*(2**(-0.5*n))
         self.array = larray(hn)
 
@@ -111,7 +115,7 @@ class Phase(LMatrix):
 class Identity(LMatrix):
     def __init__(self,n=1):
         LMatrix.__init__(self,"Gate")
-        self.array = larray(sp.identity(2**n))
+        self.array = larray(np.identity(2**n))
 
 
 class PauliX(LMatrix):
@@ -191,7 +195,7 @@ class Gate(LMatrix):
     def __init__(self,data):
         LMatrix.__init__(self,"Gate")
         #assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
-        self.array = larray(data)
+        self.array = data
 
 class Controlled(LMatrix):
     #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
@@ -208,17 +212,17 @@ class Controlled(LMatrix):
 
 class Qubit(LMatrix):
     #Class for Qubit
-    def __init__(self,data):
+    def __init__(self,data,fock=0):
         LMatrix.__init__(self,"Qubit")
-        #assert (len(data)&(len(data)-1)==0),"Qubit register length must be a power of 2"
-        self.array = larray(data)
-        #print(self.array.shape)
-        #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
-        #Causes errors, commented out for now
-        #if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
-        #    pass
-        #else:
-        #    self.normalise()
+        if type(data) is int:
+            self.array = np.zeros(2**data)
+            self.array[fock] = 1
+            self.array = [self.array]
+            self.array = larray(self.array)
+        else:
+            self.array = data
+
+
 
     def normalise(self):
         div = np.sqrt(np.sum(np.square(self.array)))

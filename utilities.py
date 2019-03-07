@@ -2,8 +2,7 @@ import numpy as np
 import scipy as scp
 import time
 import cmath
-from scipy import sparse as sp
-#from lazyarray import larray
+from lazyarray import larray
 #from lazyarray import matmul
 """
 A file for storing various mathematical helper functions that could be used in various places.
@@ -12,6 +11,7 @@ A file for storing various mathematical helper functions that could be used in v
 
 def lazy_mul(b,a):
 	#Dimension of output
+	print(b.shape)
 	a0 = a.shape[0]
 	a1 = a.shape[1]
 	b0 = b.shape[0]
@@ -29,9 +29,6 @@ def lazy_mul(b,a):
 
 	output = larray(mul,shape=outdim)
 
-	if output.shape[0]==1:
-		output = output[0]
-	return(output)
 
 def tensor(b,a):
 
@@ -39,13 +36,8 @@ def tensor(b,a):
 	Function that takes the tensor product of 2 matrices or vectors.
 	Behaves identically to np.kron()
 	"""
-	#Convert any input vectors to (1,n) matrices
-	if (len(a.shape)==1):
-		a = np.array([a])
-	if (len(b.shape)==1):
-		b = np.array([b])
-
 	#Dimension of output
+	
 	a0 = a.shape[0]
 	a1 = a.shape[1]
 	b0 = b.shape[0]
@@ -62,9 +54,6 @@ def tensor(b,a):
 
 
 	#If output matrix is (1,n), then just convert to n vector
-	if output.shape[0]==1:
-		output = output[0]
-	return(output)
 
 def tensor_lazy(b,a):
 
@@ -73,12 +62,9 @@ def tensor_lazy(b,a):
 	Behaves identically to np.kron()
 	"""
 	#Convert any input vectors to (1,n) matrices
-	if (len(a.shape)==1):
-		a = np.array([a])
-	if (len(b.shape)==1):
-		b = np.array([b])
-
 	#Dimension of output
+	print(b.shape)
+
 	a0 = a.shape[0]
 	a1 = a.shape[1]
 	b0 = b.shape[0]
@@ -91,11 +77,8 @@ def tensor_lazy(b,a):
 		return a[i%a0,j%a1]*b[i//a0,j//a1]
 
 	output = larray(kron,shape=outdim)
-
+	return output
 	#If output matrix is (1,n), then just convert to n vector
-	if output.shape[0]==1:
-		output = output[0]
-	return(output)
 
 def tensor_sparse_gate(A,B):
 
