@@ -30,6 +30,9 @@ def lazy_mul(b,a):
 	output = larray(mul,shape=outdim)
 
 
+
+
+
 def tensor(b,a):
 
 	"""
@@ -52,8 +55,19 @@ def tensor(b,a):
 		for y in range(outdim[1]):
 			output[x,y] = a[x%a0,y%a1]*b[x//a0,y//a1]
 
-
+	return output
 	#If output matrix is (1,n), then just convert to n vector
+
+
+
+
+
+
+
+
+
+
+
 
 def tensor_lazy(b,a):
 

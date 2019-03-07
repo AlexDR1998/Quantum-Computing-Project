@@ -135,7 +135,7 @@ def modexp(b,e,N,qubits):
 			t = b*t
 		return t%N
 
-	return 
+	return _modexp(b,e,N)
 
 def continued_fraction(y, Q, N):
 	#Not 100% sure what this does
@@ -214,7 +214,7 @@ def main():
 	#plt.show()
 	#29  17  493
 
-	f = np.vectorize(lambda x:modexp(23,x,493))
+	f = np.vectorize(lambda x:modexp(23,x,493,8))
 	
 	xs = np.arange(0,256,1)
 	qreg = f(xs)/np.sum(xs).astype(float)
