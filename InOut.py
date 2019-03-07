@@ -61,15 +61,15 @@ def randVal():
 #===============================   OUTPUT   ===================================#
 
 def Hist(qreg):
-    x = range(len(qreg))
-    plt.bar(x,qreg)
+    x = range(len(qreg.ret_mod()))
+    plt.bar(x,qreg.ret_mod())
     plt.show()
 
 
 def Graph(qreg):
 
-	x = range(len(qreg))
-	plt.plot(x,qreg)
+	x = range(len(qreg.ret_mod()))
+	plt.plot(x,qreg.ret_mod())
 	plt.show()
 
 
