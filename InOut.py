@@ -7,6 +7,7 @@ import math as m
 import matplotlib.pyplot as plt
 import matplotlib
 import random as ran
+import sys
 from gatec import *
 
 #================================   INPUT   ===================================#
@@ -31,6 +32,7 @@ def start():
         io = [4, 4]
     else:
         print('Not a valid option')
+        sys.exit()
 
     return io
 

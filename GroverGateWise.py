@@ -2,8 +2,8 @@ import numpy as np
 import math as m
 import time as t
 import InOut as IO
-#from gatec import *
-from sparse import *
+import gatec as d
+import sparse as s
 
 def findBinary(n, target):
     print('\nConverting Fock value to binary array...')
@@ -73,18 +73,18 @@ def main():
 
     # --- Initialised gates ---
     print('\nInitialising gates...')
-    I = Identity()
-    H = Hadamard(n)   #hadamard all
-    X = PauliX(n)   #paulix all
-    x = PauliX()
-    z = PauliZ()
-    cZ = Controlled(z, n)   #controlled z all
+    I = d.Identity()
+    H = d.Hadamard(n)   #hadamard all
+    X = d.PauliX(n)   #paulix all
+    x = d.PauliX()
+    z = d.PauliZ()
+    cZ = d.Controlled(z, n)   #controlled z all
     print('Gate initialisation took ' + str(t.time()-t1) + ' s')
 
     # --- Qreg formation ---
     print('\nForming quantum register...')
     t2 = t.time()
-    q = Qubit(n)
+    q = d.Qubit(n)
     print('Quantum register formation took ' + str(t.time()-t2) + ' s')
 
     # --- Number of Iterations calculation ---
