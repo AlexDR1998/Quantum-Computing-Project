@@ -3,6 +3,7 @@ from gatec import *
 #from sparse import *
 import InOut as IO
 import time
+import matplotlib.pyplot as plt
 
 #Code to implement Shor's algorithm for polynomial time factoring of numbers.
 #Broken up into various subroutines (some quantum some classical)
@@ -21,14 +22,24 @@ def Flip(n):
 
 def R(n):
 	#Helper function for QFT()
-	return CPhase(np.pi*2/(2**n))
+	return CPhase(-np.pi*2/(2.0**n))
+
+
+def H(n=1):
+	return Hadamard(n)
+
+def I(n=1):
+	return Identity(n)
+
+
+
 
 def HardQFT3():
 	#Hard coded 3 qubit qft for testing against
-	I = Identity()
-	H = Hadamard()
-	return (H&Identity(2))*(R(2)&I)*(I&H&I)*(Swap(3,0,1)*(I&R(3))*Swap(3,0,1))*(I&R(2))*(Identity(2)&H)*Swap(3,0,2)
+	return (H()&I(2))*(R(2)&I())*(I()&H()&I())*(Swap(3,0,1)*(I()&R(3))*Swap(3,0,1))*(I()&R(2))*(I(2)&H())*Swap(3,0,2)
 
+
+"""
 def HarderQFT3():
 	w = np.sqrt(1j)
 	w3 = w**3
@@ -43,32 +54,39 @@ def HarderQFT3():
 				 		   	  [1,-1j,-1,1j,1,-1j,-1,1j,1],
 				 		   	  [1,w7,-1j,w5,-1,w3,1j,w]]))
 
+"""
+
+
+
 def HardQFT2():
 	#Hard coded 2 Qubit qft
-	I = Identity()
-	H = Hadamard()
-	return (H&I)*R(2)*(I&H)*Swap(2,0,1)
+	return (H()&I())*R(2)*(I()&H())*Swap(2,0,1)
 
 
-def QFT(n):
+def QFT(N):
+
+
 
 	def _QFT(n):
 		#Method to return gate for n qubit fourier transform
 		#Probably best to do recursively
+		print(n)
 		if n==2:
 			#return ((Identity()&Hadamard())*(R(2))*(Hadamard()&Identity()))
-			return ((Hadamard()&Identity())*(R(2))*(Identity()&Hadamard()))
+			return ((H()&I())*(R(2))*(I()&H()))#*Swap(2,0,1))
 
 		else:
-			g1 = _QFT(n-1)&Identity()
-			g2 = Identity(n)
+			g1 = _QFT(n-1)&I()
+			g2 = I(n)
+			print(range(n-2))
+			
 			for i in range(n-2):
 				#print(n-i)
-				g2 = g2*Swap(n,i,n-1)*(Identity(n-2)&R(n-i))*Swap(n,i,n-1)
+				g2 = g2*Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)
 			#IO.Display(g2)
-			g3 = (Identity(n-2)&R(2))*(Identity(n-1)&Hadamard())
+			g3 = (I(n-2)&R(2))*(I(n-1)&H())
 			return (g1*g2*g3)
-	return _QFT(n)*Flip(n)
+	return _QFT(N)#*Flip(N)
 
 
 def iQFT(n):
@@ -76,17 +94,17 @@ def iQFT(n):
 		#Inverse fourier transform
 		if n==2:
 			#return ((Hadamard()&Identity())*(R(2))*(Identity()&Hadamard()))
-			return ((Identity()&Hadamard())*(R(2))*(Hadamard()&Identity()))
+			return ((I()&H())*(R(2))*(H()&I()))
 		else:
-			g1 = _iQFT(n-1)&Identity()
-			g2 = Identity(n)
+			g1 = _iQFT(n-1)&I()
+			g2 = I(n)
 			for i in range(n-2):
 				#print(n-i)
-				g2 = Swap(n,i,n-1)*(Identity(n-2)&R(n-i))*Swap(n,i,n-1)*g2
+				g2 = Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)*g2
 
-			g3 = (Identity(n-1)&Hadamard())*(Identity(n-2)&R(2))
+			g3 = (I(n-1)&H())*(I(n-2)&R(2))
 			return (g3*g2*g1)
-	return Flip(n)*_iQFT(n)
+	return _iQFT(n)
 
 
 def GCD(x,y):
@@ -165,22 +183,31 @@ def main():
 	#shor(15)
 	#print(extendedGCD(416,93))
 	#print(continued_fraction(1,93,416))
-	#q1 = Qubit(3)
+	q1 = Qubit(8)
 	#print(q1.ret_mod())
-	#q = (Hadamard()&Identity(2))*q1
-	#IO.Hist(q)
+	q = (Hadamard(2)&Identity()&Hadamard(2)&Identity(3))*q1
+	
+	IO.Hist(q)
 	
 	#print(q1)
 	#print(q2)
-	ft = QFT(3)
-	ift = iQFT(3)
-	ft2 = HardQFT3()
+	ft = QFT(8)
+	ift = iQFT(8)
+	#ift = iQFT(4)
+	#ft2 = HardQFT3()
 	#ift = iQFT(3)
-	IO.Display(ft)
-	IO.Display(ft2)
-	IO.Display(ift)
-	IO.Display(ift*ft)
-	#IO.Hist(ft*q)
+	IO.Display(ft*ft*ft*ft)
+	#IO.Display(ft2)
+	#IO.Display(ift)
+	#IO.Display(ft*ft*ift*ift)
+	
+	#print(ft.ret()-ft2.ret())
+	#plt.matshow((ft.ret()-ift.ret()).real)
+	#plt.show()
+
+	#plt.matshow((ft.ret()-ift.ret()).imag)
+	#plt.show()
+	IO.Hist(ft*q)
 	#IO.Display(Swap(4,0,3)*Swap(4,1,2))#*Swap(5,1,3))
 	#IO.Display(Flip(8))
 	#IO.Graph(ft*q)

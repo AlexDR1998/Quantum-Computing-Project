@@ -145,8 +145,12 @@ def tensor_sparse_qubit(A,B):
 
 def perm_matrix(n,index1,index2):
 	#generates a permutation matrix from a list of pairs of numbers to swap
+	
+
 	assert index1!=index2, "Cant swap qubit with itself"
 	assert (index1<n) and (index2<n), "Cant swap qubits beyond size of gate"
+	index1 = n-index1-1
+	index2 = n-index2-1
 	b = 2**index1 + 2**index2
 
 	swaps = []
