@@ -47,13 +47,23 @@ def grover(q, Search, cZ, H, X, its):
     q = H*q
     print('Creating superposition state took ' + str(t.time()-t1) + ' s')
     #Grover's Iteration
+    #print(q)
+    Oracle = (Search*cZ*Search)
+    Diffusion = (X*cZ*X)
     print('\nBeginning Grovers Iteration...')
     ti = t.time()
     for i in range(its):
         #q = (Search&cZ&Search&H&X&cZ&X&H)*q
-        print((q))
-        print("Search")
-        q = Search*q
+        print("1 " + str(q))
+        q = Oracle*q
+        print("2 " + str(q))
+        q = H*q
+        print("3 " + str(q))
+        q = Diffusion*q
+        print("4 " + str(q))
+        q = H*q
+        
+        
         #THIS IS THE PART WHERE PRINTING /EVAL STOPS WORKING
         #print(type(q))
         print(q)

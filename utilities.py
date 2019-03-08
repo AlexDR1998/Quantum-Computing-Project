@@ -30,7 +30,8 @@ def lazy_qub_mul(b,a):
 		def k(i,j):
 			return j
 		lis = larray(k,shape = (1,b1))
-		elem = sum(map(lambda n: b[i][n]*a[0][n],lis))
+		print (lis.evaluate())
+		elem = sum(map(lambda n: b[i][n]*a[0][n],lis[0]))
 		#elem = 0
 		#
 		#for n in range(b1):

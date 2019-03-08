@@ -14,8 +14,8 @@ def main():
     print(h)
     print(q)
     t1 = time.time()
-    gate = 
-    a = gate*q
+    #gate = 
+    a = h*q
     
     print(a)
     t2 = time.time()
