@@ -27,13 +27,18 @@ def lazy_qub_mul(b,a):
 	 #(b[row][n]*a[0][n]) for row in range(outdim[0])
 	#Calculate output matrix
 	def mul(i,j):
-		elem = 0
-		for n in range(b1):
+		def k(i,j):
+			return j
+		lis = larray(k,shape = (1,b1))
+		elem = sum(map(lambda n: b[i][n]*a[0][n],lis))
+		#elem = 0
+		#
+		#for n in range(b1):
 			#print(b[i])
-			#print(a[0])
+		#	print(a[0])
 			#print("bboo")
-			elem += b[i][n]*a[0][n]
-		print (elem)
+		#	elem += b[i][n]*a[0][n]
+		#print (elem)
 			
 		return elem
 	##	print("i is: " + str(i))

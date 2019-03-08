@@ -50,13 +50,13 @@ def grover(q, Search, cZ, H, X, its):
     print('\nBeginning Grovers Iteration...')
     ti = t.time()
     for i in range(its):
-        q = (Search&cZ&Search&H&X&cZ&X&H)*q
-       # print((q))
-        #print("Search")
-        #q = Search*q
+        #q = (Search&cZ&Search&H&X&cZ&X&H)*q
+        print((q))
+        print("Search")
+        q = Search*q
         #THIS IS THE PART WHERE PRINTING /EVAL STOPS WORKING
         #print(type(q))
-        #print(q)
+        print(q)
        # print("cz")
         #q = cZ*q
         #print("Search")
