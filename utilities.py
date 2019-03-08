@@ -17,8 +17,8 @@ def lazy_qub_mul(b,a):
 	b1 = b.shape[1]
 	outdim = (a0,b1)
 	output = np.zeros(outdim)
-	print(b.evaluate())
-	print(a.evaluate())
+	#print(b.evaluate())
+	#print(a.evaluate())
 	#for row in range(outdim[0]):
 	#	for col in range(outdim[1]):
 	#		for n in range(b1):
@@ -30,7 +30,7 @@ def lazy_qub_mul(b,a):
 		def k(i,j):
 			return j
 		lis = larray(k,shape = (1,b1))
-		print (lis.evaluate())
+		#print (lis.evaluate())
 		elem = sum(map(lambda n: b[i][n]*a[0][n],lis[0]))
 		#elem = 0
 		#
@@ -52,7 +52,9 @@ def lazy_qub_mul(b,a):
 #			element += (b[j,n]*a[0,i])
 		#return element
 	output = larray(mul,shape = outdim)
-	#print (output.evaluate())
+	print("HEY")
+	output = larray([output])
+	print (output.evaluate())
 	return output
 
 

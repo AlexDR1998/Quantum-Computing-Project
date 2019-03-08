@@ -21,7 +21,9 @@ class LMatrix:
         self.type = str(typ) #Differentiates between Qubits and Gates
         
     def __mul__(self,other):
-
+        print(self.array)
+        print(other.array)
+        print(other.array.evaluate())
         #magic method turning all * into matrix multiplication
 
         #multiplication order:
@@ -37,11 +39,11 @@ class LMatrix:
 
         elif (self.type=="Gate") and (other.type=="Gate"):
             assert self.array.shape==other.array.shape, "Gates must be of same size"
-            return Gate(lazy_mul(self.array,other.array))
+            return Gate(lazy_qub_mul(self.array,other.array))
 
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             assert self.array.shape==other.array.shape, "Qubit registers must have same size"
-            return Gate(lazy_mul(self.array,other.array))
+            return Gate(lazy_qub_mul(self.array,other.array))
 
         else:
             assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
