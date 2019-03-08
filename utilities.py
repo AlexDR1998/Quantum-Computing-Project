@@ -9,26 +9,45 @@ A file for storing various mathematical helper functions that could be used in v
  - AR
 """
 
-def lazy_mul(b,a):
+def lazy_qub_mul(b,a):
 	#Dimension of output
-	print(b.shape)
 	a0 = a.shape[0]
 	a1 = a.shape[1]
 	b0 = b.shape[0]
 	b1 = b.shape[1]
 	outdim = (a0,b1)
-
-
+	output = np.zeros(outdim)
+	print(b.evaluate())
+	print(a.evaluate())
+	#for row in range(outdim[0]):
+	#	for col in range(outdim[1]):
+	#		for n in range(b1):
+	#			output[0][col] += (b[row][n]*a[0][n])
+	#			
+	 #(b[row][n]*a[0][n]) for row in range(outdim[0])
 	#Calculate output matrix
 	def mul(i,j):
-		n=0
-		element = 0
-		for n in range( outdim[0]):
-			element += (a[i,n]*b[n,j])
-		return element
-
-	output = larray(mul,shape=outdim)
-
+		elem = 0
+		for n in range(b1):
+			#print(b[i])
+			#print(a[0])
+			#print("bboo")
+			elem += b[i][n]*a[0][n]
+		print (elem)
+			
+		return elem
+	##	print("i is: " + str(i))
+	#	print("j is: " + str(j))
+	#	element = 0
+	#	for n in range(outdim[1]):
+	#		print("i is: " + str(i))
+	#		print("j is: " + str(j))
+#
+#			element += (b[j,n]*a[0,i])
+		#return element
+	output = larray(mul,shape = outdim)
+	#print (output.evaluate())
+	return output
 
 
 
@@ -77,7 +96,6 @@ def tensor_lazy(b,a):
 	"""
 	#Convert any input vectors to (1,n) matrices
 	#Dimension of output
-	print(b.shape)
 
 	a0 = a.shape[0]
 	a1 = a.shape[1]
@@ -92,10 +110,33 @@ def tensor_lazy(b,a):
 
 	output = larray(kron,shape=outdim)
 	return output
-	#If output matrix is (1,n), then just convert to n vector
+
+def tensor_lazied(b,a):
+
+	"""
+	Function that takes the tensor product of 2 matrices or vectors.
+	Behaves identically to np.kron()
+	"""
+	#Convert any input vectors to (1,n) matrices
+	#Dimension of output
+
+	a0 = a.shape[0]
+	a1 = a.shape[1]
+	b0 = b.shape[0]
+	b1 = b.shape[1]
+	outdim = (a0*b0,a1*b1)
+
+
+	#Calculate output matrix
+	def kron(i,j):
+		return a[i%a0,j%a1]*b[i//a0,j//a1]
+
+	output = larray(kron,shape=outdim)
+	return output.evaluate()
+
 
 def tensor_sparse_gate(A,B):
-
+	from scipy import sparse as sp
 	#return sp.kron(A,B)
 	#sp.kron and tensor_sparse give the same result
 

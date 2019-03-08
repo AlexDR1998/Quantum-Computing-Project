@@ -2,9 +2,10 @@ import numpy as np
 import math as m
 import time as t
 #import InOut as IO
-#import gatec as d
-#import sparse as s
+#from gatec import *
+#from sparse import *
 from lazy import *
+#from lazzz import *
 
 def findBinary(n, target):
     print('\nConverting Fock value to binary array...')
@@ -41,26 +42,36 @@ def grover(q, Search, cZ, H, X, its):
     #Create Superposition of states
     print('\nCreating superposition state...')
     t1 = t.time()
-    print(H)
-    print(q)
+    #print(H)
+    #print(q)
     q = H*q
     print('Creating superposition state took ' + str(t.time()-t1) + ' s')
-
     #Grover's Iteration
     print('\nBeginning Grovers Iteration...')
     ti = t.time()
     for i in range(its):
-        print("Search is " + str(Search))
-        print("of type: " + str(type(Search)))
-        q = Search*q
-        q = cZ*q
-        q = Search*q
+        q = (Search&cZ&Search&H&X&cZ&X&H)*q
+       # print((q))
+        #print("Search")
+        #q = Search*q
+        #THIS IS THE PART WHERE PRINTING /EVAL STOPS WORKING
+        #print(type(q))
+        #print(q)
+       # print("cz")
+        #q = cZ*q
+        #print("Search")
+        #q = Search*q
+        #print("H")
+        #q = H*q
+        #print("X")
+        #q = X*q
+        #print("cz")
 
-        q = H*q
-        q = X*q
-        q = cZ*q
-        q = X*q
-        q = H*q
+
+        #q = cZ*q
+        #q = X*q
+        #q = H*q
+        #print(q)
         if i == 0:
             print('One Grover iteration took ' + str(t.time()-ti) + ' s')
     print('All of Grovers iteration took ' + str(t.time()-ti) + ' s')
@@ -96,19 +107,18 @@ def main():
     t2 = t.time()
     q = Qubit(n)
     print('Quantum register formation took ' + str(t.time()-t2) + ' s')
-    print(q)
+    #print(q)
     # --- Number of Iterations calculation ---
     its = int((m.pi/4.0)*(2**n)**(1/2))
 
     # --- Fock to Binary Array Conversion ---
     Binaryform = findBinary(n, target)
-    print(q)
+    #print(q)
     # --- Oracle PauliX application dependent on Fock Target ---
     Search = oracleX(n, Binaryform, x, I)
-    print(q)
+    #print(q)
     # --- Create Superposition and Grover's Iteration ---
     q = grover(q, Search, cZ, H, X, its)
-
     # --- Measure and Display ---
     q.measure()
     print('\nThe state of the ouput(in binary) is |' + str(q.split_register()) + '>')

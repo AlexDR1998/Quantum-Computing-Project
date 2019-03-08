@@ -46,10 +46,8 @@ class LMatrix:
         else:
             assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
             #assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
-            print(type(other.array))
-            print(other.array)
 
-            return Qubit(lazy_mul(other.array,self.array))
+            return Qubit(lazy_qub_mul(self.array,other.array))
         
        
 
@@ -85,7 +83,6 @@ class Hadamard(LMatrix):
         hn = h
         for i in range(n-1):
             hn = tensor_lazy(h,hn)
-            print (type(hn))
         hn = hn*(2**(-0.5*n))
         self.array = larray(hn)
 
@@ -208,7 +205,7 @@ class Controlled(LMatrix):
         self.array[2**n-1,2**n-2] = t[1,0]
         self.array[2**n-2,2**n-1] = t[0,1]
         self.array = larray(self.array)
-        print(self.array.evaluate())
+        #print(self.array.evaluate())
 
 class Qubit(LMatrix):
     #Class for Qubit
@@ -223,7 +220,6 @@ class Qubit(LMatrix):
             self.array = data
 
 
-
     def normalise(self):
         div = np.sqrt(np.sum(np.square(self.array)))
         a = np.empty(len(self.array))
@@ -232,7 +228,9 @@ class Qubit(LMatrix):
 
     def measure(self):
         #method to collapse qubit register into 1 state.
-        data = self.array.toarray()[0]
+        print (self.array.evaluate())
+        data = self.array.evaluate()
+        print(type(data))
         pos = np.arange(len(data))
         #print(pos)
         probs = np.abs(np.square(data))
