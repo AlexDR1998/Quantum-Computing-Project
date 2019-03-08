@@ -1,10 +1,10 @@
 import numpy as np
-from gatec import *
-#from sparse import *
+#from gatec import *
+from sparse import *
 import InOut as IO
 import time
 import matplotlib.pyplot as plt
-
+from fractions import Fraction
 #Code to implement Shor's algorithm for polynomial time factoring of numbers.
 #Broken up into various subroutines (some quantum some classical)
 
@@ -39,22 +39,6 @@ def HardQFT3():
 	return (H()&I(2))*(R(2)&I())*(I()&H()&I())*(Swap(3,0,1)*(I()&R(3))*Swap(3,0,1))*(I()&R(2))*(I(2)&H())*Swap(3,0,2)
 
 
-"""
-def HarderQFT3():
-	w = np.sqrt(1j)
-	w3 = w**3
-	w5 = w**5
-	w7 = w**7
-	return Gate(1/np.sqrt(8)*np.array([[1,1,1,1,1,1,1,1],
-				 		   	  [1,w,1j,w3,-1,w5,-1j,w7],
-				 		   	  [1,1j,-1,-1j,1,1j,-1,-1j],
-						   	  [1,w3,-1j,w,-1,w7,1j,w5],
-				 		   	  [1,-1,1,-1,1,-1,1,-1],
-				 		   	  [1,w5,1j,w7,-1,w,-1j,w**3],
-				 		   	  [1,-1j,-1,1j,1,-1j,-1,1j,1],
-				 		   	  [1,w7,-1j,w5,-1,w3,1j,w]]))
-
-"""
 
 
 
@@ -86,7 +70,7 @@ def QFT(N):
 			#IO.Display(g2)
 			g3 = (I(n-2)&R(2))*(I(n-1)&H())
 			return (g1*g2*g3)
-	return _QFT(N)*Flip(N)
+	return _QFT(N)#*Flip(N)
 
 
 def iQFT(n):
@@ -127,15 +111,22 @@ def extendedGCD(x,y):
 
 #def isPrime(n):
 #Method to check if a number is prime. Used to check input to shor's is not prime
-def modexp(b,e,N,qubits):
 
+
+def modexp(b,N,qubits):
+	#Returns normalised array with modular exponential applied across it.
 	def _modexp(b,e,N):
 		t = 1
 		for i in range(e):
 			t = b*t
 		return t%N
-
-	return _modexp(b,e,N)
+	
+	xs = np.arange(1,2**qubits+1,1)
+	g = np.vectorize(lambda x:_modexp(b,x,N))
+	f = lambda x:(g(x)-np.mean(x))
+	#plt.plot(xs,f(xs))
+	#plt.show()
+	return f(xs)/np.sqrt(np.sum(np.square(xs).astype(float)))
 
 def continued_fraction(y, Q, N):
 	#Not 100% sure what this does
@@ -162,20 +153,79 @@ def continued_fraction(y, Q, N):
 
 
 
-def shor(N):
+def shor(N,qubits):
 	assert N%2!=0, "N must be odd"
-	
-	guess = np.random.randint(1,N)
-	print(guess)
-	divisor = GCD(N,guess)
 
-	if divisor!=1:
-		#If gcd(N,guess) is not 1, then guess is a factor of N. Lucky
-		return guess
+	guess = np.random.randint(2,(N-1))
+	p = 1
+	counter = 0
+	while p%2==1 or (guess**(p/2))%N != (N-1):
+		counter = counter +1
+		guess = np.random.randint(2,(N-1))
+		
+		#print(guess)
+		divisor = GCD(N,guess)
+		#print("Does "+str(guess)+" factor "+str(N))
+
+		if divisor!=1:
+			#If gcd(N,guess) is not 1, then guess is a factor of N. Lucky
+			print("Divisor "+str(divisor)+" factorises "+str(N)+", not found be QFT")
+			
+			#return guess
+
+		#Run modular exponentiation with base = guess, mod = N
+		#p = 0
+		#while p==0:
+		qreg = Qubit(modexp(guess,N,qubits))
+		#print(np.sum(qreg.ret_mod()))
+		#Apply QFT to qubit register
+		qreg = QFT(qubits)*qreg
+		#Measure qubit register to estimate frequency
+		#IO.Hist(qreg)
+		qreg.measure()
+
+		freq = int(str(qreg.split_register()),2)
+		
+		#Transform frequency to nearest discrete value
+		sample_freq = Fraction(freq,2**qubits)
+		p = sample_freq.limit_denominator(N)
+		#print(p)
+		p = p.denominator
+		#print(p)
+		
+		print("Period guess "+str(p))
+		if p%2==0 and ((guess**p/2)%N!=(N-1) and (guess**p/2)%N!=1):
+			g1 = GCD(guess**p/2+1,N)
+			g2 = GCD(guess**p/2-1,N)
+			print(g1)
+			print(g2)
+
+			if g1!=1:
+				print(str(g1)+" factorises "+str(N))
+				#return
+			if g2!=1:
+				print(str(g2)+" factorises "+str(N))
+			if g1!=1 or g2!=1:
+				print(str(counter)+" steps")
+				return counter
+				#return [g1,g2]
+
+	
+
+	#print("Period = "+str(p))
+
+	#print(p)
+	
+	#if (guess**(p))%N == 1:
+	#IO.Hist(qreg)
+
+	
+
+
 
 
 	#print(guess)
-	print(GCD(N,guess))
+	#print(GCD(N,guess))
 
 
 
@@ -184,57 +234,31 @@ def shor(N):
 
 	#print(extendedGCD(N,guess))
 
-	print(continued_fraction(guess,N,10))
+	#print(continued_fraction(guess,N,10))
 
 def main():
-	
-	#shor(15)
+
+
+
+	shor(481,9)
+	#a = Fraction(1.234567).limit_denominator(1000)
+
+	#print(a)
+
 	#print(extendedGCD(416,93))
 	#print(continued_fraction(1,93,416))
-	q1 = Qubit(8)
+	#q1 = Qubit(8)
 	#print(q1.ret_mod())
-	q = (Hadamard(3)&Identity(5))*q1
+	#q = (Hadamard(3)&Identity(5))*q1
 	
+	"""
+	ft = QFT(10)
 	
-	
-	#print(q1)
-	#print(q2)
-	ft = QFT(8)
-	#ift = iQFT(8)
-	#ift = iQFT(4)
-	#ft2 = HardQFT3()
-	#ift = iQFT(3)
-	#IO.Display(ft)
-	#IO.Display(ft2)
-	#IO.Display(ift)
-	#IO.Display(ft*ft*ift*ift)
-	
-	#print(ft.ret()-ft2.ret())
-	#plt.matshow((ft.ret()-ift.ret()).real)
-	#plt.show()
-	#29  17  493
-
-	f = np.vectorize(lambda x:modexp(23,x,493,8))
-	
-	xs = np.arange(0,256,1)
-	qreg = f(xs)/np.sum(xs).astype(float)
+	qreg = modexp(2311,9123,10)
 	q = Qubit(qreg)
-	#IO.Hist(qres)
-	for x in range(100):
-		qres = ft*q
-		qres.measure()
-		r = int(str(qres.split_register()),2)
-		if r!=0 and GCD(r,493)!=1:
-			print(r)
-			
-	#plt.plot(xs,f(xs))
-	#plt.show()
-
-	#plt.matshow((ft.ret()-ift.ret()).imag)
-	#plt.show()
-	#IO.LogHist(ft*q)
-	#IO.Display(Swap(4,0,3)*Swap(4,1,2))#*Swap(5,1,3))
-	#IO.Display(Flip(8))
-	#IO.Graph(ft*q)
+	IO.Display(ft)
+	IO.Hist(ft*q)
+	IO.Hist(ft*Flip(10)*q)
+	"""
 
 main()
