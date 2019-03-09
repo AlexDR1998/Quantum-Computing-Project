@@ -21,9 +21,9 @@ class LMatrix:
         self.type = str(typ) #Differentiates between Qubits and Gates
         
     def __mul__(self,other):
-        print(self.array)
-        print(other.array)
-        print(other.array.evaluate())
+        #print(self.array)
+        #print(other.array)
+        #print(other.array.evaluate())
         #magic method turning all * into matrix multiplication
 
         #multiplication order:
@@ -39,17 +39,17 @@ class LMatrix:
 
         elif (self.type=="Gate") and (other.type=="Gate"):
             assert self.array.shape==other.array.shape, "Gates must be of same size"
-            return Gate(lazy_qub_mul(self.array,other.array))
+            return Gate(lazy_mul(self.array,other.array))
 
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             assert self.array.shape==other.array.shape, "Qubit registers must have same size"
-            return Gate(lazy_qub_mul(self.array,other.array))
+            return Gate(lazy_mul(self.array,other.array))
 
         else:
             assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
             #assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
 
-            return Qubit(lazy_qub_mul(self.array,other.array))
+            return Qubit(lazy_mul(self.array,other.array))
         
        
 
@@ -214,9 +214,9 @@ class Qubit(LMatrix):
     def __init__(self,data,fock=0):
         LMatrix.__init__(self,"Qubit")
         if type(data) is int:
-            self.array = np.zeros(2**data)
+            self.array = np.zeros((2**data,1))
             self.array[fock] = 1
-            self.array = [self.array]
+            #self.array = [self.array]
             self.array = larray(self.array)
         else:
             self.array = data
@@ -230,14 +230,19 @@ class Qubit(LMatrix):
 
     def measure(self):
         #method to collapse qubit register into 1 state.
-        print (self.array.evaluate())
+        #print (self.array.evaluate())
+        #def prob(i):
+        #    print(np.abs(np.square(self.array[i])))
+        #    return np.abs(np.square(self.array[i]))
         data = self.array.evaluate()
-        print(type(data))
-        pos = np.arange(len(data))
+        #print(type(data))
+        pos = larray(np.arange(len(probs)))
         #print(pos)
         probs = np.abs(np.square(data))
+        #probs = larray(prob,shape = (2))
+        #pos = larray(np.arange(2))
         #If probs is not normalised (usually due to rounding errors), re-normalise
-        probs = probs/np.sum(probs)
+        #probs = probs/np.sum(probs)
         #print(probs)
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(data.shape)
@@ -273,3 +278,4 @@ class Qubit(LMatrix):
     #print(Hadamard(2))
 
 #main()
+
