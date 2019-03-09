@@ -240,6 +240,18 @@ class Qubit(QMatrix):
         self.array[dist.rvs()] = 1
         return self.array
 
+    def measure_cheat(self):
+        #Method to measure but ignore state 0. Used to help debug Shors
+        pos = np.arange(len(self.array))
+        probs = np.abs(np.square(self.array))
+        probs[0] = 0
+        #If probs is not normalised (usually due to rounding errors), re-normalise
+        probs = probs/np.sum(probs)
+        dist = stats.rv_discrete(values=(pos,probs))
+        self.array = np.zeros(self.array.shape)
+        self.array[dist.rvs()] = 1
+        return self.array
+
     def split_register(self):
         #Only run after measured. returns individual qubit values
 

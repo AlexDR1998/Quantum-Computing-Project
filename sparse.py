@@ -258,6 +258,21 @@ class Qubit(SMatrix):
         self.array[dist.rvs()] = 1
         self.array = sp.bsr_matrix(self.array)
 
+    def measure_cheat(self):
+        #Measure but ignore 0 state, for debugging shors
+        data = self.array.toarray()[0]
+        pos = np.arange(len(data))
+        #print(pos)
+        probs = np.abs(np.square(data))
+        probs[0] = 0
+        #If probs is not normalised (usually due to rounding errors), re-normalise
+        probs = probs/np.sum(probs)
+        #print(probs)
+        dist = stats.rv_discrete(values=(pos,probs))
+        self.array = np.zeros(data.shape)
+        self.array[dist.rvs()] = 1
+        self.array = sp.bsr_matrix(self.array)
+
     def split_register(self):
         #Only run after measured. returns individual qubit values
         t = self.array.toarray()[0]
