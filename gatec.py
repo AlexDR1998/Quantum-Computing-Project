@@ -9,7 +9,6 @@ class QMatrix:
 
     def __init__(self, typ):
         self.type = str(typ) #Differentiates between Qubits and Gates
-        self.volume = 0
 
     def __mul__(self,other):
         #magic method turning all * into matrix multiplication
@@ -72,22 +71,14 @@ class QMatrix:
 
 # Single Qubit Gates
 
+
 class Noisy(QMatrix):
-    def __init__(self, matrix,level=0.5):
-        if matrix.type == "Gate":
-            QMatrix.__init__(self,"Gate")
-            realnoise = np.random.rand(matrix.array.shape[0],matrix.array.shape[1])
-            complexnoise = np.random.rand(matrix.array.shape[0],matrix.array.shape[1])
-            noise = realnoise + complexnoise
-            self.volume = level
-            self.array = matrix.array*(1-level) + noise*level
-        elif matrix.type == "Qubit":
-            QMatrix.__init__(self,"Qubit")
-            realnoise = np.random.rand(matrix.array.shape[0])
-            complexnoise = np.random.rand(matrix.array.shape[0])
-            noise = realnoise + complexnoise
-            self.volume = level
-            self.array = matrix.array*(1-level) + noise*level 
+    def __init__(self, matrix,level):
+        QMatrix.__init__(self,"Gate")
+        realnoise = np.random.rand(matrix.array.shape[0],matrix.array.shape[1])
+        complexnoise = np.random.rand(matrix.array.shape[0],matrix.array.shape[1])*1j
+        noise = realnoise + complexnoise
+        self.array = matrix.array*(1-level) + noise*level
 
  
     
