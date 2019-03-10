@@ -260,7 +260,8 @@ def coPrimes(bits,bits_lower = 1):
 	# n <2**bits
 	#Also returns the 2 prime factors
 
-	primes = np.array(filter(isPrime,range(2**bits)))[1:]
+	#print(list(filter(isPrime,range(2**bits))))
+	primes = np.array(list(filter(isPrime,range(2**bits))))[1:]
 	prime_products = np.outer(primes,primes)
 
 	res = 0
@@ -304,8 +305,9 @@ def step_test(lower,upper,its=10):
 
 def main():
 
-	step_test(4,11,20)
-
+	#step_test(4,11,20)
+	#print(coPrimes(7,4))
+	print(shor(7*17,8))
 	#print(isPrime(209))
 	#for x in range(10):
 	#	print(coPrimes(8))
