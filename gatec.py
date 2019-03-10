@@ -4,6 +4,9 @@ import math
 import cmath
 from utilities import *
 
+'''
+Dense implementation of low level (gates and Qubits) as matrices
+'''
 class QMatrix:
 """Abstract parent class for all quantum objects
 """
