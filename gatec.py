@@ -4,11 +4,6 @@ import math
 import cmath
 from utilities import *
 
-
-
-
-
-
 class QMatrix:
 # abstract parent class for all gates and qubits
 
@@ -69,12 +64,22 @@ class QMatrix:
         #Returns modulus squared of array i.e. Qubit register probabilities
         return np.abs(np.square(self.array))
 
+
 #------------------------------------------------------
 #---some gates and qubits under QMatrix parent class.
 #------------------------------------------------------
 
 # Single Qubit Gates
 
+class Noisy(QMatrix):
+    def __init__(self, matrix,level):
+        QMatrix.__init__(self,"Gate")
+        realnoise = np.random.rand(matrix.array.shape[0],matrix.array.shape[1])
+        complexnoise = np.random.rand(matrix.array.shape[0],matrix.array.shape[1])*1j
+        noise = realnoise + complexnoise
+        self.array = matrix.array*(1-level) + noise*level
+    
+        
 class Hadamard(QMatrix):
     def __init__(self,n=1):
         QMatrix.__init__(self,"Gate")
