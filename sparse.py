@@ -215,6 +215,13 @@ class Gate(SMatrix):
         #assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
         self.array = sp.bsr_matrix(data)
 
+class Noisy(SMatrix):
+    def __init__(self,other_gate,a=0.1):
+        #generate a noisy version a gate
+        SMatrix.__init__(self,"Gate")
+        self.array = other_gate.array
+        self.array = self.array + sp.random(self.array.shape[0],self.array.shape[0],density=a)
+        self.array = self.array + 1j*sp.random(self.array.shape[0],self.array.shape[0],density=a)
 
 
 class Qubit(SMatrix):
