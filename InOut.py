@@ -68,6 +68,20 @@ def printOut(q, target):
     print('The target state(in binary) was |' + str(bin(target)[2:]) + '>')
     print('In Fock space this is |' + str(target) + '>')
 
+def timeplotn(x, y):
+    plt.plot(x, y)
+    plt.title('Time for Grovers to run versus the number of qubits')
+    plt.xlabel('Number of qubits')
+    plt.ylabel('Time, s')
+    plt.show()
+
+def timeplottar(x, y):
+    plt.plot(x, y)
+    plt.title('Time for Grovers to run versus the target Fock value for 10 qubits')
+    plt.xlabel('Fock Value')
+    plt.ylabel('Time, s')
+    plt.show()
+
 def Hist(qreg):
     x = range(len(qreg.ret_mod()))
     plt.bar(x,qreg.ret_mod())
