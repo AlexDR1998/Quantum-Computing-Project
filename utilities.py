@@ -8,6 +8,29 @@ from lazyarray import larray
 A file for storing various mathematical helper functions that could be used in various places.
  - AR
 """
+def lazy_mul_gate(b,a):
+
+	#Dimension of output
+	a0 = a.shape[0]
+	a1 = a.shape[1]
+	b0 = b.shape[0]
+	b1 = b.shape[1]
+	outdim = (b0,a1)
+
+	
+	#Calculate output matrix
+	def mul(i,j):
+		n=0
+		element = 0
+		for n in range( outdim[0]):
+			element += (a[i,n]*b[n,j])
+		return element	
+	
+	output = larray(mul,shape=outdim)
+	
+	if output.shape[0]==1:
+		output = output[0]
+	return(output)
 
 def lazy_mul(b,a):
 	#Dimension of output
@@ -16,7 +39,10 @@ def lazy_mul(b,a):
 	b0 = b.shape[0]
 	b1 = b.shape[1]
 	outdim = (b0,a1)
-	output = np.zeros(outdim)
+	print(b.evaluate())
+	print(a.evaluate())
+	print(outdim)
+	#output = np.zeros(outdim)
 	#print("gate"+str(b.evaluate()))
 	#print("qubit"+str(a.evaluate()))
 	#print(outdim)
@@ -25,9 +51,6 @@ def lazy_mul(b,a):
 		def k(i,j):
 			return j
 		lis = larray(k,shape = (1,b1))
-		#print (lis.evaluate())
-		#print("!!!!!!!!")
-		#print(i)
 
 		elem = sum(map(lambda n: b[i][n]*a[n],lis[0]))
 		#print(elem)
@@ -72,17 +95,6 @@ def tensor(b,a):
 
 	return output
 	#If output matrix is (1,n), then just convert to n vector
-
-
-
-
-
-
-
-
-
-
-
 
 def tensor_lazy(b,a):
 
