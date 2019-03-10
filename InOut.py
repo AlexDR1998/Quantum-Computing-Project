@@ -8,10 +8,18 @@ import matplotlib.pyplot as plt
 import matplotlib
 import random as ran
 import sys
-#from gatec import *
-from sparse import *
+from gatec import *
+#from sparse import *
 
 #================================   INPUT   ===================================#
+def vers():
+    print('\nOptions:')
+    print('test - run test loop')
+    print('run - start as usual with no noise')
+    print('noisy - run with noise')
+    check = input(('Enter your choice: '))
+
+    return check
 
 def start():
     print('The following methods available for Grovers are:')
@@ -61,10 +69,19 @@ def randVal():
 
     return io
 
+def gnoise():
+    print('\nThe smallest noise is 0 and largest is 1')
+    noise = float(input('Enter a value for noise: '))
+    assert noise >= 0, "noise value must be between 0 and 1"
+    assert noise <= 1, "noise value must be between 0 and 1"
+
+    return noise
+
 #===============================   OUTPUT   ===================================#
 
 def printOut(q, target):
     print('\nThe state of the ouput(in binary) is |' + str(q.split_register()) + '>')
+    print('In Fock space this is |' + str(int(str(q.split_register()), 2)) + '>')
     print('The target state(in binary) was |' + str(bin(target)[2:]) + '>')
     print('In Fock space this is |' + str(target) + '>')
 

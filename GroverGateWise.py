@@ -126,6 +126,53 @@ def run(args):
     IO.printOut(q, target)
     print('\nThis took '+str(t.time()-t1)+' s to run\n')
 
+def runnoisy(args, noise):
+    # --- Reg size and target value ---
+    n = args[0]
+    target = args[1]
+
+    # --- Timer Initialise ---
+    t1 = t.time()
+
+    # --- Initialised gates ---
+    print('\nInitialising gates...')
+    I = Identity()
+    nI = Noisy(I, noise)
+    H = Hadamard(n)   #hadamard all
+    nH = Noisy(H, noise)
+    X = PauliX(n)   #paulix all
+    nX = Noisy(X, noise)
+    x = PauliX()
+    nx = Noisy(x, noise)
+    z = PauliZ()
+    nz = Noisy(z, noise)
+    cZ = Controlled(z, n)   #controlled z all
+    ncZ = Noisy(cZ, noise)
+    print('Gate initialisation took ' + str(t.time()-t1) + ' s')
+
+    # --- Qreg formation ---
+    print('\nForming quantum register...')
+    t2 = t.time()
+    q = Qubit(n)
+    print('Quantum register formation took ' + str(t.time()-t2) + ' s')
+
+    # --- Number of Iterations calculation ---
+    its = numits(n)
+
+    # --- Fock to Binary Array Conversion ---
+    Binaryform = findBinary(n, target)
+
+    # --- Oracle PauliX application dependent on Fock Target ---
+    Search = oracleX(n, Binaryform, nx, nI)
+
+    # --- Create Superposition and Grover's Iteration ---
+    q = grover(q, Search, ncZ, nH, nX, its)
+
+    # --- Measure and Display ---
+    q.measure()
+    IO.printOut(q, target)
+    print('\nThis took '+str(t.time()-t1)+' s to run\n')
+
 def test(args):
     # --- Reg size and target value ---
     n = int(args[0])

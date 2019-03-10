@@ -112,8 +112,6 @@ class PauliZ(SMatrix):
                                     [0,-1]])
 
 
-
-
 class PauliX(SMatrix):
     def __init__(self,n=1):
         SMatrix.__init__(self,"Gate")
@@ -166,15 +164,9 @@ class Toffoli(SMatrix):
 class CPhase(SMatrix):
     def __init__(self,phase,n=2):
         SMatrix.__init__(self,"Gate")
-        
         self.array = sp.csr_matrix(sp.identity(2**n),dtype=complex)
         self.array[2**n-1,2**n-1]=np.exp(1j*phase)
         self.array = sp.bsr_matrix(self.array,dtype=complex)
-        #self.array = sp.bsr_matrix([[1,0,0,0],
-        #                            [0,1,0,0],
-        #                            [0,0,1,0],
-        #                            [0,0,0,np.exp(1j*phase)]])
-
 
 ################################################################################
 #Other useful gates
@@ -215,7 +207,14 @@ class Gate(SMatrix):
         #assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
         self.array = sp.bsr_matrix(data)
 
-
+class Noisy(SMatrix):
+    def __init__(self,other_gate,a=0.5):
+        #generate a noisy version a gate
+        SMatrix.__init__(self,"Gate")
+        self.array = other_gate.array
+        noise = sp.random(self.array.shape[0],self.array.shape[0],density=a)
+        noise = noise + 1j*sp.random(self.array.shape[0],self.array.shape[0],density=a)
+        self.array = (1-a)*self.array +a*noise
 
 class Qubit(SMatrix):
     #Class for Qubit
