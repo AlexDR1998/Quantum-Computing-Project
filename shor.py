@@ -1,6 +1,6 @@
 import numpy as np
-#from gatec import *
-from sparse import *
+from gatec import *
+#from sparse import *
 import InOut as IO
 import time
 import matplotlib.pyplot as plt
@@ -16,26 +16,61 @@ from fractions import Fraction
 
 #--- Helper functions for QFT ---
 
-def Flip(n):
+def Flip(n,noise=0):
 	#Applies lots of Swap gates to flip qubit register
-	g = Identity(n)
-	for i in range(n//2):
-		if i!=(n-1-i):
-			g = g*Swap(n,i,n-1-i)
-	return g
+	if noise==0:
+		g = Identity(n)
+		for i in range(n//2):
+			if i!=(n-1-i):
+				g = g*Swap(n,i,n-1-i)
+		return g
+	else:
+		return Noisy(Flip(n,0),noise)
 
 #Simple gates, reduced to 1 letter function calls for clarity
-def R(n):
-	return CPhase(-np.pi*2/(2.0**n))
+def R(n,noise=0.1):
+	if noise==0:
+		return CPhase(-np.pi*2/(2.0**n))
+	else:
+		return Noisy(CPhase(-np.pi*2/(2.0**n)),noise)
 
-def H(n=1):
-	return Hadamard(n)
-
-def I(n=1):
-	return Identity(n)
-
+def H(n=1,noise=0.1):
+	if noise==0:
+		return Hadamard(n)
+	else:
+		return Noisy(Hadamard(n),noise)
+def I(n=1,noise=0):
+	if noise==0:
+		return Identity(n)
+	else:
+		return Noisy(Identity(n),noise)
 
 #--- QFT defined recursively ---
+
+"""
+def QFT(N):
+
+	def _QFT(n):
+		#Method to return gate for n qubit fourier transform
+		if n==2:
+			#Base case
+			#return ((Identity()&Hadamard())*(R(2))*(Hadamard()&Identity()))
+			return ((H()&I())*(R(2))*(I()&H()))#*Swap(2,0,1))
+		else:
+			g1 = _QFT(n-1)&I()
+			g2 = I(n)
+			#print(range(n-2))
+			
+			for i in range(n-2):
+				#print(n-i)
+				g2 = g2*Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)
+			#IO.Display(g2)
+			g3 = (I(n-2)&R(2))*(I(n-1)&H())
+			return (g1*g2*g3)
+	#Some ambiguity whether Flip gate is needed here. Appears to work with or without
+	return _QFT(N)*Flip(N)
+
+"""
 
 def QFT(N):
 
@@ -58,6 +93,8 @@ def QFT(N):
 			return (g1*g2*g3)
 	#Some ambiguity whether Flip gate is needed here. Appears to work with or without
 	return _QFT(N)*Flip(N)
+
+
 
 #--- Inverse QFT defined recursively ---
 
@@ -307,7 +344,7 @@ def main():
 
 	#step_test(4,11,20)
 	#print(coPrimes(7,4))
-	print(shor(7*17,8))
+	#print(shor(7*17,8))
 	#print(isPrime(209))
 	#for x in range(10):
 	#	print(coPrimes(8))
@@ -323,14 +360,14 @@ def main():
 	#print(q1.ret_mod())
 	#q = (Hadamard(3)&Identity(5))*q1
 	
-	"""
-	ft = QFT(10)
 	
-	qreg = modexp(2311,9123,10)
-	q = Qubit(qreg)
-	IO.Display(ft)
-	IO.Hist(ft*q)
-	IO.Hist(ft*Flip(10)*q)
-	"""
+	#ft = QFT(6)
+	
+	#qreg = modexp(2311,9123,10)
+	#q = Qubit(qreg)
+	IO.Display(QFT(7))#*QFT(7)*QFT(7)*QFT(7))
+	#IO.Hist(ft*q)
+	#IO.Hist(ft*Flip(10)*q)
+	
 
 main()

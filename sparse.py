@@ -7,25 +7,29 @@ import cmath
 from utilities import *
 
 
-#Sparse matrix optimisation of low level bits - AR
-#use either csr or bsr matrix
-
+"""
+Optimised implementation of Gates using scipy.sparse matrices.
+Works because most (but not all) of the matrices representing
+quantum gates are very sparse. User interfacing with this is 
+identical to un-optimised implementation.
+"""
 
 
 class SMatrix:
-# abstract parent class for all gates and qubits
+"""Abstract parent class for all sparsely defined quantum objects
+"""
 
     def __init__(self, typ):
-        self.type = str(typ) #Differentiates between Qubits and Gates
+        """Set the type of object: Gate or Qubit
+        """
+        self.type = str(typ)
 
     def __mul__(self,other):
-        #magic method turning all * into matrix multiplication
+        """Method to perform matrix multiplication. Combines gates sequentially
+        and acts gates on registers. Multiplied objects must have the same size
 
-        #multiplication order:
-        #    Gate*Qubit
-        #    Gate*Scalar
-        #    Qubit*Scalar
-        #
+        """
+        
         if (type(other)==int):
             if (self.type=="Gate"):
                 return Gate(self.array*other)
@@ -48,34 +52,50 @@ class SMatrix:
 
 
     def __str__(self):
-        #String function for printing contents of SMatrix
+        """Returns string of contents of quantum object. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return str(self.array.toarray())
 
 
     def __len__(self):
+        """Returns the size of gate or qubit register, in number of qubits
+        """
         return int(np.log2(self.array.shape[1]))
 
 
     def __and__(self,other):
-        #Magic method turning & into tensor products
+        """Method to perform tensor products of quantum objects. Combines
+        gates in parallel. Combines qubits into qubit registers, or qubit registers
+        into bigger qubit registers. Cannot combine qubit (registers) with gates
+        """
         assert self.type==other.type, "Cannot tensor a Gate with a Qubit register"
-        if (self.type=="Gate") and (other.type=="Gate"):
-            
-            return Gate(tensor_sparse_gate(self.array,other.array))
-            #return Gate(sp.kron(self.array,other.array))
+        if (self.type=="Gate") and (other.type=="Gate"):    
+            return Gate(tensor_sparse_gate(self.array,other.array))     
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             return Qubit(tensor_sparse_qubit(self.array,other.array))
-            #return Qubit(sp.kron(self.array,other.array))
+            
     def ret(self):
-        #returns array for plotting; not of type Qubit so works properly
+        """Returns array of contents of quantum object. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return self.array.toarray()
 
     def ret_mod(self):
-        #Returns modulus squared of array i.e. Qubit register probabilities
+        """Returns array of probabilities of quantum states. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return np.abs(np.square(self.array.toarray()))[0]
 
 class Hadamard(SMatrix):
     def __init__(self,n=1):
+        """Hadamard gate. Takes 0 or 1 state qubit and sets it to equal probability
+        superposition. n defines number of qubits to act on. Alternatively single qubit
+        Hadamards can be tensored together
+        """
         SMatrix.__init__(self,"Gate")
         h = sp.bsr_matrix([[1,1],[1,-1]])
         hn = h
@@ -87,13 +107,17 @@ class Hadamard(SMatrix):
 
 class V(SMatrix):
     def __init__(self):
+        """V gate. Special case of the Phase gate, with phase=pi/2
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.bsr_matrix([[1,0],[0,1j]])
 
 class Phase(SMatrix):
     def __init__(self,phase,n=1):
+        """Phase gate. Applies complex phase shift to qubit. phase input defines 
+        size of phase shift, n defines number of qubits to act on.
+        """
         SMatrix.__init__(self,"Gate")
-        #self.phase = phase
         ph = sp.bsr_matrix([[1,0],[0,np.exp(1j*phase)]])
         phn = ph
         for i in range(n-1):
@@ -102,18 +126,35 @@ class Phase(SMatrix):
 
 class Identity(SMatrix):
     def __init__(self,n=1):
+        """Identity gate. Leaves qubit register unchanged. Use to represent 'empty' wires
+        in quantum circuit diagrams. Typically used by tensoring to other gates
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.identity(2**n)
 
 class PauliZ(SMatrix):
     def __init__(self):
+        """Pauli Z gate. Rotates qubit register pi radians about the Z axis of the bloch sphere.
+        Special case of Phase shift gate, with phase=pi
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.bsr_matrix([[1,0],
                                     [0,-1]])
 
+class PauliY(SMatrix):
+    def __init__(self):
+        """Pauli Y gate. Rotates qubit register pi radians about the Y axis of the bloch sphere
+        """
+        SMatrix.__init__(self,"Gate")
+        self.array = sp.bsr_matrix([[0,-1j],
+                                    [1j,0]])
+
 
 class PauliX(SMatrix):
     def __init__(self,n=1):
+        """Pauli X gate. Rotates qubit register pi radians about the X axis of the bloch sphere
+        Classicaly analogous to NOT gate.
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.bsr_matrix(np.flipud(np.identity(2**n)))
 
@@ -123,9 +164,13 @@ class PauliX(SMatrix):
 #Control Gates
 
 class Controlled(SMatrix):
-    #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
+    """Generalised controlled gate. Generates controlled versions of any 1 qubit gate,
+    where other_gate is another quantum object with type="Gate". n defines the number of
+    total qubits for the gate (n-1 control qubits + 1 target qubit)
+    """
     def __init__(self,other_gate,n=2):
         SMatrix.__init__(self,"Gate")
+        assert other_gate.type=="Gate","Controlled must have Gate type input"
         self.array = sp.lil_matrix(sp.identity(2**n))
         t = other_gate.array.toarray()
         self.array[2**n-2,2**n-2] = t[0,0]
@@ -139,6 +184,9 @@ class Controlled(SMatrix):
 
 class CNot(SMatrix):
     def __init__(self,n=2):
+        """Controlled not gate. Equivalent to Controlled(PauliX()). n defines total number
+        of Qubits (n-1 control qubits, +1 target qubit)
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.csr_matrix(sp.identity(2**n))
         self.array[2**n-2,2**n-2] = 0
@@ -150,6 +198,8 @@ class CNot(SMatrix):
 
 class Toffoli(SMatrix):
     def __init__(self):
+        """Controlled CNot gate. Equivalent to Controlled(PauliX(),3)
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.bsr_matrix([[1,0,0,0,0,0,0,0],
                                     [0,1,0,0,0,0,0,0],
@@ -163,6 +213,9 @@ class Toffoli(SMatrix):
 
 class CPhase(SMatrix):
     def __init__(self,phase,n=2):
+        """Controlled phase shift gate. Equivalent to Controlled(Phase()).
+        Used a lot for the Quantum Fourier Transform in Shors algorithm
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.csr_matrix(sp.identity(2**n),dtype=complex)
         self.array[2**n-1,2**n-1]=np.exp(1j*phase)
@@ -173,14 +226,19 @@ class CPhase(SMatrix):
 
 class Swap(SMatrix):
     def __init__(self,n=2,index1=0,index2=1):
+        """Swaps the contents of any 2 qubits. Works on entangled qubit registers
+        without collapsing them. n defines the total number of qubits being acted on,
+        index1 and index2 define the 2 qubits to be swapped
+        """
         SMatrix.__init__(self,"Gate")
-
         self.array = sp.bsr_matrix(perm_matrix(n,index1,index2))
 
         
 
 class Diffusion(SMatrix):
     def __init__(self,n):
+        """Hard coded diffusion gates for Grovers
+        """
         SMatrix.__init__(self,"Gate")
         N = 2**n
         c = 2.0/N
@@ -191,6 +249,8 @@ class Diffusion(SMatrix):
 
 class Oracle(SMatrix):
     def __init__(self,reg_size,target):
+        """Hard coded Oracle gate for Grovers
+        """
         SMatrix.__init__(self,"Gate")
         diags = np.ones(2**reg_size)
         #offsets = np.arange(0,2**reg_size,1)
@@ -201,15 +261,25 @@ class Oracle(SMatrix):
         #self.array = sp.dia_matrix(diags)
 
 class Gate(SMatrix):
-    #Generic gate class - used as output for multiplication or tensor of other gates
+    """Generic gate class. Use for defining your own gates. Used by functions that return gates,
+    such as multiplication or tensor products.
+    """
     def __init__(self,data):
+        """Initialise generic gate. data is a matrix. Although no checks are performed,
+        matrices must be: Unitary, Hermitian, and size 2^n * 2^n.
+        If an input matrix does not satisfy these constraints, unpredictable and wrong 
+        things may happen.
+        """
         SMatrix.__init__(self,"Gate")
-        #assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
         self.array = sp.bsr_matrix(data)
 
 class Noisy(SMatrix):
     def __init__(self,other_gate,a=0.5):
-        #generate a noisy version a gate
+        """Returns a copy of a Gate, with random noise added. An attempt to more accurately
+        simulate real quantum computers, as noise issues are a big deal. However this doesn't
+        accurately model how the noise on a real quantum computer emerges, this is just a rough
+        attempt.
+        """
         SMatrix.__init__(self,"Gate")
         self.array = other_gate.array
         noise = sp.random(self.array.shape[0],self.array.shape[0],density=a)
@@ -217,8 +287,13 @@ class Noisy(SMatrix):
         self.array = (1-a)*self.array +a*noise
 
 class Qubit(SMatrix):
-    #Class for Qubit
+    """Generic Qubit class. Used to define qubits. Used as outputs to function such as gate*qubit
+    multiplication.
+    """
     def __init__(self,data,fock=0):
+        """Initialise a qubit or qubit register. If data is an array, set qubit register to that.
+        if data is an int, use it as size of qubit register and intialise with optional fock space input
+        """
         SMatrix.__init__(self,"Qubit")
         if type(data) is int:
             self.array = np.zeros(2**data)
@@ -226,32 +301,25 @@ class Qubit(SMatrix):
             self.array = sp.bsr_matrix(self.array) 
         else:
             self.array = sp.bsr_matrix(data)
-        
 
-
-        #print(self.array.shape)
-        #catches and normalises unnormalised qubits. good for testing but shouldnt be needed in the end
-        #Causes errors, commented out for now
-        #if 0.9999999 < (np.sum(np.square(self.array))) < 1.00000001:
-        #    pass
-        #else:
-        #    self.normalise()
 
     def normalise(self):
+        """Renormalise qubit register such that probabilities sum to 1
+        """
         div = np.sqrt(np.sum(np.square(self.array)))
         a = np.empty(len(self.array))
         a.fill(div)
         self.array = sp.bsr_matrix(np.divide(self.array,a))
 
     def measure(self):
-        #method to collapse qubit register into 1 state.
+        """Measure qubit register. Collapses to 1 definite state. Simulates real measurement, as 
+        intermediate values of qubit registers during computation remain unknown.
+        """
         data = self.array.toarray()[0]
         pos = np.arange(len(data))
-        #print(pos)
         probs = np.abs(np.square(data))
         #If probs is not normalised (usually due to rounding errors), re-normalise
         probs = probs/np.sum(probs)
-        #print(probs)
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(data.shape)
         self.array[dist.rvs()] = 1
@@ -261,7 +329,6 @@ class Qubit(SMatrix):
         #Measure but ignore 0 state, for debugging shors
         data = self.array.toarray()[0]
         pos = np.arange(len(data))
-        #print(pos)
         probs = np.abs(np.square(data))
         probs[0] = 0
         #If probs is not normalised (usually due to rounding errors), re-normalise
@@ -273,7 +340,9 @@ class Qubit(SMatrix):
         self.array = sp.bsr_matrix(self.array)
 
     def split_register(self):
-        #Only run after measured. returns individual qubit values
+        """Splits entangle qubit register into individual qubit states. Only works after measurement
+        has been acted on a qubit register. Returns a binary string representing the states of each qubit
+        """
         t = self.array.toarray()[0]
         outs = np.arange(0,len(t),1)
         res = np.array(np.sum(outs*t.astype(int)))
@@ -281,23 +350,3 @@ class Qubit(SMatrix):
 
 
 
-
-#def main():
-    #h = Hadamard(10)
-    #q = Qubit([1,0])
-    #v = V()
-    #i = Identity()
-    #print(v)
-    #print(h)
-    #print(q)
-    #print(i&h)
-    #print(v*h*q)
-    #q1 = h*q
-    #print(q1)
-    #print(v*q1)
-    #g = v*h
-    #print(g*q)
-
-    #print(Hadamard(2))
-
-#main()
