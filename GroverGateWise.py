@@ -49,30 +49,46 @@ def grover(q, Search, cZ, H, X, its):
     q = H*q
     print('Creating superposition state took ' + str(t.time()-t1) + ' s')
 
+    # # NOTE: Test Option - can comment in and use preformed O and D method
+    # t2 = t.time()
+    # print('\nForming the Oracle...')
+    # Oracle = Search*cZ*Search
+    # print('This took ' + str(t.time()-t2) + ' s')
+    #
+    # t3 = t.time()
+    # print('\nForming the Diffusion matrix...')
+    # Diffusion = H*X*cZ*X*H
+    # print('This took ' + str(t.time()-t3) + ' s')
+
     #Grover's Iteration
     print('\nBeginning Grovers Iteration...')
     ti = t.time()
     for i in range(its):
+        #Oracle
         q = Search*q
         q = cZ*q
         q = Search*q
+        #Diffusion
+        q = H*q
+        q = X*q
+        q = cZ*q
+        q = X*q
+        q = H*q
 
-        q = H*q
-        q = X*q
-        q = cZ*q
-        q = X*q
-        q = H*q
+        # # NOTE: Test Option - commented in to use pre determined O and D
+        # q = Oracle*q
+        # q = Diffusion*q
+
         if i == 0:
             print('One Grover iteration took ' + str(t.time()-ti) + ' s')
     print('All of Grovers iteration took ' + str(t.time()-ti) + ' s')
 
     return q
 
-def main():
+def run(args):
     # --- Reg size and target value ---
-    io = IO.start()
-    n = io[0]
-    target = io[1]
+    n = args[0]
+    target = args[1]
 
     # --- Timer Initialise ---
     t1 = t.time()
@@ -110,4 +126,39 @@ def main():
     IO.printOut(q, target)
     print('\nThis took '+str(t.time()-t1)+' s to run\n')
 
-main()
+def test(args):
+    # --- Reg size and target value ---
+    n = int(args[0])
+    target = int(args[1])
+
+    # --- Timer Initialise ---
+    t1 = t.time()
+
+    # --- Initialised gates ---
+    I = Identity()
+    H = Hadamard(n)   #hadamard all
+    X = PauliX(n)   #paulix all
+    x = PauliX()
+    z = PauliZ()
+    cZ = Controlled(z, n)   #controlled z all
+
+    # --- Qreg formation ---
+    q = Qubit(n)
+
+    # --- Number of Iterations calculation ---
+    its = numits(n)
+
+    # --- Fock to Binary Array Conversion ---
+    Binaryform = findBinary(n, target)
+
+    # --- Oracle PauliX application dependent on Fock Target ---
+    Search = oracleX(n, Binaryform, x, I)
+
+    # --- Create Superposition and Grover's Iteration ---
+    q = grover(q, Search, cZ, H, X, its)
+
+    # --- Measure and Display ---
+    q.measure()
+    print('\nThis took '+str(t.time()-t1)+' s to run\n')
+
+    return t.time()-t1
