@@ -39,7 +39,7 @@ class LMatrix:
 
         elif (self.type=="Gate") and (other.type=="Gate"):
             assert self.array.shape==other.array.shape, "Gates must be of same size"
-            return Gate(lazy_mul(self.array,other.array))
+            return Gate(lazy_mul_gate(self.array,other.array))
 
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             assert self.array.shape==other.array.shape, "Qubit registers must have same size"
@@ -48,7 +48,6 @@ class LMatrix:
         else:
             assert (self.type=="Gate") and (other.type=="Qubit"), "Gate must act on Qubit register"
             #assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
-
             return Qubit(lazy_mul(self.array,other.array))
         
        
@@ -75,7 +74,7 @@ class LMatrix:
             #return Qubit(sp.kron(self.array,other.array))
     def ret(self):
         #returns array for plotting; not of type Qubit so works properly
-        return self.array.toarray()
+        return self.array.evaluate()
 
 
 class Hadamard(LMatrix):
@@ -194,7 +193,7 @@ class Gate(LMatrix):
     def __init__(self,data):
         LMatrix.__init__(self,"Gate")
         #assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
-        self.array = data
+        self.array = larray(data)
 
 class Controlled(LMatrix):
     #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
@@ -219,6 +218,7 @@ class Qubit(LMatrix):
             #self.array = [self.array]
             self.array = larray(self.array)
         else:
+            #self.array = [self.array]
             self.array = data
 
 
@@ -230,24 +230,36 @@ class Qubit(LMatrix):
 
     def measure(self):
         #method to collapse qubit register into 1 state.
+        data = self.array.toarray()[0]
+        pos = np.arange(len(data))
+        #print(pos)
+        probs = np.abs(np.square(data))
+        #If probs is not normalised (usually due to rounding errors), re-normalise
+        probs = probs/np.sum(probs)
+        #print(probs)
+        dist = stats.rv_discrete(values=(pos,probs))
+        self.array = np.zeros(data.shape)
+        self.array[dist.rvs()] = 1
+        self.array = sp.bsr_matrix(self.array)
+        #method to collapse qubit register into 1 state.
         #print (self.array.evaluate())
         #def prob(i):
         #    print(np.abs(np.square(self.array[i])))
-        #    return np.abs(np.square(self.array[i]))
-        data = self.array.evaluate()
+         #   return np.abs(np.square(self.array[i]))
+        #data = self.array.evaluate()
         #print(type(data))
-        pos = larray(np.arange(len(probs)))
+        #pos = larray(np.arange(len(probs)))
         #print(pos)
-        probs = np.abs(np.square(data))
+        #probs = np.abs(np.square(data))
         #probs = larray(prob,shape = (2))
         #pos = larray(np.arange(2))
         #If probs is not normalised (usually due to rounding errors), re-normalise
         #probs = probs/np.sum(probs)
         #print(probs)
-        dist = stats.rv_discrete(values=(pos,probs))
-        self.array = np.zeros(data.shape)
-        self.array[dist.rvs()] = 1
-        return self.array
+        #dist = stats.rv_discrete(values=(pos,probs))
+        #self.array = np.zeros(data.shape)
+        #self.array[dist.rvs()] = 1
+        #return self.array
 
     def split_register(self):
         #Only run after measured. returns individual qubit values
