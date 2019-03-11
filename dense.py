@@ -9,8 +9,8 @@ Dense implementation of low level (gates and Qubits) as matrices
 """
 
 class QMatrix:
-"""Abstract parent class for all quantum objects
-"""
+    """Abstract parent class for all quantum objects
+    """
 
     def __init__(self, typ):
         """Set the type of object: Gate or Qubit

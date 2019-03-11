@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 from fractions import Fraction
 
 
-#Code to implement Shor's algorithm for polynomial time factoring of numbers.
-#Broken up into various subroutines (some quantum some classical)
+"""Code to implement Shor's algorithm for polynomial time factoring of numbers.
+Broken up into various subroutines (some quantum some classical)
+"""
 
 #----------------------------------------------------
 #--- Quantum subroutines --------------- AR ---------
@@ -17,7 +18,8 @@ from fractions import Fraction
 #--- Helper functions for QFT ---
 
 def Flip(n,noise=0):
-	#Applies lots of Swap gates to flip qubit register
+	"""Applies multiple swap gates to flip the order of all qubits. Optional noise
+	"""
 	if noise==0:
 		g = Identity(n)
 		for i in range(n//2):
@@ -27,19 +29,25 @@ def Flip(n,noise=0):
 	else:
 		return Noisy(Flip(n,0),noise)
 
-#Simple gates, reduced to 1 letter function calls for clarity
+
 def R(n,noise=0.1):
+	"""Function that calls controlled phase gate, with optional noise
+	"""
 	if noise==0:
 		return CPhase(-np.pi*2/(2.0**n))
 	else:
 		return Noisy(CPhase(-np.pi*2/(2.0**n)),noise)
 
 def H(n=1,noise=0.1):
+	"""Function that calls Hadamard gate of size n, with optional noise
+	"""
 	if noise==0:
 		return Hadamard(n)
 	else:
 		return Noisy(Hadamard(n),noise)
 def I(n=1,noise=0):
+	"""Function that calls Identity gate of size n, with optional noise
+	"""
 	if noise==0:
 		return Identity(n)
 	else:
@@ -73,22 +81,18 @@ def QFT(N):
 """
 
 def QFT(N):
-
-	def _QFT(n):
-		#Method to return gate for n qubit fourier transform
+	"""Function to combine gates to form a Quantum Fourier Transform (QFT) on N qubits.
+	Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence
+	"""
+	def _QFT(n):	
 		if n==2:
 			#Base case
-			#return ((Identity()&Hadamard())*(R(2))*(Hadamard()&Identity()))
 			return ((H()&I())*(R(2))*(I()&H()))#*Swap(2,0,1))
 		else:
 			g1 = _QFT(n-1)&I()
 			g2 = I(n)
-			#print(range(n-2))
-			
 			for i in range(n-2):
-				#print(n-i)
 				g2 = g2*Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)
-			#IO.Display(g2)
 			g3 = (I(n-2)&R(2))*(I(n-1)&H())
 			return (g1*g2*g3)
 	#Some ambiguity whether Flip gate is needed here. Appears to work with or without
@@ -99,18 +103,19 @@ def QFT(N):
 #--- Inverse QFT defined recursively ---
 
 def iQFT(n):
+	"""Function to combine gates to form an inverse Quantum Fourier Transform (QFT) on N qubits.
+	Defined recursively. The same gates as QFt but in reverse order.
+	Returns Identity gate if 4 iQFTs are multiplied in sequence, or if 2 QFTs and 2 iQFTs are multiplied.
+	"""
 	def _iQFT(n):
 		#Inverse fourier transform
 		if n==2:
-			#return ((Hadamard()&Identity())*(R(2))*(Identity()&Hadamard()))
 			return ((I()&H())*(R(2))*(H()&I()))
 		else:
 			g1 = _iQFT(n-1)&I()
 			g2 = I(n)
 			for i in range(n-2):
-				#print(n-i)
 				g2 = Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)*g2
-
 			g3 = (I(n-1)&H())*(I(n-2)&R(2))
 			return (g3*g2*g1)
 	return Flip(n)*_iQFT(n)
@@ -139,7 +144,8 @@ def HardQFT2():
 
 
 def GCD(x,y):
-	#Returns greatest common divisor of x and y. Pretty fast, shouldn't be the bottleneck anyway
+	"""Euclidean algorithm for greatest common divisor between 2 numbers
+	"""
 	if x==y:
 		return x
 	while(y): 
@@ -147,7 +153,9 @@ def GCD(x,y):
 	return x
 
 def extendedGCD(x,y):
-	#Returns array representing continued fraction expansion of x/y
+	"""Extended euclidean algorithm that returns array of remainders
+	that arise between 2 numbers during the process of finding the GCD.
+	"""
 	fracs = []
 	if x==y:
 		return fracs
@@ -157,7 +165,9 @@ def extendedGCD(x,y):
 	return np.array(fracs)
 
 def isPrime(n):
-	#Method to check if a number is prime. Used to check input to shor's is not prime
+	"""Method to check if a given number is prime. Used to check that Shors isn't
+	given a prime number to factorise
+	"""
 	if n <= 3:
 		return n>1
 	elif (n%2==0) or (n%3==0):
@@ -172,7 +182,8 @@ def isPrime(n):
 
 
 def modexp(b,N,qubits):
-	#Returns normalised array with modular exponential applied across it.
+	"""Evaluates the modular exponential function (base b, mod N) across an array.
+	"""
 	def _modexp(b,e,N):
 		t = 1
 		for i in range(e):
@@ -182,38 +193,16 @@ def modexp(b,N,qubits):
 	xs = np.arange(0,2**qubits,1)
 	g = np.vectorize(lambda x:_modexp(b,x,N))
 	f = lambda x:(g(x))#-np.mean(x))
-	#plt.plot(xs,f(xs))
-	#plt.show()
 	#print (np.sum(np.square(np.abs(f(xs)/np.sqrt(np.sum(np.square(xs).astype(float)))))))
 	return f(xs)/np.sqrt(np.sum(np.square(xs).astype(float)))
-
-def continued_fraction(y, Q, N):
-	#Not 100% sure what this does
-	fractions = extendedGCD(y, Q)
-	depth = 2
-
-	def partial(fractions, depth):
-		c = 0
-		r = 1
-		for i in reversed(range(depth)):
-			tR = fractions[i] * r + c
-			c = r
-			r = tR
-		return c
-	r = 0
-	for d in range(depth, len(fractions) + 1):
-		tR = partial(fractions, d)
-		if tR == r or tR >= N:
-			return r
-		r = tR
-	return r
-
-
 
 
 
 
 def shor(N,qubits):
+	"""Shors algorithm for number factorisation. Not 100% sure it's correct.
+	N defines the number to factorise, qubits defines the size of the QFT section
+	"""
 	
 	assert N%2!=0, "N must be odd"
 	assert isPrime(N)==False, "Cannot factorise prime number"+str(N)
@@ -293,10 +282,10 @@ def shor(N,qubits):
 #---------------------------------------------------------
 
 def coPrimes(bits,bits_lower = 1):
-	#Randomly generates a product of 2 primes, n, such that
-	# n <2**bits
-	#Also returns the 2 prime factors
-
+	"""Randomly generates a product of 2 primes, n, such that
+	2**bits_lower < n < 2**bits
+	Also returns the 2 prime factors
+	"""
 	#print(list(filter(isPrime,range(2**bits))))
 	primes = np.array(list(filter(isPrime,range(2**bits))))[1:]
 	prime_products = np.outer(primes,primes)
@@ -313,8 +302,11 @@ def coPrimes(bits,bits_lower = 1):
 
 
 def step_test(lower,upper,its=10):
-	#Method for testing shors on randomly generated prime products.
-	#Plots number of QFTs applied against size of Qubit register
+	"""Method for testing shors on randomly generated prime products.
+	Plots number of QFTs applied against size of Qubit register. upper and lower
+	give upper and lower bounds to number of qubits in QFT. its defines how many
+	numbers to attempt to factorise at each size
+	"""
 	hits = 0
 	misses = 0
 	

@@ -3,7 +3,6 @@ from scipy import stats
 from scipy import sparse as sp
 import math
 import cmath
-
 from utilities import *
 
 
@@ -16,8 +15,8 @@ identical to un-optimised implementation.
 
 
 class SMatrix:
-"""Abstract parent class for all sparsely defined quantum objects
-"""
+    """Abstract parent class for all sparsely defined quantum objects
+    """
 
     def __init__(self, typ):
         """Set the type of object: Gate or Qubit
