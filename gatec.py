@@ -4,20 +4,23 @@ import math
 import cmath
 from utilities import *
 
+'''
+Dense implementation of low level (gates and Qubits) as matrices
+'''
 class QMatrix:
-# abstract parent class for all gates and qubits
+"""Abstract parent class for all quantum objects
+"""
 
     def __init__(self, typ):
-        self.type = str(typ) #Differentiates between Qubits and Gates
+        """Set the type of object: Gate or Qubit
+        """
+        self.type = str(typ)
 
     def __mul__(self,other):
-        #magic method turning all * into matrix multiplication
+        """Method to perform matrix multiplication. Combines gates sequentially
+        and acts gates on registers. Multiplied objects must have the same size
 
-        #multiplication order:
-        #    Gate*Qubit
-        #    Gate*Scalar
-        #    Qubit*Scalar
-        #
+        """
         if (type(other)==int):
             if (self.type=="Gate"):
                 return Gate(self.array*other)
@@ -40,16 +43,24 @@ class QMatrix:
 
 
     def __str__(self):
-        #String function for printing contents of QMatrix
+        """Returns string of contents of quantum object. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return str(self.array)
 
 
     def __len__(self):
+        """Returns the size of gate or qubit register, in number of qubits
+        """
         return int(np.log2(len(self.array)))
 
 
     def __and__(self,other):
-        #Magic method turning & into tensor products
+        """Method to perform tensor products of quantum objects. Combines
+        gates in parallel. Combines qubits into qubit registers, or qubit registers
+        into bigger qubit registers. Cannot combine qubit (registers) with gates
+        """
         assert self.type==other.type, "Cannot tensor a Gate with a Qubit register"
         if (self.type=="Gate") and (other.type=="Gate"):
             return Gate(tensor(self.array,other.array))
@@ -57,11 +68,17 @@ class QMatrix:
             return Qubit(tensor(self.array,other.array))
 
     def ret(self):
-        #returns array for plotting; not of type Qubit so works properly
+        """Returns array of contents of quantum object. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return self.array
 
     def ret_mod(self):
-        #Returns modulus squared of array i.e. Qubit register probabilities
+        """Returns array of probabilities of quantum states. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return np.abs(np.square(self.array))
 
 
@@ -85,6 +102,10 @@ class Noisy(QMatrix):
         
 class Hadamard(QMatrix):
     def __init__(self,n=1):
+        """Hadamard gate. Takes 0 or 1 state qubit and sets it to equal probability
+        superposition. n defines number of qubits to act on. Alternatively single qubit
+        Hadamards can be tensored together
+        """
         QMatrix.__init__(self,"Gate")
         h = np.array([[1,1],[1,-1]])
         hn = h
@@ -102,13 +123,18 @@ class Diffusion(QMatrix):
 
 class V(QMatrix):
     def __init__(self):
+        """V gate. Special case of the Phase gate, with phase=pi/2
+        """
         QMatrix.__init__(self,"Gate")
         self.array = np.array([[1,0],[0,1j]])
 
 class Phase(QMatrix):
     def __init__(self,phase,n=1):
+        """Phase gate. Applies complex phase shift to qubit. phase input defines 
+        size of phase shift, n defines number of qubits to act on.
+        """
         QMatrix.__init__(self,"Gate")
-        #self.phase = phase
+        
         ph = np.array([[1,0],[0,np.exp(1j*phase)]])
         phn = ph
         for i in range(n-1):
@@ -117,16 +143,34 @@ class Phase(QMatrix):
 
 class Identity(QMatrix):
     def __init__(self,n=1):
+        """Identity gate. Leaves qubit register unchanged. Use to represent 'empty' wires
+        in quantum circuit diagrams. Typically used by tensoring to other gates
+        """
         QMatrix.__init__(self,"Gate")
         self.array = np.identity(2**n)
 
 class PauliZ(QMatrix):
     def __init__(self):
+        """Pauli Z gate. Rotates qubit register pi radians about the Z axis of the bloch sphere.
+        Special case of Phase shift gate, with phase=pi
+        """
         QMatrix.__init__(self,"Gate")
         self.array = np.array([[1,0],[0,-1]])
 
+class PauliY(QMatrix):
+    def __init__(self):
+        """Pauli Y gate. Rotates qubit register pi radians about the Y axis of the bloch sphere
+        """
+        SMatrix.__init__(self,"Gate")
+        self.array = np.array([[0,-1j],
+                               [1j,0]])
+
+
 class PauliX(QMatrix):
     def __init__(self,n=1):
+        """Pauli X gate. Rotates qubit register pi radians about the X axis of the bloch sphere
+        Classicaly analogous to NOT gate.
+        """
         QMatrix.__init__(self,"Gate")
         self.array = np.flipud(np.identity(2**n))
 
