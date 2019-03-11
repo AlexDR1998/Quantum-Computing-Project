@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import random as ran
 import sys
-from gatec import *
+from dense import *
 #from sparse import *
 
 #================================   INPUT   ===================================#

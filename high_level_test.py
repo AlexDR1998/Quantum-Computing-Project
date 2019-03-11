@@ -1,6 +1,6 @@
 import numpy as np
-#from gatec import *
-from sparse import *
+from dense import *
+#from sparse import *
 import InOut as IO
 import time
 from fractions import Fraction
@@ -24,12 +24,9 @@ def extendedGCD(x,y):
 
 def main():
 	
-	n = 123
-	d = 251
-	
-	a = Fraction(n,d)
-	print(a.limit_denominator(100).numerator)
-	
-	print(extendedGCD(n,d))
-
+	H = Hadamard(6)
+	N = Noisy(H,0)
+	#IO.Display(Noisy(H,1))
+	#IO.Display(Noisy(H,0.1)*Noisy(H,0.1))
+	IO.Display(N)
 main()

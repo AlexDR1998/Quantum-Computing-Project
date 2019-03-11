@@ -2,7 +2,7 @@ import numpy as np
 import math as m
 import time as t
 #import InOut as IO
-#from gatec import *
+#from dense import *
 #from sparse import *
 from lazy import *
 #from lazzz import *

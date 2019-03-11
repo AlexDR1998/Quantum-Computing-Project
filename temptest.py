@@ -1,4 +1,4 @@
-from gatec import Hadamard as d
+from dense import Hadamard as d
 from sparse import Hadamard as s
 from lazy import Hadamard as l
 import numpy as np

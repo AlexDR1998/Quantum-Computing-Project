@@ -1,5 +1,5 @@
 import numpy as np
-from gatec import *
+from dense import *
 #from sparse import *
 import InOut as IO
 import time
