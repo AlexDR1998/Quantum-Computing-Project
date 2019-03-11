@@ -14,7 +14,8 @@ from gatec import *
 #================================   INPUT   ===================================#
 def vers():
     print('\nOptions:')
-    print('test - run test loop')
+    print('test1 - Gather data and plot runlength versus number of qubits for fixed target value')
+    print('test2 - Gather data and graph runlength versus target value for fixed qubit register')
     print('run - start as usual with no noise')
     print('noisy - run with noise')
     check = input(('Enter your choice: '))

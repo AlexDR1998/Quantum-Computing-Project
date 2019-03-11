@@ -10,14 +10,14 @@ def main():
 
     if check == 'run':
         args = IO.start()
-        G.run(args)
+        G.run(args, 0)
 
     elif check == 'noisy':
         args = IO.start()
         noise = IO.gnoise()
         G.runnoisy(args, noise)
 
-    elif check == 'test':
+    elif check == 'test1':
         # --- Time for n qubits ---
         args = np.zeros(2)
         nlist = [i for i in range(2,14)]
@@ -30,6 +30,7 @@ def main():
             time1[i] = G.test(args)
         IO.timeplotn(nlist, time1)
 
+    elif check == 'test2':
         # --- Time for different Fock value targets ---
         n = 10
         tarlist = [i for i in range(0,200)]
