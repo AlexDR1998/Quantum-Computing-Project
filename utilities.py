@@ -7,6 +7,10 @@ from lazyarray import larray
 """
 A file for storing various mathematical helper functions for each implementation.
 """
+
+###################################################################
+#tensor products
+
 def tensor(b,a):
 
 	"""
@@ -111,6 +115,8 @@ def tensor_lazy(b,a):
 	
 	return output
 
+#########################################################################
+#matrix multiplication
 
 def lazy_mul_gate(b,a):
 	"""
@@ -169,7 +175,8 @@ def lazy_mul(b,a):
 
 	return output
 
-
+#######################################################################
+#qubit swapping
 
 def perm_matrix(n,index1,index2):
 	'''
