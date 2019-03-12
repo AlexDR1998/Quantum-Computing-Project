@@ -10,8 +10,8 @@ As seen at https://lazyarray.readthedocs.io/en/latest/
 """
 
 class LMatrix:
- """Abstract parent class for all lazily defined quantum objects
- """
+    """Abstract parent class for all lazily defined quantum objects
+    """
     def __init__(self, typ):
         """Set the type of object: Gate or Qubit
         """
@@ -145,13 +145,13 @@ class PauliX(LMatrix):
         LMatrix.__init__(self,"Gate")
         self.array = larray(np.flipud(np.identity(2**n)))
         
-class PauliY(SMatrix):
+class PauliY(LMatrix):
     """Pauli Y gate. Rotates qubit register pi radians about the Y axis of the bloch sphere
     """
     def __init__(self):
         """Initialisation method
         """
-        SMatrix.__init__(self,"Gate")
+        LMatrix.__init__(self,"Gate")
         self.array = larray([[0,-1j],
                              [1j,0]])
         
