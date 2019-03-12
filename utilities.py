@@ -134,13 +134,10 @@ def lazy_mul_gate(b,a):
 	#function to feed creation of lazy output matrix
 	#i and j refer to matrix index
 	def mul(i,j):
-		n=0
-		element = 0
-		for n in range( outdim[0]):
-			element += (a[i,n]*b[n,j])
-		return element	
+		elem = sum(map(lambda n: b[i][n]*a[n][j],range(b1)))
+
+		return elem
 	
-	#create output matrix
 	output = larray(mul,shape=outdim)
 		
 	return(output)
@@ -163,10 +160,7 @@ def lazy_mul(b,a):
 	#function which feeds creation of output matrix
 	#i and j refer to matrix index
 	def mul(i,j):
-		def k(i,j):
-			return j
-		lis = larray(k,shape = (1,b1))
-		elem = sum(map(lambda n: b[i][n]*a[n],lis[0]))
+		elem = sum(map(lambda n: b[i][n]*a[n],range(b1)))
 
 		return elem
 
