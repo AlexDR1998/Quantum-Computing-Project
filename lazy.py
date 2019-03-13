@@ -1,36 +1,33 @@
 import numpy as np
 from scipy import stats
-#from scipy import sparse as sp
 import lazyarray
 from lazyarray import larray
-from lazyarray import matmul
-import math
-import cmath
 from utilities import *
 
-
-#Sparse matrix optimisation of low level bits - AR
-#use either csr or bsr matrix
-
-
+"""
+Optimised implementation of Gates using lazy matrices.
+As seen at https://lazyarray.readthedocs.io/en/latest/
+"""
 
 class LMatrix:
-# abstract parent class for all gates and qubits
-
+    """Abstract parent class for all lazily defined quantum objects
+    """
     def __init__(self, typ):
-        self.type = str(typ) #Differentiates between Qubits and Gates
+        """Set the type of object: Gate or Qubit
+        """
+        self.type = str(typ)
         
     def __mul__(self,other):
-        #print(self.array)
-        #print(other.array)
-        #print(other.array.evaluate())
-        #magic method turning all * into matrix multiplication
+        """Method to perform matrix multiplication. Combines gates sequentially
+        and acts gates on registers. Multiplied objects must have the same size
 
+        """
+        
         #multiplication order:
         #    Gate*Qubit
         #    Gate*Scalar
         #    Qubit*Scalar
-        #
+        
         if (type(other)==int):
             if (self.type=="Gate"):
                 return Gate(self.array*other)
@@ -54,31 +51,49 @@ class LMatrix:
 
 
     def __str__(self):
-        #String function for printing contents of LMatrix
+        """Returns string of contents of quantum object. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return str(self.array.evaluate())
 
 
     def __len__(self):
+        """Returns the size of gate or qubit register, in number of qubits
+        """
         return int(np.log2(self.array.shape[1]))
 
 
     def __and__(self,other):
-        #Magic method turning & into tensor products
+        """Method to perform tensor products of quantum objects. Combines
+        gates in parallel. Combines qubits into qubit registers, or qubit registers
+        into bigger qubit registers. Cannot combine qubit (registers) with gates
+        """
         assert self.type==other.type, "Cannot tensor a Gate with a Qubit register"
         if (self.type=="Gate") and (other.type=="Gate"):
             
             return Gate(tensor_lazy(self.array,other.array))
-            #return Gate(sp.kron(self.array,other.array))
         elif (self.type=="Qubit") and (other.type=="Qubit"):
             return Qubit(tensor_lazy(self.array,other.array))
-            #return Qubit(sp.kron(self.array,other.array))
+
     def ret(self):
-        #returns array for plotting; not of type Qubit so works properly
+        """Returns array of contents of quantum object. Not 'realistic', as
+        quantum states cannot be fully observed without collapsing qubit register
+        to 1 state. For that, use Qubit.measure()
+        """
         return self.array.evaluate()
 
+#####################################################################################
+# Single Qubit Gates
 
 class Hadamard(LMatrix):
+    """Hadamard gate. Takes 0 or 1 state qubit and sets it to equal probability
+    superposition.
+    """
     def __init__(self,n=1):
+        """Initialisation method. n defines number of qubits to act on. Alternatively single qubit
+        Hadamards can be tensored together
+        """
         LMatrix.__init__(self,"Gate")
         h = larray([[1,1],[1,-1]])
         hn = h
@@ -87,21 +102,20 @@ class Hadamard(LMatrix):
         hn = hn*(2**(-0.5*n))
         self.array = larray(hn)
 
-
-class Diffusion(LMatrix):
-    def __init__(self,n):
-        LMatrix.__init__(self,"Gate")
-        N = 2**n
-        c = 2.0/N
-        self.array = larray(np.full((N, N), c) - np.identity(N))
-
 class V(LMatrix):
+    """V gate. Special case of the Phase gate, with phase=pi/2
+    """
     def __init__(self):
         LMatrix.__init__(self,"Gate")
         self.array = larray([[1,0],[0,1j]])
 
 class Phase(LMatrix):
+    """Phase gate. Applies complex phase shift to qubit. 
+    """
     def __init__(self,phase,n=1):
+        """Initialisation method. Phase input defines 
+        size of phase shift, n defines number of qubits to act on.
+        """
         LMatrix.__init__(self,"Gate")
         self.phase = phase
         ph = larray([[1,0],[0,np.exp(1j*phase)]])
@@ -111,27 +125,72 @@ class Phase(LMatrix):
         self.array = larray(ph)
 
 class Identity(LMatrix):
+    """Identity gate. Leaves qubit register unchanged. Use to represent 'empty' wires
+    in quantum circuit diagrams. Typically used by tensoring to other gates
+    """
     def __init__(self,n=1):
+        """Initialisation method. n defines number of qubits to act on. Alternatively single qubit
+        Identity gates can be tensored together
+        """
         LMatrix.__init__(self,"Gate")
         self.array = larray(np.identity(2**n))
 
 
 class PauliX(LMatrix):
+    """Pauli X gate. Rotates qubit register pi radians about the X axis of the bloch sphere
+    Classicaly analogous to NOT gate.
+    """
     def __init__(self,n=1):
+        
         LMatrix.__init__(self,"Gate")
         self.array = larray(np.flipud(np.identity(2**n)))
         
+class PauliY(LMatrix):
+    """Pauli Y gate. Rotates qubit register pi radians about the Y axis of the bloch sphere
+    """
+    def __init__(self):
+        """Initialisation method
+        """
+        LMatrix.__init__(self,"Gate")
+        self.array = larray([[0,-1j],
+                             [1j,0]])
+        
 class PauliZ(LMatrix):
+    """Pauli Z gate. Rotates qubit register pi radians about the Z axis of the bloch sphere.
+    Special case of Phase shift gate, with phase=pi
+    """
     def __init__(self):
         LMatrix.__init__(self,"Gate")
         self.array = larray([[1,0],
                              [0,-1]])
-# 2 Qubit Gates
+##############################################################################################
+#Control Gates
 
-
+class Controlled(LMatrix):
+    """Generalised controlled gate. Generates controlled versions of any 1 qubit gate,
+    where other_gate is another quantum object with type="Gate". 
+    """
+    def __init__(self,other_gate,n=2):
+        """Initialisation method. n defines the number of
+        total qubits for the gate (n-1 control qubits + 1 target qubit)
+        """
+        LMatrix.__init__(self,"Gate")
+        self.array = (np.identity(2**n))
+        t = other_gate.array.evaluate()
+        self.array[2**n-2,2**n-2] = t[0,0]
+        self.array[2**n-1,2**n-1] = t[1,1]
+        self.array[2**n-1,2**n-2] = t[1,0]
+        self.array[2**n-2,2**n-1] = t[0,1]
+        self.array = larray(self.array)
 
 class CNot(LMatrix):
+    """Generalised controlled gate. Generates controlled versions of any 1 qubit gate,
+    where other_gate is another quantum object with type="Gate". 
+    """
     def __init__(self,n=2):
+        """Initialisation method. n defines the number of
+        total qubits for the gate (n-1 control qubits + 1 target qubit)
+        """
         SMatrix.__init__(self,"Gate")
         self.array = sp.csr_matrix(sp.identity(2**n))
         self.array[2**n-2,2**n-2] = 0
@@ -139,14 +198,17 @@ class CNot(LMatrix):
         self.array[2**n-1,2**n-2] = 1
         self.array[2**n-2,2**n-1] = 1
         self.array = larray(self.array)
-        #LMatrix.__init__(self,"Gate")
-        #self.array = larray([[1,0,0,0],
-        #                            [0,1,0,0],
-        #                            [0,0,0,1],
-        #                            [0,0,1,0]])
+
 
 class CPhase(LMatrix):
+    """Controlled phase shift gate. Equivalent to Controlled(Phase()).
+    Used a lot for the Quantum Fourier Transform in Shors algorithm
+    """
     def __init__(self,phase):
+        """Initialisation method. phase defines phase shift on phase gate, 
+        defines the number of total qubits for the gate (n-1 control qubits 
+        + 1 target qubit)
+        """
         LMatrix.__init__(self,"Gate")
         self.array = larray([[1,0,0,0],
                                     [0,1,0,0],
@@ -154,16 +216,21 @@ class CPhase(LMatrix):
                                     [0,0,0,np.exp(1j*phase)]])
 
 class Swap(LMatrix):
+    """Swaps the contents of any 2 qubits. Works on entangled qubit registers
+    without collapsing them. Mainly useful for shifting qubits around to perform
+    controlled gates
+    """
     def __init__(self,n=2,index1=0,index2=1):
+        """Initialisation method. n defines the total number of qubits being acted on,
+        index1 and index2 define the 2 qubits to be swapped
+        """
         LMatrix.__init__(self,"Gate")
-
         self.array = larray(perm_matrix(n,index1,index2))
 
-        
-
-# 3 qubit gates
 
 class Toffoli(LMatrix):
+    """Controlled CNot gate. Equivalent to Controlled(PauliX(),3)
+    """
     def __init__(self):
         LMatrix.__init__(self,"Gate")
         self.array = larray([[1,0,0,0,0,0,0,0],
@@ -175,42 +242,30 @@ class Toffoli(LMatrix):
                                     [0,0,0,0,0,0,0,1],
                                     [0,0,0,0,0,0,1,0]])
 
-
-
-class Oracle(LMatrix):
-    def __init__(self,reg_size,target):
-        LMatrix.__init__(self,"Gate")
-        diags = np.ones(2**reg_size)
-        #offsets = np.arange(0,2**reg_size,1)
-        diags[target] = -1
-        self.array = sp.csr_matrix(sp.identity(2**reg_size))
-        self.array[target,target] = -1
-        self.array = larray(self.array)
-        #self.array = sp.dia_matrix(diags)
+########################################################################
+#Possible LMatrix types:
 
 class Gate(LMatrix):
-    #Generic gate class - used as output for multiplication or tensor of other gates
+    """Generic gate class. Use for defining your own gates. Used by functions that return gates,
+    such as multiplication or tensor products.
+    """
     def __init__(self,data):
+        """Initialise generic gate. data is a matrix. Although no checks are performed,
+        matrices must be: Unitary, Hermitian, and size 2^n * 2^n.
+        If an input matrix does not satisfy these constraints, unpredictable and wrong 
+        things may happen.
+        """
         LMatrix.__init__(self,"Gate")
-        #assert (len(data[0])&(len(data[0])-1)==0) and (len(data[1])&(len(data[1])-1)==0) and (len(data[0])==len(data[1])),"Gate must be square matrix of size 2**n"
         self.array = larray(data)
 
-class Controlled(LMatrix):
-    #General controlled gate. Takes any 1 qubit gate as input and makes a controlled version of that
-    def __init__(self,other_gate,n=2):
-        LMatrix.__init__(self,"Gate")
-        self.array = (np.identity(2**n))
-        t = other_gate.array.evaluate()
-        self.array[2**n-2,2**n-2] = t[0,0]
-        self.array[2**n-1,2**n-1] = t[1,1]
-        self.array[2**n-1,2**n-2] = t[1,0]
-        self.array[2**n-2,2**n-1] = t[0,1]
-        self.array = larray(self.array)
-        #print(self.array.evaluate())
-
 class Qubit(LMatrix):
-    #Class for Qubit
+    """Generic Qubit class. Used to define qubits. Used as outputs to function such as gate*qubit
+    multiplication.
+    """
     def __init__(self,data,fock=0):
+        """Initialise a qubit or qubit register. If data is an array, set qubit register to that.
+        if data is an int, use it as size of qubit register and intialise with optional fock space input
+        """
         LMatrix.__init__(self,"Qubit")
         if type(data) is int:
             self.array = np.zeros((2**data,1))
@@ -223,71 +278,35 @@ class Qubit(LMatrix):
 
 
     def normalise(self):
+        """Renormalise qubit register such that probabilities sum to 1
+        """
         div = np.sqrt(np.sum(np.square(self.array)))
         a = np.empty(len(self.array))
         a.fill(div)
         self.array = larray(np.divide(self.array,a))
 
     def measure(self):
-        #method to collapse qubit register into 1 state.
-        data = self.array.toarray()[0]
+        """Measure qubit register. Collapses to 1 definite state. Simulates real measurement, as 
+        intermediate values of qubit registers during computation remain unknown.
+        """
+        data = self.array.evaluate()
         pos = np.arange(len(data))
-        #print(pos)
         probs = np.abs(np.square(data))
         #If probs is not normalised (usually due to rounding errors), re-normalise
         probs = probs/np.sum(probs)
-        #print(probs)
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(data.shape)
         self.array[dist.rvs()] = 1
-        self.array = sp.bsr_matrix(self.array)
-        #method to collapse qubit register into 1 state.
-        #print (self.array.evaluate())
-        #def prob(i):
-        #    print(np.abs(np.square(self.array[i])))
-         #   return np.abs(np.square(self.array[i]))
-        #data = self.array.evaluate()
-        #print(type(data))
-        #pos = larray(np.arange(len(probs)))
-        #print(pos)
-        #probs = np.abs(np.square(data))
-        #probs = larray(prob,shape = (2))
-        #pos = larray(np.arange(2))
-        #If probs is not normalised (usually due to rounding errors), re-normalise
-        #probs = probs/np.sum(probs)
-        #print(probs)
-        #dist = stats.rv_discrete(values=(pos,probs))
-        #self.array = np.zeros(data.shape)
-        #self.array[dist.rvs()] = 1
-        #return self.array
+        self.array = larray(self.array)
+        
 
     def split_register(self):
-        #Only run after measured. returns individual qubit values
-
+        """Splits entangle qubit register into individual qubit states. Only works after measurement
+        has been acted on a qubit register. Returns a binary string representing the states of each qubit
+        """
         outs = np.arange(0,len(self.array),1)
         res = np.array(np.sum(outs*self.array.astype(int)))
         return np.binary_repr(res)
 
 
-
-
-#def main():
-    #h = Hadamard(10)
-    #q = Qubit([1,0])
-    #v = V()
-    #i = Identity()
-    #print(v)
-    #print(h)
-    #print(q)
-    #print(i&h)
-    #print(v*h*q)
-    #q1 = h*q
-    #print(q1)
-    #print(v*q1)
-    #g = v*h
-    #print(g*q)
-
-    #print(Hadamard(2))
-
-#main()
 
