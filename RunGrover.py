@@ -9,6 +9,9 @@ import sys
 import InOut as IO
 import GroverGateWise as G
 
+'''
+Main to run file
+'''
 def main():
     #Checks for tests, standard or noisy
     check = IO.vers()
