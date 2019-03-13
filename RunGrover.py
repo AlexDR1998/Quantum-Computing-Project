@@ -15,7 +15,7 @@ def main():
     elif check == 'noisy':
         args = IO.start()
         noise = IO.gnoise()
-        G.runnoisy(args, noise)
+        G.run(args, noise)
 
     elif check == 'test1':
         # --- Time for n qubits ---
