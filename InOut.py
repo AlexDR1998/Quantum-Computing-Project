@@ -13,6 +13,9 @@ from dense import *
 
 #================================   INPUT   ===================================#
 def vers():
+    '''
+    Input check for how to run Grover simulation; either testing or standard/noisy Grover
+    '''
     print('\nOptions:')
     print('test1 - Gather data and plot runlength versus number of qubits for fixed target value')
     print('test2 - Gather data and graph runlength versus target value for fixed qubit register')
@@ -23,6 +26,9 @@ def vers():
     return check
 
 def start():
+    '''
+    For running Grovers, provides pre set options or allowed to input reg size and fock target
+    '''
     print('The following methods available for Grovers are:')
     print('input - Enter the number of qubits and target value(in Fock space)')
     print('random - Enter the number of qubits and generate a random Fock space value')
@@ -47,6 +53,9 @@ def start():
     return io
 
 def enterVal():
+    '''
+    Gathers the users chosen reg size and target fock value
+    '''
     n = int(input('\nEnter the number of qubits? '))
     assert type(n) == int, "n must be an integer greater than or equal to 2"
     assert n >= 2, "n must be an integer greater than or equal to 2"
@@ -61,6 +70,9 @@ def enterVal():
     return io
 
 def randVal():
+    '''
+    Gathers users chosen reg size an creates a random fock target
+    '''
     n = int(input('\nEnter the number of qubits? '))
     assert type(n) == int, "n must be an integer greater than or equal to 2"
     assert n >= 2, "n must be an integer greater than or equal to 2"
@@ -71,6 +83,9 @@ def randVal():
     return io
 
 def gnoise():
+    '''
+    Gathers the users chosen noise level
+    '''
     print('\nThe smallest noise is 0 and largest is 1')
     noise = float(input('Enter a value for noise: '))
     assert noise >= 0, "noise value must be between 0 and 1"
@@ -79,14 +94,19 @@ def gnoise():
     return noise
 
 #===============================   OUTPUT   ===================================#
-
 def printOut(q, target):
+    '''
+    Prints the output and target of Grovers in both binary and standard
+    '''
     print('\nThe state of the ouput(in binary) is |' + str(q.split_register()) + '>')
     print('In Fock space this is |' + str(int(str(q.split_register()), 2)) + '>')
     print('The target state(in binary) was |' + str(bin(target)[2:]) + '>')
     print('In Fock space this is |' + str(target) + '>')
 
 def timeplotn(x, y):
+    '''
+    Used for plotting Grover test results for varying reg size
+    '''
     plt.plot(x, y)
     plt.title('Time for Grovers to run versus the number of qubits')
     plt.xlabel('Number of qubits')
@@ -94,6 +114,9 @@ def timeplotn(x, y):
     plt.show()
 
 def timeplottar(x, y):
+    '''
+    Used for plotting Grover test results for varying fock target
+    '''
     plt.plot(x, y)
     plt.title('Time for Grovers to run versus the target Fock value for 10 qubits')
     plt.xlabel('Fock Value')
@@ -109,7 +132,6 @@ def Graph(qreg):
 	x = range(len(qreg.ret_mod()))
 	plt.plot(x,qreg.ret_mod())
 	plt.show()
-
 
 def Display(Gate):
 	#Function to plot gate matrix as image.

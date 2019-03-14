@@ -1,3 +1,14 @@
+'''
+The functions used to run Grover's algorithm
+- Dense or sparse matrix calculation can be chosen by commenting out the other choice
+  in the imports
+- There is also an option to run Grovers through application of a series of gates the
+  the register or using predetermined Oracle and Diffusion gates built from the series
+  of gates. This is done by commenting out the current sections and uncommenting the
+  #NOTE sections in 'grover'.
+  -> Using the series method is faster
+'''
+
 import numpy as np
 import math as m
 import time as t
@@ -7,11 +18,19 @@ from dense import *
 #from lazy import *
 
 def numits(n):
+    '''
+    Determines the number of iterations of Grover's iteration required
+    '''
     its = int((m.pi/4.0)*(2**n)**(1/2))
 
     return its
 
 def findBinary(n, target):
+    '''
+    Finds the binary array for the target fock value as the same length as the number of
+    qubits, this is used to find the application of PauliX gates in the Orcale for searching
+    for the required target value
+    '''
     print('\nConverting Fock value to binary array...')
     ti = t.time()
     B = [int(x) for x in bin(target)[2:]]
@@ -23,6 +42,11 @@ def findBinary(n, target):
     return Binaryform
 
 def oracleX(n, Binaryform, x, I):
+    '''
+    This determines the application of PauliX gates to which qubits in the register and forms
+    the large matrix to by applied to the register. This is part of the Oracle and requires the
+    target value in binary as an array of the same length as the number of qubits
+    '''
     print('\nAssigning PauliX gates to qubits for Oracle search...')
     ti = t.time()
     #Initialise
@@ -43,6 +67,13 @@ def oracleX(n, Binaryform, x, I):
     return Search
 
 def grover(q, Search, cZ, H, X, its):
+    '''
+    Creates a superposition state of the register and runs Grovers itertion the required
+    number of times, returning the qubit reg on completion
+    - As in the note at the top of the file, there is an option to run this using preformed
+      Oracle and Diffusion matrices, although it is slower.
+      -> done by commenting out the current iteration method and commenting in the #NOTE sections
+    '''
     #Create Superposition of states
     print('\nCreating superposition state...')
     t1 = t.time()
@@ -86,6 +117,11 @@ def grover(q, Search, cZ, H, X, its):
     return q
 
 def run(args, noise):
+    '''
+    Runs the Grover simulation with the input of reg size and target fock in args and
+    a value for noise(0 if none). This is used for non test runs and has the print statements
+    to inform the current operation and timings
+    '''
     # --- Reg size and target value ---
     n = args[0]
     target = args[1]
@@ -101,7 +137,7 @@ def run(args, noise):
     x = PauliX()
     z = PauliZ()
     cZ = Controlled(z, n)   #controlled z all
-    #for noisy use
+    #for noisy use; Initialises all gates with the same noise
     if noise != 0:
         I = Noisy(I, noise)
         H = Noisy(H, noise)
@@ -134,9 +170,11 @@ def run(args, noise):
     IO.printOut(q, target)
     print('\nThis took '+str(t.time()-t1)+' s to run\n')
 
-
-
 def test(args):
+    '''
+    Used for running Grovers in test mode, has print statements stripped and is used
+    to generate lots of data to plot etc.
+    '''
     # --- Reg size and target value ---
     n = int(args[0])
     target = int(args[1])
