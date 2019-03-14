@@ -13,16 +13,10 @@ import GroverGateWise as G
 Main to run file
 '''
 def main():
-    #Checks for tests, standard or noisy
-    check = IO.vers()
-
-    #runs standard grover
-    if check == 'run':
-        args = IO.start()
-        G.run(args, 0)   #0 noise
+    check = 'run'
 
     #runs noisy grover
-    elif check == 'noisy':
+    if check == 'run':
         args = IO.start()
         noise = IO.gnoise()
         G.run(args, noise)

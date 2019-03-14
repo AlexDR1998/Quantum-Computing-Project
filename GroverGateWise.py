@@ -66,6 +66,22 @@ def oracleX(n, Binaryform, x, I):
 
     return Search
 
+def formOracle(Search, cZ):
+    t1 = t.time()
+    print('\nForming the Oracle...')
+    Oracle = Search*cZ*Search
+    print('This took ' + str(t.time()-t1) + ' s')
+
+    return Oracle
+
+def formDiffusion(H, X, cZ):
+    t1 = t.time()
+    print('\nForming the Diffusion matrix...')
+    Diffusion = H*X*cZ*X*H
+    print('This took ' + str(t.time()-t1) + ' s\n')
+
+    return Diffusion
+
 def grover(q, Search, cZ, H, X, its):
     '''
     Creates a superposition state of the register and runs Grovers itertion the required
@@ -81,15 +97,9 @@ def grover(q, Search, cZ, H, X, its):
     print('Creating superposition state took ' + str(t.time()-t1) + ' s')
 
     # # NOTE: Test Option - can comment in and use preformed O and D method
-    # t2 = t.time()
-    # print('\nForming the Oracle...')
-    # Oracle = Search*cZ*Search
-    # print('This took ' + str(t.time()-t2) + ' s')
+    # Oracle = formOracle(Search, cZ)
     #
-    # t3 = t.time()
-    # print('\nForming the Diffusion matrix...')
-    # Diffusion = H*X*cZ*X*H
-    # print('This took ' + str(t.time()-t3) + ' s')
+    # Diffusion = formDiffusion(H, X, cZ)
 
     #Grover's Iteration
     print('\nBeginning Grovers Iteration...')
@@ -139,12 +149,11 @@ def run(args, noise):
     cZ = Controlled(z, n)   #controlled z all
     #for noisy use; Initialises all gates with the same noise
     if noise != 0:
-        I = Noisy(I, noise)
-        H = Noisy(H, noise)
-        X = Noisy(X, noise)
-        x = Noisy(x, noise)
-        z = Noisy(z, noise)
-        cZ = Noisy(cZ, noise)
+        I = Noisy(I, noise[0])
+        H = Noisy(H, noise[1])
+        x = Noisy(x, noise[2])
+        X = Noisy(X, noise[3])
+        cZ = Noisy(cZ, noise[4])
     print('Gate initialisation took ' + str(t.time()-t1) + ' s')
 
     # --- Qreg formation ---
@@ -168,45 +177,7 @@ def run(args, noise):
     # --- Measure and Display ---
     q.measure()
     IO.printOut(q, target)
-    print('\nThis took '+str(t.time()-t1)+' s to run\n')
+    print('\nThis took '+str(t.time()-t1)+' s to run')
 
-def test(args):
-    '''
-    Used for running Grovers in test mode, has print statements stripped and is used
-    to generate lots of data to plot etc.
-    '''
-    # --- Reg size and target value ---
-    n = int(args[0])
-    target = int(args[1])
-
-    # --- Timer Initialise ---
-    t1 = t.time()
-
-    # --- Initialised gates ---
-    I = Identity()
-    H = Hadamard(n)   #hadamard all
-    X = PauliX(n)   #paulix all
-    x = PauliX()
-    z = PauliZ()
-    cZ = Controlled(z, n)   #controlled z all
-
-    # --- Qreg formation ---
-    q = Qubit(n)
-
-    # --- Number of Iterations calculation ---
-    its = numits(n)
-
-    # --- Fock to Binary Array Conversion ---
-    Binaryform = findBinary(n, target)
-
-    # --- Oracle PauliX application dependent on Fock Target ---
-    Search = oracleX(n, Binaryform, x, I)
-
-    # --- Create Superposition and Grover's Iteration ---
-    q = grover(q, Search, cZ, H, X, its)
-
-    # --- Measure and Display ---
-    q.measure()
-    print('\nThis took '+str(t.time()-t1)+' s to run\n')
-
-    return t.time()-t1
+    IO.Display(formOracle(Search, cZ))
+    IO.Display(formDiffusion(H, X, cZ))
