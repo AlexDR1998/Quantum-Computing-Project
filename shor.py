@@ -27,10 +27,14 @@ def Flip(n,noise=0):
 				g = g*Swap(n,i,n-1-i)
 		return g
 	else:
-		return Noisy(Flip(n,0),noise)
+		g = Identity(n)
+		for i in range(n//2):
+			if i!=(n-1-i):
+				g = g*Noisy(Swap(n,i,n-1-i),noise)
+		return g
 
 
-def R(n,noise=0.1):
+def R(n,noise=0):
 	"""Function that calls controlled phase gate, with optional noise
 	"""
 	if noise==0:
@@ -38,7 +42,7 @@ def R(n,noise=0.1):
 	else:
 		return Noisy(CPhase(-np.pi*2/(2.0**n)),noise)
 
-def H(n=1,noise=0.1):
+def H(n=1,noise=0):
 	"""Function that calls Hadamard gate of size n, with optional noise
 	"""
 	if noise==0:
@@ -52,6 +56,14 @@ def I(n=1,noise=0):
 		return Identity(n)
 	else:
 		return Noisy(Identity(n),noise)
+
+def S(n,a,b,noise=0):
+	"""Function that calls Swap gate of size n, with optional noise
+	"""
+	if noise==0:
+		return Swap(n,a,b)
+	else:
+		return Noisy(Swap(n,a,b),noise)
 
 #--- QFT defined recursively ---
 
@@ -80,45 +92,47 @@ def QFT(N):
 
 """
 
-def QFT(N):
+def QFT(N,noise=[0,0,0,0]):
 	"""Function to combine gates to form a Quantum Fourier Transform (QFT) on N qubits.
 	Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence
+	noise vector applies noise to Swap, Phase, Hadamard and Identity gates
 	"""
 	def _QFT(n):	
 		if n==2:
 			#Base case
-			return ((H()&I())*(R(2))*(I()&H()))#*Swap(2,0,1))
+			return ((H(noise=noise[2])&I(noise=noise[3]))*(R(2,noise=noise[1]))*(I(noise=noise[3])&H(noise=noise[2])))#*Swap(2,0,1))
 		else:
-			g1 = _QFT(n-1)&I()
-			g2 = I(n)
+			g1 = _QFT(n-1)&I(noise=noise[3])
+			g2 = I(n,noise=noise[3])
 			for i in range(n-2):
-				g2 = g2*Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)
-			g3 = (I(n-2)&R(2))*(I(n-1)&H())
+				g2 = g2*S(n,i,n-2,noise=noise[0])*(I(n-2,noise=noise[3])&R(n-i,noise=noise[1]))*S(n,i,n-2,noise=noise[0])
+			g3 = (I(n-2,noise=noise[3])&R(2,noise=noise[1]))*(I(n-1,noise=noise[3])&H(noise=noise[2]))
 			return (g1*g2*g3)
 	#Some ambiguity whether Flip gate is needed here. Appears to work with or without
-	return _QFT(N)*Flip(N)
+	return _QFT(N)*Flip(N,noise=noise[0])
 
 
 
 #--- Inverse QFT defined recursively ---
 
-def iQFT(n):
+def iQFT(n,noise=[0,0,0,0]):
 	"""Function to combine gates to form an inverse Quantum Fourier Transform (QFT) on N qubits.
 	Defined recursively. The same gates as QFt but in reverse order.
 	Returns Identity gate if 4 iQFTs are multiplied in sequence, or if 2 QFTs and 2 iQFTs are multiplied.
+	noise vector applies noise to Swap, Phase, Hadamard and Identity gates
 	"""
 	def _iQFT(n):
 		#Inverse fourier transform
 		if n==2:
-			return ((I()&H())*(R(2))*(H()&I()))
+			return ((I(noise=noise[3])&H(noise=noise[2]))*(R(2,noise=noise[1]))*(H(noise=noise[2])&I(noise=noise[3])))
 		else:
-			g1 = _iQFT(n-1)&I()
-			g2 = I(n)
+			g1 = _iQFT(n-1)&I(noise=noise[3])
+			g2 = I(n,noise=noise[3])
 			for i in range(n-2):
-				g2 = Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)*g2
-			g3 = (I(n-1)&H())*(I(n-2)&R(2))
+				g2 = S(n,i,n-2,noise=noise[0])*(I(n-2,noise=noise[3])&R(n-i,noise=noise[1]))*S(n,i,n-2,noise=noise[0])*g2
+			g3 = (I(n-1,noise=noise[3])&H(noise=noise[2]))*(I(n-2,noise=noise[3])&R(2,noise=noise[1]))
 			return (g3*g2*g1)
-	return Flip(n)*_iQFT(n)
+	return Flip(n,noise=noise[0])*_iQFT(n)
 
 
 """
@@ -357,7 +371,8 @@ def main():
 	
 	#qreg = modexp(2311,9123,10)
 	#q = Qubit(qreg)
-	IO.Display(QFT(7))#*QFT(7)*QFT(7)*QFT(7))
+	noise = [0,0.05,0,0]
+	IO.Display(QFT(7,noise))#*QFT(7)*QFT(7)*QFT(7))
 	#IO.Hist(ft*q)
 	#IO.Hist(ft*Flip(10)*q)
 	
