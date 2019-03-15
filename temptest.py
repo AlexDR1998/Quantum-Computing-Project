@@ -1,57 +1,82 @@
-from dense import Hadamard as d
-from sparse import Hadamard as s
-from lazy import Hadamard as l
+from dense import Qubit as dq
+from sparse import Qubit as sq
+from lazy import Qubit as lq
+from dense import Hadamard as dh
+from sparse import Hadamard as sh
+from lazy import Hadamard as lh
+from dense import Phase as dz
+from sparse import Phase as sz
+from lazy import Phase as lz
+from dense import Controlled as dc
+from sparse import Controlled as sc
+from lazy import Controlled as lc
+from dense import CNot as dx
+from sparse import CNot as sx
+from lazy import CNot as lx
 import numpy as np
 import time
+
 from matplotlib import pyplot as plt
 
 
+
 def main():
-    n = 10
-    
+    n = 6
     register_size = []
-    for i in range(n):
+    for i in range(1,n):
         register_size.append(i)
     densets = []
-    for i in range(n):
+    for i in range(1,n):
         t1 = time.time()
-        h = d(i)
-        print(h)
+        q = dq(i)
+        H = dh(i)
+        q = H*q
+        
+        p = dz(np.pi,i)
+        q = p*q
+
+        print(q)
         t2 = time.time()
         timetaken = (t2-t1)
         densets.append(timetaken)
+        #print("hi")
     sparsets = []
-    for i in range(n):
+    for i in range(1,n):
         t1 = time.time()
-        h = s(i)
-        print(h)
+        q = sq(i)
+        H = sh(i)
+        q = H*q
+        p = sz(np.pi,i)
+        q = p*q
+
+        print(q)
         t2 = time.time()
         timetaken = (t2-t1)
         sparsets.append(timetaken)
     lazyts = []
-    for i in range(n):
+    for i in range(1,n):
         t1 = time.time()
-        h = l(i)
-        print(h)
+        q = lq(i)
+        H = lh(i)
+        q = H*q
+        p = lz(np.pi,i)
+        q = p*q
+        print(q)
         t2 = time.time()
         timetaken = (t2-t1)
-        lazyts.append(timetaken)
+        lazyts.append(timetaken)    
+   
         
     plt.plot(register_size,densets)
-    plt.title("dense implementation")
-    plt.ylabel("time to make hadamard")
-    plt.xlabel("size of qubit register acted on")
-    plt.show()
+    plt.title("Creating Sparse Registers")
+    plt.ylabel("time taken (s)")
+    plt.xlabel("size of register")
+
     
     plt.plot(register_size,sparsets)
-    plt.title("sparse implementation")
-    plt.ylabel("time to make hadamard")
-    plt.xlabel("size of qubit register acted on")
-    plt.show()
+
     
     plt.plot(register_size,lazyts)
-    plt.title("lazy implementation")
-    plt.ylabel("time to make hadamard")
-    plt.xlabel("size of qubit register acted on")
+    plt.legend(["dense","sparse","lazy"])
     plt.show()
 main()
