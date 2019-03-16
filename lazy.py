@@ -47,7 +47,8 @@ class LMatrix:
             #assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
             return Qubit(lazy_mul(self.array,other.array))
         
-       
+    def get(self,n):
+        return str(self.array[n])
 
 
     def __str__(self):
@@ -210,10 +211,8 @@ class CPhase(LMatrix):
         + 1 target qubit)
         """
         LMatrix.__init__(self,"Gate")
-        self.array = larray([[1,0,0,0],
-                                    [0,1,0,0],
-                                    [0,0,1,0],
-                                    [0,0,0,np.exp(1j*phase)]])
+        self.array = np.identity(2**n,dtype=complex)
+        self.array[2**n-1,2**n-1]=np.exp(1j*phase)
 
 class Swap(LMatrix):
     """Swaps the contents of any 2 qubits. Works on entangled qubit registers
