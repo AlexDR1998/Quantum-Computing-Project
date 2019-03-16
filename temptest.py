@@ -21,20 +21,19 @@ from matplotlib import pyplot as plt
 
 
 def main():
-    n = 6
+    n = 4
     register_size = []
     for i in range(1,n):
         register_size.append(i)
     densets = []
     for i in range(1,n):
         t1 = time.time()
-        q = dq(i)
+        #q = dq(i)
         H = dh(i)
-        q = H*q
-        
+        c = dx(i)
         p = dz(np.pi,i)
-        q = p*q
-
+        q = H&p&c
+        
         print(q)
         t2 = time.time()
         timetaken = (t2-t1)
@@ -43,11 +42,11 @@ def main():
     sparsets = []
     for i in range(1,n):
         t1 = time.time()
-        q = sq(i)
+        #q = sq(i)
         H = sh(i)
-        q = H*q
         p = sz(np.pi,i)
-        q = p*q
+        c = sx(i)
+        q = H&p&c
 
         print(q)
         t2 = time.time()
@@ -56,11 +55,11 @@ def main():
     lazyts = []
     for i in range(1,n):
         t1 = time.time()
-        q = lq(i)
+        #q = lq(i)
         H = lh(i)
-        q = H*q
         p = lz(np.pi,i)
-        q = p*q
+        C = lx(i)
+        q = H&p&C
         print(q)
         t2 = time.time()
         timetaken = (t2-t1)
