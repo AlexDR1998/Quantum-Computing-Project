@@ -205,7 +205,7 @@ class CPhase(LMatrix):
     """Controlled phase shift gate. Equivalent to Controlled(Phase()).
     Used a lot for the Quantum Fourier Transform in Shors algorithm
     """
-    def __init__(self,phase):
+    def __init__(self,phase,n=2):
         """Initialisation method. phase defines phase shift on phase gate, 
         defines the number of total qubits for the gate (n-1 control qubits 
         + 1 target qubit)
