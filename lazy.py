@@ -191,7 +191,7 @@ class CNot(LMatrix):
         """Initialisation method. n defines the number of
         total qubits for the gate (n-1 control qubits + 1 target qubit)
         """
-        SMatrix.__init__(self,"Gate")
+        LMatrix.__init__(self,"Gate")
         self.array = sp.csr_matrix(sp.identity(2**n))
         self.array[2**n-2,2**n-2] = 0
         self.array[2**n-1,2**n-1] = 0
