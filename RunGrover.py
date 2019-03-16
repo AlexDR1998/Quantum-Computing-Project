@@ -9,13 +9,13 @@ import sys
 import InOut as IO
 import GroverGateWise as G
 
-'''
-Main to run file
-'''
 def main():
-    check = 'run'
+    '''
+    Main to run file
+    '''
+    check = 'run'   #is altered for testing purposes
 
-    #runs noisy grover
+    #runs grover
     if check == 'run':
         args = IO.start()
         noise = IO.gnoise()

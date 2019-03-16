@@ -9,7 +9,7 @@ import matplotlib
 import random as ran
 import sys
 from dense import *
-#from sparse import *
+from sparse import *
 
 #================================   INPUT   ===================================#
 def start():

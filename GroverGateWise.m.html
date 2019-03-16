@@ -1046,11 +1046,12 @@ table {
       
   <ul>
     <li class="mono"><a href="#GroverGateWise.findBinary">findBinary</a></li>
+    <li class="mono"><a href="#GroverGateWise.formDiffusion">formDiffusion</a></li>
+    <li class="mono"><a href="#GroverGateWise.formOracle">formOracle</a></li>
     <li class="mono"><a href="#GroverGateWise.grover">grover</a></li>
     <li class="mono"><a href="#GroverGateWise.numits">numits</a></li>
     <li class="mono"><a href="#GroverGateWise.oracleX">oracleX</a></li>
     <li class="mono"><a href="#GroverGateWise.run">run</a></li>
-    <li class="mono"><a href="#GroverGateWise.test">test</a></li>
   </ul>
 
     </li>
@@ -1147,6 +1148,22 @@ table {
 
     <span class="k">return</span> <span class="n">Search</span>
 
+<span class="k">def</span> <span class="nf">formOracle</span><span class="p">(</span><span class="n">Search</span><span class="p">,</span> <span class="n">cZ</span><span class="p">):</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Forming the Oracle...&#39;</span><span class="p">)</span>
+    <span class="n">Oracle</span> <span class="o">=</span> <span class="n">Search</span><span class="o">*</span><span class="n">cZ</span><span class="o">*</span><span class="n">Search</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;This took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Oracle</span>
+
+<span class="k">def</span> <span class="nf">formDiffusion</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">cZ</span><span class="p">):</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Forming the Diffusion matrix...&#39;</span><span class="p">)</span>
+    <span class="n">Diffusion</span> <span class="o">=</span> <span class="n">H</span><span class="o">*</span><span class="n">X</span><span class="o">*</span><span class="n">cZ</span><span class="o">*</span><span class="n">X</span><span class="o">*</span><span class="n">H</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;This took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Diffusion</span>
+
 <span class="k">def</span> <span class="nf">grover</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">Search</span><span class="p">,</span> <span class="n">cZ</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">its</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Creates a superposition state of the register and runs Grovers itertion the required</span>
@@ -1162,15 +1179,9 @@ table {
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Creating superposition state took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s&#39;</span><span class="p">)</span>
 
     <span class="c1"># # NOTE: Test Option - can comment in and use preformed O and D method</span>
-    <span class="c1"># t2 = t.time()</span>
-    <span class="c1"># print(&#39;\nForming the Oracle...&#39;)</span>
-    <span class="c1"># Oracle = Search*cZ*Search</span>
-    <span class="c1"># print(&#39;This took &#39; + str(t.time()-t2) + &#39; s&#39;)</span>
+    <span class="c1"># Oracle = formOracle(Search, cZ)</span>
     <span class="c1">#</span>
-    <span class="c1"># t3 = t.time()</span>
-    <span class="c1"># print(&#39;\nForming the Diffusion matrix...&#39;)</span>
-    <span class="c1"># Diffusion = H*X*cZ*X*H</span>
-    <span class="c1"># print(&#39;This took &#39; + str(t.time()-t3) + &#39; s&#39;)</span>
+    <span class="c1"># Diffusion = formDiffusion(H, X, cZ)</span>
 
     <span class="c1">#Grover&#39;s Iteration</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Beginning Grovers Iteration...&#39;</span><span class="p">)</span>
@@ -1220,12 +1231,11 @@ table {
     <span class="n">cZ</span> <span class="o">=</span> <span class="n">Controlled</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>   <span class="c1">#controlled z all</span>
     <span class="c1">#for noisy use; Initialises all gates with the same noise</span>
     <span class="k">if</span> <span class="n">noise</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">I</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">H</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">cZ</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">cZ</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">cZ</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">cZ</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Gate initialisation took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s&#39;</span><span class="p">)</span>
 
     <span class="c1"># --- Qreg formation ---</span>
@@ -1249,48 +1259,10 @@ table {
     <span class="c1"># --- Measure and Display ---</span>
     <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
     <span class="n">IO</span><span class="o">.</span><span class="n">printOut</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">This took &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s to run</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">This took &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s to run&#39;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Used for running Grovers in test mode, has print statements stripped and is used</span>
-<span class="sd">    to generate lots of data to plot etc.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="c1"># --- Reg size and target value ---</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="c1"># --- Timer Initialise ---</span>
-    <span class="n">t1</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-    <span class="c1"># --- Initialised gates ---</span>
-    <span class="n">I</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">()</span>
-    <span class="n">H</span> <span class="o">=</span> <span class="n">Hadamard</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>   <span class="c1">#hadamard all</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="n">PauliX</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>   <span class="c1">#paulix all</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">PauliX</span><span class="p">()</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">PauliZ</span><span class="p">()</span>
-    <span class="n">cZ</span> <span class="o">=</span> <span class="n">Controlled</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>   <span class="c1">#controlled z all</span>
-
-    <span class="c1"># --- Qreg formation ---</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-    <span class="c1"># --- Number of Iterations calculation ---</span>
-    <span class="n">its</span> <span class="o">=</span> <span class="n">numits</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-    <span class="c1"># --- Fock to Binary Array Conversion ---</span>
-    <span class="n">Binaryform</span> <span class="o">=</span> <span class="n">findBinary</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-
-    <span class="c1"># --- Oracle PauliX application dependent on Fock Target ---</span>
-    <span class="n">Search</span> <span class="o">=</span> <span class="n">oracleX</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Binaryform</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
-
-    <span class="c1"># --- Create Superposition and Grover&#39;s Iteration ---</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">grover</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">Search</span><span class="p">,</span> <span class="n">cZ</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">its</span><span class="p">)</span>
-
-    <span class="c1"># --- Measure and Display ---</span>
-    <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">This took &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s to run</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span>
+    <span class="n">IO</span><span class="o">.</span><span class="n">Display</span><span class="p">(</span><span class="n">formOracle</span><span class="p">(</span><span class="n">Search</span><span class="p">,</span> <span class="n">cZ</span><span class="p">))</span>
+    <span class="n">IO</span><span class="o">.</span><span class="n">Display</span><span class="p">(</span><span class="n">formDiffusion</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">cZ</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1339,6 +1311,58 @@ for the required target value</p></div>
   
       
   <div class="item">
+    <div class="name def" id="GroverGateWise.formDiffusion">
+    <p>def <span class="ident">formDiffusion</span>(</p><p>H, X, cZ)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-GroverGateWise.formDiffusion', this);">Show source &equiv;</a></p>
+  <div id="source-GroverGateWise.formDiffusion" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">formDiffusion</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">cZ</span><span class="p">):</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Forming the Diffusion matrix...&#39;</span><span class="p">)</span>
+    <span class="n">Diffusion</span> <span class="o">=</span> <span class="n">H</span><span class="o">*</span><span class="n">X</span><span class="o">*</span><span class="n">cZ</span><span class="o">*</span><span class="n">X</span><span class="o">*</span><span class="n">H</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;This took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Diffusion</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="GroverGateWise.formOracle">
+    <p>def <span class="ident">formOracle</span>(</p><p>Search, cZ)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-GroverGateWise.formOracle', this);">Show source &equiv;</a></p>
+  <div id="source-GroverGateWise.formOracle" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">formOracle</span><span class="p">(</span><span class="n">Search</span><span class="p">,</span> <span class="n">cZ</span><span class="p">):</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Forming the Oracle...&#39;</span><span class="p">)</span>
+    <span class="n">Oracle</span> <span class="o">=</span> <span class="n">Search</span><span class="o">*</span><span class="n">cZ</span><span class="o">*</span><span class="n">Search</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;This took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Oracle</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
     <div class="name def" id="GroverGateWise.grover">
     <p>def <span class="ident">grover</span>(</p><p>q, Search, cZ, H, X, its)</p>
     </div>
@@ -1369,15 +1393,9 @@ number of times, returning the qubit reg on completion
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Creating superposition state took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s&#39;</span><span class="p">)</span>
 
     <span class="c1"># # NOTE: Test Option - can comment in and use preformed O and D method</span>
-    <span class="c1"># t2 = t.time()</span>
-    <span class="c1"># print(&#39;\nForming the Oracle...&#39;)</span>
-    <span class="c1"># Oracle = Search*cZ*Search</span>
-    <span class="c1"># print(&#39;This took &#39; + str(t.time()-t2) + &#39; s&#39;)</span>
+    <span class="c1"># Oracle = formOracle(Search, cZ)</span>
     <span class="c1">#</span>
-    <span class="c1"># t3 = t.time()</span>
-    <span class="c1"># print(&#39;\nForming the Diffusion matrix...&#39;)</span>
-    <span class="c1"># Diffusion = H*X*cZ*X*H</span>
-    <span class="c1"># print(&#39;This took &#39; + str(t.time()-t3) + &#39; s&#39;)</span>
+    <span class="c1"># Diffusion = formDiffusion(H, X, cZ)</span>
 
     <span class="c1">#Grover&#39;s Iteration</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Beginning Grovers Iteration...&#39;</span><span class="p">)</span>
@@ -1521,12 +1539,11 @@ to inform the current operation and timings</p></div>
     <span class="n">cZ</span> <span class="o">=</span> <span class="n">Controlled</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>   <span class="c1">#controlled z all</span>
     <span class="c1">#for noisy use; Initialises all gates with the same noise</span>
     <span class="k">if</span> <span class="n">noise</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">I</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">H</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
-        <span class="n">cZ</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">cZ</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">cZ</span> <span class="o">=</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">cZ</span><span class="p">,</span> <span class="n">noise</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Gate initialisation took &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; s&#39;</span><span class="p">)</span>
 
     <span class="c1"># --- Qreg formation ---</span>
@@ -1550,68 +1567,10 @@ to inform the current operation and timings</p></div>
     <span class="c1"># --- Measure and Display ---</span>
     <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
     <span class="n">IO</span><span class="o">.</span><span class="n">printOut</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">This took &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s to run</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">This took &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s to run&#39;</span><span class="p">)</span>
 
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="GroverGateWise.test">
-    <p>def <span class="ident">test</span>(</p><p>args)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Used for running Grovers in test mode, has print statements stripped and is used
-to generate lots of data to plot etc.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-GroverGateWise.test', this);">Show source &equiv;</a></p>
-  <div id="source-GroverGateWise.test" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Used for running Grovers in test mode, has print statements stripped and is used</span>
-<span class="sd">    to generate lots of data to plot etc.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="c1"># --- Reg size and target value ---</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="c1"># --- Timer Initialise ---</span>
-    <span class="n">t1</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-    <span class="c1"># --- Initialised gates ---</span>
-    <span class="n">I</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">()</span>
-    <span class="n">H</span> <span class="o">=</span> <span class="n">Hadamard</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>   <span class="c1">#hadamard all</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="n">PauliX</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>   <span class="c1">#paulix all</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">PauliX</span><span class="p">()</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">PauliZ</span><span class="p">()</span>
-    <span class="n">cZ</span> <span class="o">=</span> <span class="n">Controlled</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>   <span class="c1">#controlled z all</span>
-
-    <span class="c1"># --- Qreg formation ---</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-    <span class="c1"># --- Number of Iterations calculation ---</span>
-    <span class="n">its</span> <span class="o">=</span> <span class="n">numits</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-    <span class="c1"># --- Fock to Binary Array Conversion ---</span>
-    <span class="n">Binaryform</span> <span class="o">=</span> <span class="n">findBinary</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-
-    <span class="c1"># --- Oracle PauliX application dependent on Fock Target ---</span>
-    <span class="n">Search</span> <span class="o">=</span> <span class="n">oracleX</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Binaryform</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
-
-    <span class="c1"># --- Create Superposition and Grover&#39;s Iteration ---</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">grover</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">Search</span><span class="p">,</span> <span class="n">cZ</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">its</span><span class="p">)</span>
-
-    <span class="c1"># --- Measure and Display ---</span>
-    <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">This took &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s to run</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span>
+    <span class="n">IO</span><span class="o">.</span><span class="n">Display</span><span class="p">(</span><span class="n">formOracle</span><span class="p">(</span><span class="n">Search</span><span class="p">,</span> <span class="n">cZ</span><span class="p">))</span>
+    <span class="n">IO</span><span class="o">.</span><span class="n">Display</span><span class="p">(</span><span class="n">formDiffusion</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">cZ</span><span class="p">))</span>
 </pre></div>
 
   </div>
