@@ -11,22 +11,9 @@ import sys
 from scipy import misc
 from scipy import ndimage
 from dense import *
-#from sparse import *
+from sparse import *
 
 #================================   INPUT   ===================================#
-def vers():
-    '''
-    Input check for how to run Grover simulation; either testing or standard/noisy Grover
-    '''
-    print('\nOptions:')
-    print('test1 - Gather data and plot runlength versus number of qubits for fixed target value')
-    print('test2 - Gather data and graph runlength versus target value for fixed qubit register')
-    print('run - start as usual with no noise')
-    print('noisy - run with noise')
-    check = input(('Enter your choice: '))
-
-    return check
-
 def start():
     '''
     For running Grovers, provides pre set options or allowed to input reg size and fock target
@@ -34,20 +21,11 @@ def start():
     print('The following methods available for Grovers are:')
     print('input - Enter the number of qubits and target value(in Fock space)')
     print('random - Enter the number of qubits and generate a random Fock space value')
-    print('test12 - auto start with 12 qubits searching for |12>')
-    print('test11 - auto start with 11 qubits searching for |11>')
-    print('test4 - auto start with 4 qubits searching for |4>')
     method = input('Enter the method would you like: ')
     if method == 'input':
         io = enterVal()
     elif method == 'random':
         io = randVal()
-    elif method == 'test12':
-        io = [12, 12]
-    elif method == 'test11':
-        io = [11, 11]
-    elif method == 'test4':
-        io = [4, 4]
     else:
         print('Not a valid option')
         sys.exit()
@@ -89,9 +67,23 @@ def gnoise():
     Gathers the users chosen noise level
     '''
     print('\nThe smallest noise is 0 and largest is 1')
-    noise = float(input('Enter a value for noise: '))
-    assert noise >= 0, "noise value must be between 0 and 1"
-    assert noise <= 1, "noise value must be between 0 and 1"
+    nI = float(input('Enter a value for Identity noise: '))
+    assert nI >= 0, "noise value must be between 0 and 1"
+    assert nI <= 1, "noise value must be between 0 and 1"
+    nH = float(input('Enter a value for combined Hadamard noise: '))
+    assert nH >= 0, "noise value must be between 0 and 1"
+    assert nH <= 1, "noise value must be between 0 and 1"
+    nx = float(input('Enter a value for individual PauliX noise: '))
+    assert nx >= 0, "noise value must be between 0 and 1"
+    assert nx <= 1, "noise value must be between 0 and 1"
+    nX = float(input('Enter a value for combined PauliX noise: '))
+    assert nX >= 0, "noise value must be between 0 and 1"
+    assert nX <= 1, "noise value must be between 0 and 1"
+    nz = float(input('Enter a value for Controlled Z noise: '))
+    assert nz >= 0, "noise value must be between 0 and 1"
+    assert nz <= 1, "noise value must be between 0 and 1"
+
+    noise = [nI, nH, nx, nX, nz]
 
     return noise
 
