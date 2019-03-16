@@ -7,71 +7,66 @@ from lazy import Hadamard as lh
 from dense import Phase as dz
 from sparse import Phase as sz
 from lazy import Phase as lz
-from dense import Controlled as dc
-from sparse import Controlled as sc
-from lazy import Controlled as lc
-from dense import CNot as dx
-from sparse import CNot as sx
-from lazy import CNot as lx
+from dense import CNot as dc
+from sparse import CNot as sc
+from lazy import CNot as lc
+from dense import PauliX as dx
+from sparse import PauliX as sx
+from lazy import PauliX as lx
 import numpy as np
 import time
+import sys
+
 
 from matplotlib import pyplot as plt
 
 
 
 def main():
-    n = 4
+    n = 8
     register_size = []
     for i in range(1,n):
         register_size.append(i)
     densets = []
     for i in range(1,n):
         t1 = time.time()
-        #q = dq(i)
-        H = dh(i)
-        c = dx(i)
-        p = dz(np.pi,i)
-        q = H&p&c
+        h = dc(i)
         
-        print(q)
+
+      
+        
+        print(h)
         t2 = time.time()
-        timetaken = (t2-t1)
+        timetaken = t2-t1
         densets.append(timetaken)
         #print("hi")
     sparsets = []
     for i in range(1,n):
         t1 = time.time()
-        #q = sq(i)
-        H = sh(i)
-        p = sz(np.pi,i)
-        c = sx(i)
-        q = H&p&c
-
-        print(q)
+        h = sc(i)
+        
+        print(h)
         t2 = time.time()
-        timetaken = (t2-t1)
+        time_taken = t2-t1
         sparsets.append(timetaken)
     lazyts = []
     for i in range(1,n):
         t1 = time.time()
-        #q = lq(i)
-        H = lh(i)
-        p = lz(np.pi,i)
-        C = lx(i)
-        q = H&p&C
-        print(q)
+        h = lc(i)
+
+     
+        print(h)
         t2 = time.time()
-        timetaken = (t2-t1)
+        timetaken = t2-t1
         lazyts.append(timetaken)    
    
         
     plt.plot(register_size,densets)
-    plt.title("Creating Sparse Registers")
+    plt.title("Tensoring large gates together")
     plt.ylabel("time taken (s)")
-    plt.xlabel("size of register")
+    plt.xlabel("size of gates")
 
-    
+    print(sparsets)
     plt.plot(register_size,sparsets)
 
     
