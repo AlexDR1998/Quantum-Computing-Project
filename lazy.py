@@ -213,6 +213,7 @@ class CPhase(LMatrix):
         LMatrix.__init__(self,"Gate")
         self.array = np.identity(2**n,dtype=complex)
         self.array[2**n-1,2**n-1]=np.exp(1j*phase)
+        self.array = larray(self.array)
 
 class Swap(LMatrix):
     """Swaps the contents of any 2 qubits. Works on entangled qubit registers
