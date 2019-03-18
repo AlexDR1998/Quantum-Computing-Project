@@ -41,7 +41,8 @@ class QMatrix:
             assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
             return Qubit(np.matmul(self.array,other.array))
 
-
+    def get(self,n):
+        return str(self.array[n])
 
     def __str__(self):
         """Returns string of contents of quantum object. Not 'realistic', as
@@ -83,6 +84,11 @@ class QMatrix:
         return np.abs(np.square(self.array))
 
 
+    def Generalise(self,n):
+        s = self.array
+        for i in range(n-1):
+            s = tensor(self.array,s)
+        self.array = s
 #------------------------------------------------------
 #---some gates and qubits under QMatrix parent class.
 #------------------------------------------------------
@@ -375,3 +381,4 @@ class Qubit(QMatrix):
         outs = np.arange(0,len(self.array),1)
         res = np.array(np.sum(outs*self.array.astype(int)))
         return np.binary_repr(res)
+
