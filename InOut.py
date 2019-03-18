@@ -120,6 +120,8 @@ def timeplottar(x, y):
 def Hist(qreg):
     x = range(len(qreg.ret_mod()))
     plt.bar(x,qreg.ret_mod())
+    plt.xlabel("Quantum register index")
+    plt.ylabel("Measurement probability")
     plt.show()
 
 def Graph(qreg):
