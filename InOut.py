@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 import random as ran
 import sys
+from scipy import misc
+from scipy import ndimage
 from dense import *
 from sparse import *
 
@@ -118,6 +120,8 @@ def timeplottar(x, y):
 def Hist(qreg):
     x = range(len(qreg.ret_mod()))
     plt.bar(x,qreg.ret_mod())
+    plt.xlabel("Quantum register index")
+    plt.ylabel("Measurement probability")
     plt.show()
 
 def Graph(qreg):
@@ -125,12 +129,17 @@ def Graph(qreg):
 	plt.plot(x,qreg.ret_mod())
 	plt.show()
 
-def Display(Gate):
+def Display(Gate,save=False,name="Gate"):
 	#Function to plot gate matrix as image.
-	m = Gate.ret()
-	plt.imshow(complex_array_to_rgb(m),cmap="nipy_spectral")
-	plt.show()
-
+    m = Gate.ret()
+    imdata = complex_array_to_rgb(m)
+    print(imdata.shape)
+    plt.axis("off")
+    plt.imshow(imdata,cmap="nipy_spectral")
+    plt.show()
+    if save:
+		im = ndimage.zoom(imdata,[32.0,32.0,1],order=0,mode="constant")
+		misc.imsave((name+".png"),im)
 
 def complex_array_to_rgb(X, theme='dark', rmax=None):
 	#maps array of complex numbers to colours. Taken from stack overflow:
