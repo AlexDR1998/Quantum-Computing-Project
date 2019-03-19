@@ -118,6 +118,7 @@ def timeplottar(x, y):
     plt.show()
 
 def Hist(qreg):
+    qreg.normalise()
     x = range(len(qreg.ret_mod()))
     plt.bar(x,qreg.ret_mod())
     plt.xlabel("Quantum register index")
@@ -129,17 +130,14 @@ def Graph(qreg):
 	plt.plot(x,qreg.ret_mod())
 	plt.show()
 
-def Display(Gate,save=False,name="Gate"):
+def Display(Gate):
 	#Function to plot gate matrix as image.
     m = Gate.ret()
     imdata = complex_array_to_rgb(m)
-    print(imdata.shape)
     plt.axis("off")
     plt.imshow(imdata,cmap="nipy_spectral")
     plt.show()
-    if save:
-		im = ndimage.zoom(imdata,[32.0,32.0,1],order=0,mode="constant")
-		misc.imsave((name+".png"),im)
+
 
 def complex_array_to_rgb(X, theme='dark', rmax=None):
 	#maps array of complex numbers to colours. Taken from stack overflow:

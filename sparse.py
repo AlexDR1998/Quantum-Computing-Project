@@ -14,6 +14,7 @@ identical to un-optimised implementation.
 """
 
 
+
 class SMatrix:
     """Abstract parent class for all sparsely defined quantum objects
     """
@@ -351,24 +352,26 @@ class Qubit(SMatrix):
     def normalise(self):
         """Renormalise qubit register such that probabilities sum to 1
         """
-        div = np.sqrt(np.sum(np.square(self.array)))
-        a = np.empty(len(self.array))
-        a.fill(div)
-        self.array = sp.bsr_matrix(np.divide(self.array,a))
+        div = np.sqrt(np.dot(self.array.toarray()[0],np.conjugate(self.array.toarray()[0])))
+        self.array = self.array/div
+
 
     def measure(self):
         """Measure qubit register. Collapses to 1 definite state. Simulates real measurement, as 
         intermediate values of qubit registers during computation remain unknown.
         """
+        self.normalise()
         data = self.array.toarray()[0]
         pos = np.arange(len(data))
-        probs = np.abs(np.square(data))
+        probs = probs = data * np.conjugate(data)
         #If probs is not normalised (usually due to rounding errors), re-normalise
-        probs = probs/np.sum(probs)
+        #probs = probs/np.sum(probs)
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(data.shape)
         self.array[dist.rvs()] = 1
+        r = self.array
         self.array = sp.bsr_matrix(self.array)
+        return r
 
     def measure_cheat(self):
         #Measure but ignore 0 state, for debugging shors

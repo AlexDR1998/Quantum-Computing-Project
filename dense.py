@@ -343,19 +343,18 @@ class Qubit(QMatrix):
     def normalise(self):
         """Renormalise qubit register such that probabilities sum to 1
         """
-        div = np.sqrt(np.sum(np.square(self.array)))
-        a = np.empty(len(self.array))
-        a.fill(div)
-        self.array = np.divide(self.array,a)
+        div = np.sqrt(np.dot(self.array,np.conjugate(self.array)))
+        self.array = self.array/div
 
     def measure(self):
         """Measure qubit register. Collapses to 1 definite state. Simulates real measurement, as 
         intermediate values of qubit registers during computation remain unknown.
         """
+        self.normalise()
         pos = np.arange(len(self.array))
-        probs = np.abs(np.square(self.array))
+        probs = self.array * np.conjugate(self.array)
         #If probs is not normalised (usually due to rounding errors), re-normalise
-        probs = probs/np.sum(probs)
+        #probs = probs/np.sum(probs)
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(self.array.shape)
         self.array[dist.rvs()] = 1
