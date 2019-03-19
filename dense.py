@@ -166,7 +166,7 @@ class PauliY(QMatrix):
     def __init__(self):
         """Initialisation method
         """
-        SMatrix.__init__(self,"Gate")
+        QMatrix.__init__(self,"Gate")
         self.array = np.array([[0,-1j],
                                [1j,0]])
 
