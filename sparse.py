@@ -195,7 +195,7 @@ class Controlled(SMatrix):
         """
         SMatrix.__init__(self,"Gate")
         assert other_gate.type=="Gate","Controlled must have Gate type input"
-        self.array = sp.lil_matrix(sp.identity(2**n))
+        self.array = sp.lil_matrix(sp.identity(2**n,dtype="complex"))
         t = other_gate.array.toarray()
         self.array[2**n-2,2**n-2] = t[0,0]
         self.array[2**n-1,2**n-1] = t[1,1]

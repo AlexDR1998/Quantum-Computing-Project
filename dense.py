@@ -195,7 +195,7 @@ class Controlled(QMatrix):
         total qubits for the gate (n-1 control qubits + 1 target qubit)
         """
         QMatrix.__init__(self,"Gate")
-        self.array = np.identity(2**n)
+        self.array = np.identity(2**n,dtype="complex")
         self.array[2**n-2,2**n-2] = other_gate.array[0,0]
         self.array[2**n-1,2**n-1] = other_gate.array[1,1]
         self.array[2**n-1,2**n-2] = other_gate.array[1,0]
