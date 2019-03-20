@@ -41,7 +41,8 @@ class QMatrix:
             assert self.array.shape[0]==other.array.shape[0], "Qubit register and gate must be of same size"
             return Qubit(np.matmul(self.array,other.array))
 
-
+    def get(self,n):
+        return str(self.array[n])
 
     def __str__(self):
         """Returns string of contents of quantum object. Not 'realistic', as
@@ -83,6 +84,11 @@ class QMatrix:
         return np.abs(np.square(self.array))
 
 
+    def Generalise(self,n):
+        s = self.array
+        for i in range(n-1):
+            s = tensor(self.array,s)
+        self.array = s
 #------------------------------------------------------
 #---some gates and qubits under QMatrix parent class.
 #------------------------------------------------------
@@ -160,7 +166,7 @@ class PauliY(QMatrix):
     def __init__(self):
         """Initialisation method
         """
-        SMatrix.__init__(self,"Gate")
+        QMatrix.__init__(self,"Gate")
         self.array = np.array([[0,-1j],
                                [1j,0]])
 
@@ -189,7 +195,7 @@ class Controlled(QMatrix):
         total qubits for the gate (n-1 control qubits + 1 target qubit)
         """
         QMatrix.__init__(self,"Gate")
-        self.array = np.identity(2**n)
+        self.array = np.identity(2**n,dtype="complex")
         self.array[2**n-2,2**n-2] = other_gate.array[0,0]
         self.array[2**n-1,2**n-1] = other_gate.array[1,1]
         self.array[2**n-1,2**n-2] = other_gate.array[1,0]
@@ -337,19 +343,18 @@ class Qubit(QMatrix):
     def normalise(self):
         """Renormalise qubit register such that probabilities sum to 1
         """
-        div = np.sqrt(np.sum(np.square(self.array)))
-        a = np.empty(len(self.array))
-        a.fill(div)
-        self.array = np.divide(self.array,a)
+        div = np.sqrt(np.dot(self.array,np.conjugate(self.array)))
+        self.array = self.array/div
 
     def measure(self):
         """Measure qubit register. Collapses to 1 definite state. Simulates real measurement, as 
         intermediate values of qubit registers during computation remain unknown.
         """
+        self.normalise()
         pos = np.arange(len(self.array))
-        probs = np.abs(np.square(self.array))
+        probs = self.array * np.conjugate(self.array)
         #If probs is not normalised (usually due to rounding errors), re-normalise
-        probs = probs/np.sum(probs)
+        #probs = probs/np.sum(probs)
         dist = stats.rv_discrete(values=(pos,probs))
         self.array = np.zeros(self.array.shape)
         self.array[dist.rvs()] = 1
@@ -375,3 +380,4 @@ class Qubit(QMatrix):
         outs = np.arange(0,len(self.array),1)
         res = np.array(np.sum(outs*self.array.astype(int)))
         return np.binary_repr(res)
+

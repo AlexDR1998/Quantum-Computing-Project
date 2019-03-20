@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 import random as ran
 import sys
+from scipy import misc
+from scipy import ndimage
 from dense import *
 #from sparse import *
 
@@ -116,8 +118,11 @@ def timeplottar(x, y):
     plt.show()
 
 def Hist(qreg):
+    qreg.normalise()
     x = range(len(qreg.ret_mod()))
     plt.bar(x,qreg.ret_mod())
+    plt.xlabel("Quantum register index")
+    plt.ylabel("Measurement probability")
     plt.show()
 
 def Graph(qreg):
@@ -127,9 +132,11 @@ def Graph(qreg):
 
 def Display(Gate):
 	#Function to plot gate matrix as image.
-	m = Gate.ret()
-	plt.imshow(complex_array_to_rgb(m),cmap="nipy_spectral")
-	plt.show()
+    m = Gate.ret()
+    imdata = complex_array_to_rgb(m)
+    plt.axis("off")
+    plt.imshow(imdata,cmap="nipy_spectral")
+    plt.show()
 
 
 def complex_array_to_rgb(X, theme='dark', rmax=None):

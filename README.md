@@ -1,38 +1,76 @@
 # Quantum-Computing-Project
 
-ALright kids this is your handy guide to using our low level quantum stuff. relevant 7/2/2019
+QUANTCOM CIRCUIT SIMULATOR
+relevant 18/3/2019
 
-1. What you need:
-to use this stuff you need to from gatec.py import * into your code
-its also a good idea to get numpy just in case
+These files can be used to simulate any quantum computing circuit you wish. RunGrover.py is an example of using these files to run grovers algorithm. Remember that n is the number of qubits that have been combined to make a register. The sie of the actual matrix will be 2^n.
 
-2. Creating Objects:
-before you calculate your algorithm you need to create the gates and qubits you are going to use. They are all matrices so share some similar properties. Calling print() on any of these will return the array, and len() will return the number of qubits it operates on (not the actual size of the matrix)
+To use, import with the line "from dense import *". To use the sparse implementation (not fully working) "from sparse import *". To use the dense implementation (working even less) "from lazy import *". 
 
-qubits:
-q = Qubit([1d array of values]) 
-q.measure() measures the qubit
+In order to create a qubit in a particular state given by an array: Qubit(array)
+q.normalise() can be used to normalise if necessary. 
+In order to create a zero state qubit register of sie 2^n:
+Qubit(n)
+
+In order to create Gates:
+
+Some are generalised to act on n sized qubit registers (n=x indicates default size if not specified. 
+Hadamard: Hadamard(n=1)
+Phase shift: Phase(phase shift, n=1)
+Identity: Identity(n=1)
+Pauli X: Paulix(n=1)
+Controlled Not: CNot(n=2)
+Controlled Phase: CPhase(phase,n=2)
+Swap: Swap(n=2, index to be swapped = 0,index to be swapped = 1) 
+Controlled versions of any 1 qubit gate can be created: Controlled(gate,n=2)
+
+As a relic, there are some hard coded Combined gates for Grovers:
+Diffusion(n)
+Oracle(n,fockspace target)
+
+Other gates are not generalised, but can be by using gate.Generalise(n)
+1 qubit gates:
+V : V()
+Pauli Z: PauliZ()
+Paulit Y: PauliY()
+3 qubit gates:
+Toffoli: Toffoli()
+
+To combine gates vertically on a circuit diagram use &
+    eg a = Hadamard(x) & PauliZ(y)
+    The result will be a combined gate that can act on quantum       registers of size n = x + y 
+
+To combine gates horizontally on a circuit diagram use *
+    eg a = Hadamard(n) * PauliZ(n)
+    The gates must be the same size.
+    The result will be a combined gate that enacts both gates when applied to a register of size n
+
+To combine qubits into quantum registers use &
+    eg Q = Qubit(x) & Qubit(y)
+    The result will be a quantum register of size n = x + y
+    Q = Qubit(x + y)
+
+To enact gates on qubits use *
+    eg q = Hadamard(n)*Qubit(n)
+    the size of the gate and register must be equal.
+    The result will be a transformed qubit register
+    q = Qubit(n)
+
+While there a fair number of different orders in which gates and qubits can be combined to get the same result that will all work, we recommend the following for speed and clarity:
+0. Inspect your circuit diagram, and create the gates you believe will be needed. H = Hadamard(), I = Identity(2), cN = CNot(), PX = PauliX(3) 
+1. Create a quantum register in 0 state of desired size (count the wires for n): q = Qubit(3)
+2. Inspect each column of your circuit diagram and use & to combine each gate that appears top to bottom, using Identity() for blank wires. g1 = H & I, g2 = cN & H, g3 = PX 
+3. Enact each column on the quantum register in turn:
+q = g1*q, q = g2*q, q = g3*q
+
+This implements this circuit: 
+--- Hadamard --- CNot control --- PauliX
+-----------------CNot Target  --- PauliX
+-----------------Hadamard     --- PauliX
+
+After applying the gates you want to qubits, the final state of the qubit can be measured using qubit.measure(). This will select a probable final state from the quantum register, in the form of an all 0 array with a 1 in the selected state. 
 
 
-gates (important ones: have a look for others if you need)
-Hadamard: H = Hadamard()
-Identity: I = Identity(n) where n is number of qubits you are operating on, default is 1
-CPhase: B = CPhase(phase)
-Pauli X: px = PauliX()
-
-You can also make your own gate (probably useful for oracle?) with:
-mygate = Gate([2d array of values])
-
-3. Operations:
-tensor product: & symbol between matrices
-matrix multiplication: * 
-assert errors should be helpful enough here, remember laws of matrix multiplication
-
-remember matrices are applied from R to L (according to J)
-
-if this very sparse guide is not helpful,harrass me on the groupchat.
-
-Gralster xoxox
 
 
 
