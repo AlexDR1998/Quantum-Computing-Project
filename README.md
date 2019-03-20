@@ -74,6 +74,8 @@ After applying the gates you want to qubits, the final state of the qubit can be
 
 Running Grover's has been made mostly user friendly via the terminal. It can only be ran in python3, and done by calling RunGrover.py.
 
+Each function has been described in the class, so there are more details there.
+
 # RunGrover.py #
 
 This file will be set to having check = 'run'. This allows the simulation to run as normal. There are options to run tests by changing check. These are:
@@ -89,5 +91,3 @@ This controlled the I/O of the programme, with other sections for Shor's etc. Ru
 This is the main file for governing Grover's algorithm. There are a couple of options to run here.
 - In the function 'grover', there are two NOTE sections which describe areas to comment in to run using full preformed Oracle and Diffusion gates, but by default the faster method(sequential application) is used.
 - There is a NOTE at the bottom of 'run', which informs of the option to comment in the 'Display' function which will display the Oracle and Diffusion matrices used for that simulation. This is done even if sequential application was used as it is the easiest way to see the effects of noise. Using these will increase the runtime.
-
-Each function has been described in the class, so there are more details there.
