@@ -90,4 +90,15 @@ This controlled the I/O of the programme, with other sections for Shor's etc. Ru
 
 This is the main file for governing Grover's algorithm. There are a couple of options to run here.
 - In the function 'grover', there are two NOTE sections which describe areas to comment in to run using full preformed Oracle and Diffusion gates, but by default the faster method(sequential application) is used.
-- There is a NOTE at the bottom of 'run', which informs of the option to comment in the 'Display' function which will display the Oracle and Diffusion matrices used for that simulation. This is done even if sequential application was used as it is the easiest way to see the effects of noise. Using these will increase the runtime.
+- There is a NOTE at the bottom of 'run', which informs of the option to comment in the 'display' function which will display the Oracle and Diffusion matrices used for that simulation. This is done even if sequential application was used as it is the easiest way to see the effects of noise. Using these will increase the runtime.
+
+
+# shor.py #
+
+This file contains all the functions used to implement Shor's algorithm. To run Shor's algorithm,
+import the file or insert a main method, and use shor(N,qubits,noise).
+
+qubits is the number of qubits for the QFT
+N should be a non square semi prime that is between 2^(qubits-1) and 2^(qubits)
+
+

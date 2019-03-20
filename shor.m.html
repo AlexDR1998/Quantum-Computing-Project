@@ -1051,11 +1051,13 @@ table {
     <li class="mono"><a href="#shor.I">I</a></li>
     <li class="mono"><a href="#shor.QFT">QFT</a></li>
     <li class="mono"><a href="#shor.R">R</a></li>
+    <li class="mono"><a href="#shor.S">S</a></li>
     <li class="mono"><a href="#shor.coPrimes">coPrimes</a></li>
     <li class="mono"><a href="#shor.extendedGCD">extendedGCD</a></li>
     <li class="mono"><a href="#shor.iQFT">iQFT</a></li>
     <li class="mono"><a href="#shor.isPrime">isPrime</a></li>
     <li class="mono"><a href="#shor.modexp">modexp</a></li>
+    <li class="mono"><a href="#shor.noise_tests">noise_tests</a></li>
     <li class="mono"><a href="#shor.shor">shor</a></li>
     <li class="mono"><a href="#shor.step_test">step_test</a></li>
   </ul>
@@ -1109,10 +1111,14 @@ Broken up into various subroutines (some quantum some classical)</p>
 				<span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">g</span>
 	<span class="k">else</span><span class="p">:</span>
-		<span class="k">return</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">Flip</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">noise</span><span class="p">)</span>
+		<span class="n">g</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">//</span><span class="mi">2</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">i</span><span class="o">!=</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">):</span>
+				<span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">*</span><span class="n">Noisy</span><span class="p">(</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">),</span><span class="n">noise</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">g</span>
 
 
-<span class="k">def</span> <span class="nf">R</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">R</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Function that calls controlled phase gate, with optional noise</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">if</span> <span class="n">noise</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
@@ -1120,7 +1126,7 @@ Broken up into various subroutines (some quantum some classical)</p>
 	<span class="k">else</span><span class="p">:</span>
 		<span class="k">return</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">CPhase</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">**</span><span class="n">n</span><span class="p">)),</span><span class="n">noise</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Function that calls Hadamard gate of size n, with optional noise</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">if</span> <span class="n">noise</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
@@ -1135,86 +1141,49 @@ Broken up into various subroutines (some quantum some classical)</p>
 	<span class="k">else</span><span class="p">:</span>
 		<span class="k">return</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">Identity</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="n">noise</span><span class="p">)</span>
 
+<span class="k">def</span> <span class="nf">S</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Function that calls Swap gate of size n, with optional noise</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="n">noise</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">),</span><span class="n">noise</span><span class="p">)</span>
+
 <span class="c1">#--- QFT defined recursively ---</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">def QFT(N):</span>
 
-<span class="sd">	def _QFT(n):</span>
-<span class="sd">		#Method to return gate for n qubit fourier transform</span>
-<span class="sd">		if n==2:</span>
-<span class="sd">			#Base case</span>
-<span class="sd">			#return ((Identity()&amp;Hadamard())*(R(2))*(Hadamard()&amp;Identity()))</span>
-<span class="sd">			return ((H()&amp;I())*(R(2))*(I()&amp;H()))#*Swap(2,0,1))</span>
-<span class="sd">		else:</span>
-<span class="sd">			g1 = _QFT(n-1)&amp;I()</span>
-<span class="sd">			g2 = I(n)</span>
-<span class="sd">			#print(range(n-2))</span>
-<span class="sd">			</span>
-<span class="sd">			for i in range(n-2):</span>
-<span class="sd">				#print(n-i)</span>
-<span class="sd">				g2 = g2*Swap(n,i,n-2)*(I(n-2)&amp;R(n-i))*Swap(n,i,n-2)</span>
-<span class="sd">			#IO.Display(g2)</span>
-<span class="sd">			g3 = (I(n-2)&amp;R(2))*(I(n-1)&amp;H())</span>
-<span class="sd">			return (g1*g2*g3)</span>
-<span class="sd">	#Some ambiguity whether Flip gate is needed here. Appears to work with or without</span>
-<span class="sd">	return _QFT(N)*Flip(N)</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="k">def</span> <span class="nf">QFT</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">QFT</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]):</span>
 	<span class="sd">&quot;&quot;&quot;Function to combine gates to form a Quantum Fourier Transform (QFT) on N qubits.</span>
 <span class="sd">	Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence</span>
+<span class="sd">	noise vector applies noise to Swap, Phase, Hadamard and Identity gates</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">def</span> <span class="nf">_QFT</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>	
 		<span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
 			<span class="c1">#Base case</span>
-			<span class="k">return</span> <span class="p">((</span><span class="n">H</span><span class="p">()</span><span class="o">&amp;</span><span class="n">I</span><span class="p">())</span><span class="o">*</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">()</span><span class="o">&amp;</span><span class="n">H</span><span class="p">()))</span><span class="c1">#*Swap(2,0,1))</span>
+			<span class="k">return</span> <span class="p">((</span><span class="n">H</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">&amp;</span><span class="n">I</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span><span class="o">*</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">H</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">])))</span><span class="c1">#*Swap(2,0,1))</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="n">g1</span> <span class="o">=</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">I</span><span class="p">()</span>
-			<span class="n">g2</span> <span class="o">=</span> <span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+			<span class="n">g1</span> <span class="o">=</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">I</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+			<span class="n">g2</span> <span class="o">=</span> <span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
 			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
-				<span class="n">g2</span> <span class="o">=</span> <span class="n">g2</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">))</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-			<span class="n">g3</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">H</span><span class="p">())</span>
+				<span class="n">g2</span> <span class="o">=</span> <span class="n">g2</span><span class="o">*</span><span class="n">S</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">*</span><span class="n">S</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+			<span class="n">g3</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">H</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
 			<span class="k">return</span> <span class="p">(</span><span class="n">g1</span><span class="o">*</span><span class="n">g2</span><span class="o">*</span><span class="n">g3</span><span class="p">)</span>
 	<span class="c1">#Some ambiguity whether Flip gate is needed here. Appears to work with or without</span>
-	<span class="k">return</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">Flip</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">Flip</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 
 
-<span class="c1">#--- Inverse QFT defined recursively ---</span>
 
-<span class="k">def</span> <span class="nf">iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Function to combine gates to form an inverse Quantum Fourier Transform (QFT) on N qubits.</span>
-<span class="sd">	Defined recursively. The same gates as QFt but in reverse order.</span>
-<span class="sd">	Returns Identity gate if 4 iQFTs are multiplied in sequence, or if 2 QFTs and 2 iQFTs are multiplied.</span>
+
+
+
+<span class="k">def</span> <span class="nf">iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Inverse QFT, defined using the maths that </span>
+<span class="sd">	QFT^4 = Identity =&gt; (QFT^3)*QFT = Identity =&gt; inverse of QFT = QFT^3</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="k">def</span> <span class="nf">_iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-		<span class="c1">#Inverse fourier transform</span>
-		<span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
-			<span class="k">return</span> <span class="p">((</span><span class="n">I</span><span class="p">()</span><span class="o">&amp;</span><span class="n">H</span><span class="p">())</span><span class="o">*</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">H</span><span class="p">()</span><span class="o">&amp;</span><span class="n">I</span><span class="p">()))</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="n">g1</span> <span class="o">=</span> <span class="n">_iQFT</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">I</span><span class="p">()</span>
-			<span class="n">g2</span> <span class="o">=</span> <span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
-				<span class="n">g2</span> <span class="o">=</span> <span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">))</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">g2</span>
-			<span class="n">g3</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">H</span><span class="p">())</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-			<span class="k">return</span> <span class="p">(</span><span class="n">g3</span><span class="o">*</span><span class="n">g2</span><span class="o">*</span><span class="n">g1</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">Flip</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">_iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">def HardQFT3():</span>
-<span class="sd">	#Hard coded 3 qubit qft for testing against</span>
-<span class="sd">	return (H()&amp;I(2))*(R(2)&amp;I())*(I()&amp;H()&amp;I())*(Swap(3,0,1)*(I()&amp;R(3))*Swap(3,0,1))*(I()&amp;R(2))*(I(2)&amp;H())*Swap(3,0,2)</span>
-
-
-<span class="sd">def HardQFT2():</span>
-<span class="sd">	#Hard coded 2 Qubit qft</span>
-<span class="sd">	return (H()&amp;I())*R(2)*(I()&amp;H())*Swap(2,0,1)</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
+	<span class="n">f</span> <span class="o">=</span> <span class="n">QFT</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">f</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">f</span>
 
 
 
@@ -1281,9 +1250,13 @@ Broken up into various subroutines (some quantum some classical)</p>
 
 
 
-<span class="k">def</span> <span class="nf">shor</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">qubits</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Shors algorithm for number factorisation. Not 100% sure it&#39;s correct.</span>
-<span class="sd">	N defines the number to factorise, qubits defines the size of the QFT section</span>
+<span class="k">def</span> <span class="nf">shor</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">qubits</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">purely_quantum</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Shors algorithm for number factorisation. N is semiprime number to factorise.</span>
+<span class="sd">	qubits is number of qubits to use for QFT. purely_quantum defines whether to allow</span>
+<span class="sd">	initial guess being correct to terminate run, used mainly for checking the rest of the</span>
+<span class="sd">	algorithm works, as often the initial guess being correct is more likely than the QFT</span>
+<span class="sd">	factorising (especially for smaller numbers). verbose triggers various print statements</span>
+
 <span class="sd">	&quot;&quot;&quot;</span>
 	
 	<span class="k">assert</span> <span class="n">N</span><span class="o">%</span><span class="mi">2</span><span class="o">!=</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;N must be odd&quot;</span>
@@ -1301,23 +1274,28 @@ Broken up into various subroutines (some quantum some classical)</p>
 		<span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span><span class="mi">1</span>
 		<span class="n">guess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 		
-		<span class="c1">#print(guess)</span>
 		<span class="n">divisor</span> <span class="o">=</span> <span class="n">GCD</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">guess</span><span class="p">)</span>
-		<span class="c1">#print(&quot;Does &quot;+str(guess)+&quot; factor &quot;+str(N))</span>
+		<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Does &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">guess</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factor &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; ?&quot;</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">divisor</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
 			
 			<span class="c1">#If gcd(N,guess) is not 1, then guess is a factor of N. Lucky</span>
-			<span class="c1">#print(&quot;Divisor &quot;+str(divisor)+&quot; factorises &quot;+str(N)+&quot;, not found by QFT&quot;)</span>
+			<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+				<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Divisor &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">divisor</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factorises &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;, found by guessing&quot;</span><span class="p">)</span>
 			<span class="c1">#found = True</span>
-			<span class="k">pass</span>
-			<span class="c1">#return [divisor,divisor,counter]</span>
+			<span class="k">if</span> <span class="n">purely_quantum</span><span class="p">:</span>
+				<span class="k">pass</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">return</span> <span class="p">[</span><span class="n">divisor</span><span class="p">,</span><span class="n">divisor</span><span class="p">,</span><span class="n">counter</span><span class="p">]</span>
+
+			<span class="c1">#pass</span>
 
 		<span class="c1">#Run modular exponentiation with base = guess, mod = N</span>
 		<span class="n">qreg</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">modexp</span><span class="p">(</span><span class="n">guess</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">qubits</span><span class="p">))</span>
 		<span class="c1">#print(np.sum(qreg.ret_mod()))</span>
 		<span class="c1">#Apply QFT to qubit register</span>
-		<span class="n">qreg</span> <span class="o">=</span> <span class="n">iQFT</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span><span class="o">*</span><span class="n">qreg</span>
+		<span class="n">qreg</span> <span class="o">=</span> <span class="n">iQFT</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span><span class="n">noise</span><span class="p">)</span><span class="o">*</span><span class="n">qreg</span>
 		
 		<span class="c1">#qubit_profile = np.vstack((qubit_profile,qreg.ret_mod()))</span>
 		<span class="c1">#Measure qubit register to estimate frequency</span>
@@ -1329,7 +1307,8 @@ Broken up into various subroutines (some quantum some classical)</p>
 		<span class="c1">#Transform frequency to nearest discrete value</span>
 		<span class="n">sample_freq</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="mi">2</span><span class="o">**</span><span class="n">qubits</span><span class="p">)</span>
 		<span class="n">p</span> <span class="o">=</span> <span class="n">sample_freq</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">denominator</span>
-		<span class="c1">#print(&quot;Period guess &quot;+str(p))</span>
+		<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Period guess &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
 
 		<span class="c1">#if period is odd or is trivial square root, start again</span>
 
@@ -1340,11 +1319,13 @@ Broken up into various subroutines (some quantum some classical)</p>
 			<span class="c1">#print(g2)</span>
 
 			<span class="k">if</span> <span class="n">g1</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
-				<span class="c1">#print(str(g1)+&quot; factorises &quot;+str(N))</span>
+				<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+					<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">g1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factorises &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;, found with QFT&quot;</span><span class="p">)</span>
 				<span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
 				<span class="c1">#return</span>
 			<span class="k">if</span> <span class="n">g2</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
-				<span class="c1">#print(str(g2)+&quot; factorises &quot;+str(N))</span>
+				<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+					<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factorises &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;, found with QFT&quot;</span><span class="p">)</span>
 				<span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
 			<span class="k">if</span> <span class="n">g1</span><span class="o">!=</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">g2</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
 				<span class="c1">#print(str(counter)+&quot; steps&quot;)</span>
@@ -1375,15 +1356,17 @@ Broken up into various subroutines (some quantum some classical)</p>
 	<span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
 	<span class="k">while</span> <span class="p">(</span><span class="n">res</span> <span class="o">&gt;</span><span class="mi">2</span><span class="o">**</span><span class="n">bits</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">bits_lower</span><span class="p">)):</span>
 		<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">primes</span><span class="p">))</span>
-		<span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
 			<span class="n">y</span><span class="o">=</span><span class="mi">0</span>
+		<span class="k">elif</span> <span class="n">x</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+			<span class="n">y</span><span class="o">=</span><span class="mi">1</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+			<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 		<span class="n">res</span> <span class="o">=</span> <span class="n">prime_products</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span>
 	<span class="k">return</span> <span class="n">res</span><span class="p">,</span><span class="n">primes</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="n">primes</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">step_test</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">,</span><span class="n">its</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">step_test</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">,</span><span class="n">its</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]):</span>
 	<span class="sd">&quot;&quot;&quot;Method for testing shors on randomly generated prime products.</span>
 <span class="sd">	Plots number of QFTs applied against size of Qubit register. upper and lower</span>
 <span class="sd">	give upper and lower bounds to number of qubits in QFT. its defines how many</span>
@@ -1393,32 +1376,77 @@ Broken up into various subroutines (some quantum some classical)</p>
 	<span class="n">misses</span> <span class="o">=</span> <span class="mi">0</span>
 	
 	<span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">its</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">))))</span>
-
+	<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">its</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">))))</span>
 	<span class="k">for</span> <span class="n">bits</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">)):</span>
-		<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Runnint tests for &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; Qubits&quot;</span><span class="p">)</span>
+		<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Running tests for &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; Qubits&quot;</span><span class="p">)</span>
 		<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">its</span><span class="p">):</span>
 			<span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 			<span class="n">coprime</span><span class="p">,</span><span class="n">prime1</span><span class="p">,</span><span class="n">prime2</span> <span class="o">=</span> <span class="n">coPrimes</span><span class="p">(</span><span class="n">bits</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">bits</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-			<span class="n">res</span> <span class="o">=</span> <span class="n">shor</span><span class="p">(</span><span class="n">coprime</span><span class="p">,</span><span class="n">bits</span><span class="p">)</span>
+			<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="n">res</span> <span class="o">=</span> <span class="n">shor</span><span class="p">(</span><span class="n">coprime</span><span class="p">,</span><span class="n">bits</span><span class="p">,</span><span class="n">noise</span><span class="p">)</span>
+			<span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 			<span class="n">steps</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">bits</span><span class="o">-</span><span class="n">lower</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+			<span class="n">times</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">bits</span><span class="o">-</span><span class="n">lower</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span><span class="o">-</span><span class="n">t1</span>
 			<span class="k">if</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">prime1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">prime2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">prime1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">prime2</span><span class="p">):</span>
 				<span class="n">hits</span> <span class="o">=</span> <span class="n">hits</span><span class="o">+</span><span class="mi">1</span>
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">misses</span> <span class="o">=</span> <span class="n">misses</span> <span class="o">+</span><span class="mi">1</span>
 	<span class="n">ms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 	<span class="n">ers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">),</span><span class="n">y</span><span class="o">=</span><span class="n">ms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">ers</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
-	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+	<span class="n">m_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+	<span class="n">ers_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
 	<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">hits</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; succesful factorings&quot;</span><span class="p">)</span>
 	<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">misses</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; failures&quot;</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">ms</span><span class="p">,</span><span class="n">ers</span><span class="p">,</span><span class="n">m_time</span><span class="p">,</span><span class="n">ers_time</span>
+
+
+<span class="k">def</span> <span class="nf">noise_tests</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">):</span>
+
+	<span class="n">max_qubits</span> <span class="o">=</span> <span class="n">max_qubits</span><span class="o">+</span><span class="mi">1</span>
+	<span class="n">noise_hadamard</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">noise_phase</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">ms</span><span class="p">,</span><span class="n">errs</span><span class="p">,</span><span class="n">ts</span><span class="p">,</span><span class="n">t_errs</span> <span class="o">=</span> <span class="n">step_test</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">)</span>
+	<span class="n">hms</span><span class="p">,</span><span class="n">herrs</span><span class="p">,</span><span class="n">hts</span><span class="p">,</span><span class="n">ht_errs</span> <span class="o">=</span> <span class="n">step_test</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">,</span><span class="n">noise_hadamard</span><span class="p">)</span>
+	<span class="n">pms</span><span class="p">,</span><span class="n">perrs</span><span class="p">,</span><span class="n">pts</span><span class="p">,</span><span class="n">pt_errs</span> <span class="o">=</span> <span class="n">step_test</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">,</span><span class="n">noise_phase</span><span class="p">)</span>
+	<span class="n">xs</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">ms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;No noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">hms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">herrs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hadamard noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">pms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">perrs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Phase noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+	<span class="c1">#plt.legend([&#39;clean&#39;,&#39;noise&#39;])</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Number of Qubits&quot;</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Number of QFT applications&quot;</span><span class="p">)</span>
+	<span class="c1">#plt.title(&quot;QFT applications required&quot;)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">ts</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">t_errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;No noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">hts</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">ht_errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hadamard noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">pts</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">pt_errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Phase noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+	<span class="c1">#plt.legend([&#39;clean&#39;,&#39;noise&#39;])</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Number of Qubits&quot;</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Time taken (s)&quot;</span><span class="p">)</span>
+	<span class="c1">#plt.title(&quot;Shor&#39;s Runtimes&quot;)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>	
+
 
 
 
 <span class="c1">#def main():</span>
 
-	<span class="c1">#step_test(4,11,20)</span>
+
+
+
+	<span class="c1">#noise_tests(3,6,20)</span>
+
 	<span class="c1">#print(coPrimes(7,4))</span>
-	<span class="c1">#print(shor(7*17,8))</span>
+	<span class="c1">#print(shor(7*5,5,noise,verbose=True))</span>
+	
 	<span class="c1">#print(isPrime(209))</span>
 	<span class="c1">#for x in range(10):</span>
 	<span class="c1">#	print(coPrimes(8))</span>
@@ -1433,15 +1461,29 @@ Broken up into various subroutines (some quantum some classical)</p>
 	<span class="c1">#q1 = Qubit(8)</span>
 	<span class="c1">#print(q1.ret_mod())</span>
 	<span class="c1">#q = (Hadamard(3)&amp;Identity(5))*q1</span>
+	<span class="c1">#qreg = Qubit(modexp(41,37,6))</span>
+	<span class="c1">#IO.Hist(qreg)</span>
+	<span class="c1">#noise = [0,0,0,0]</span>
+	<span class="c1">#ift = iQFT(3,noise)</span>
+	<span class="c1">#ft = QFT(3,noise)</span>
+	<span class="c1">#ift = ft*ft*ft</span>
+	<span class="c1">#IO.Display(QFT(4,noise)*QFT(4,noise)*iQFT(4,noise)*iQFT(4,noise))</span>
+	<span class="c1">#IO.Display(ft)</span>
+	<span class="c1">#IO.Display(ift)</span>
+	<span class="c1">#IO.Display(ft*ift)</span>
+	<span class="c1">#IO.Hist(ft*ift*qreg)</span>
 	
+	<span class="c1">#IO.Display(ft)</span>
+	<span class="c1">#IO.Hist(ft*qreg)</span>
 	
-	<span class="c1">#ft = QFT(6)</span>
-	
-	<span class="c1">#qreg = modexp(2311,9123,10)</span>
-	<span class="c1">#q = Qubit(qreg)</span>
-	<span class="c1">#IO.Display(QFT(7))#*QFT(7)*QFT(7)*QFT(7))</span>
-	<span class="c1">#IO.Hist(ft*q)</span>
-	<span class="c1">#IO.Hist(ft*Flip(10)*q)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	qreg = Qubit(modexp(13,29,6))</span>
+<span class="sd">	IO.Hist(qreg)</span>
+<span class="sd">	noise = [0,0,0,0]</span>
+<span class="sd">	ft = QFT(6,noise)</span>
+<span class="sd">	IO.Display(ft)</span>
+<span class="sd">	IO.Hist(ft*qreg)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
 	
 
 <span class="c1">#main()</span>
@@ -1477,7 +1519,11 @@ Broken up into various subroutines (some quantum some classical)</p>
 				<span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">g</span>
 	<span class="k">else</span><span class="p">:</span>
-		<span class="k">return</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">Flip</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">noise</span><span class="p">)</span>
+		<span class="n">g</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">//</span><span class="mi">2</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">i</span><span class="o">!=</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">):</span>
+				<span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">*</span><span class="n">Noisy</span><span class="p">(</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">),</span><span class="n">noise</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">g</span>
 </pre></div>
 
   </div>
@@ -1516,7 +1562,7 @@ Broken up into various subroutines (some quantum some classical)</p>
       
   <div class="item">
     <div class="name def" id="shor.H">
-    <p>def <span class="ident">H</span>(</p><p>n=1, noise=0.1)</p>
+    <p>def <span class="ident">H</span>(</p><p>n=1, noise=0)</p>
     </div>
     
 
@@ -1526,7 +1572,7 @@ Broken up into various subroutines (some quantum some classical)</p>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.H', this);">Show source &equiv;</a></p>
   <div id="source-shor.H" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Function that calls Hadamard gate of size n, with optional noise</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">if</span> <span class="n">noise</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
@@ -1570,34 +1616,36 @@ Broken up into various subroutines (some quantum some classical)</p>
       
   <div class="item">
     <div class="name def" id="shor.QFT">
-    <p>def <span class="ident">QFT</span>(</p><p>N)</p>
+    <p>def <span class="ident">QFT</span>(</p><p>N, noise=[0, 0, 0, 0])</p>
     </div>
     
 
     
   
     <div class="desc"><p>Function to combine gates to form a Quantum Fourier Transform (QFT) on N qubits.
-Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence</p></div>
+Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence
+noise vector applies noise to Swap, Phase, Hadamard and Identity gates</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.QFT', this);">Show source &equiv;</a></p>
   <div id="source-shor.QFT" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">QFT</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">QFT</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]):</span>
 	<span class="sd">&quot;&quot;&quot;Function to combine gates to form a Quantum Fourier Transform (QFT) on N qubits.</span>
 <span class="sd">	Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence</span>
+<span class="sd">	noise vector applies noise to Swap, Phase, Hadamard and Identity gates</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">def</span> <span class="nf">_QFT</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>	
 		<span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
 			<span class="c1">#Base case</span>
-			<span class="k">return</span> <span class="p">((</span><span class="n">H</span><span class="p">()</span><span class="o">&amp;</span><span class="n">I</span><span class="p">())</span><span class="o">*</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">()</span><span class="o">&amp;</span><span class="n">H</span><span class="p">()))</span><span class="c1">#*Swap(2,0,1))</span>
+			<span class="k">return</span> <span class="p">((</span><span class="n">H</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">&amp;</span><span class="n">I</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span><span class="o">*</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">H</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">])))</span><span class="c1">#*Swap(2,0,1))</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="n">g1</span> <span class="o">=</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">I</span><span class="p">()</span>
-			<span class="n">g2</span> <span class="o">=</span> <span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+			<span class="n">g1</span> <span class="o">=</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">I</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+			<span class="n">g2</span> <span class="o">=</span> <span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
 			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
-				<span class="n">g2</span> <span class="o">=</span> <span class="n">g2</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">))</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-			<span class="n">g3</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">H</span><span class="p">())</span>
+				<span class="n">g2</span> <span class="o">=</span> <span class="n">g2</span><span class="o">*</span><span class="n">S</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">*</span><span class="n">S</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+			<span class="n">g3</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">&amp;</span><span class="n">H</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
 			<span class="k">return</span> <span class="p">(</span><span class="n">g1</span><span class="o">*</span><span class="n">g2</span><span class="o">*</span><span class="n">g3</span><span class="p">)</span>
 	<span class="c1">#Some ambiguity whether Flip gate is needed here. Appears to work with or without</span>
-	<span class="k">return</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">Flip</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">_QFT</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">Flip</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 
   </div>
@@ -1608,7 +1656,7 @@ Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence<
       
   <div class="item">
     <div class="name def" id="shor.R">
-    <p>def <span class="ident">R</span>(</p><p>n, noise=0.1)</p>
+    <p>def <span class="ident">R</span>(</p><p>n, noise=0)</p>
     </div>
     
 
@@ -1618,13 +1666,40 @@ Defined recursively. Returns Identity gate if 4 QFTs are multiplied in sequence<
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.R', this);">Show source &equiv;</a></p>
   <div id="source-shor.R" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">R</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">R</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Function that calls controlled phase gate, with optional noise</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">if</span> <span class="n">noise</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
 		<span class="k">return</span> <span class="n">CPhase</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">**</span><span class="n">n</span><span class="p">))</span>
 	<span class="k">else</span><span class="p">:</span>
 		<span class="k">return</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">CPhase</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">**</span><span class="n">n</span><span class="p">)),</span><span class="n">noise</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="shor.S">
+    <p>def <span class="ident">S</span>(</p><p>n, a, b, noise=0)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Function that calls Swap gate of size n, with optional noise</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.S', this);">Show source &equiv;</a></p>
+  <div id="source-shor.S" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">S</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Function that calls Swap gate of size n, with optional noise</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="n">noise</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">Noisy</span><span class="p">(</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">),</span><span class="n">noise</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1659,10 +1734,12 @@ Also returns the 2 prime factors</p></div>
 	<span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
 	<span class="k">while</span> <span class="p">(</span><span class="n">res</span> <span class="o">&gt;</span><span class="mi">2</span><span class="o">**</span><span class="n">bits</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">bits_lower</span><span class="p">)):</span>
 		<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">primes</span><span class="p">))</span>
-		<span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
 			<span class="n">y</span><span class="o">=</span><span class="mi">0</span>
+		<span class="k">elif</span> <span class="n">x</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+			<span class="n">y</span><span class="o">=</span><span class="mi">1</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+			<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 		<span class="n">res</span> <span class="o">=</span> <span class="n">prime_products</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span>
 	<span class="k">return</span> <span class="n">res</span><span class="p">,</span><span class="n">primes</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="n">primes</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
 </pre></div>
@@ -1707,35 +1784,24 @@ that arise between 2 numbers during the process of finding the GCD.</p></div>
       
   <div class="item">
     <div class="name def" id="shor.iQFT">
-    <p>def <span class="ident">iQFT</span>(</p><p>n)</p>
+    <p>def <span class="ident">iQFT</span>(</p><p>n, noise=[0, 0, 0, 0])</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Function to combine gates to form an inverse Quantum Fourier Transform (QFT) on N qubits.
-Defined recursively. The same gates as QFt but in reverse order.
-Returns Identity gate if 4 iQFTs are multiplied in sequence, or if 2 QFTs and 2 iQFTs are multiplied.</p></div>
+    <div class="desc"><p>Inverse QFT, defined using the maths that 
+QFT^4 = Identity =&gt; (QFT^3)*QFT = Identity =&gt; inverse of QFT = QFT^3</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.iQFT', this);">Show source &equiv;</a></p>
   <div id="source-shor.iQFT" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Function to combine gates to form an inverse Quantum Fourier Transform (QFT) on N qubits.</span>
-<span class="sd">	Defined recursively. The same gates as QFt but in reverse order.</span>
-<span class="sd">	Returns Identity gate if 4 iQFTs are multiplied in sequence, or if 2 QFTs and 2 iQFTs are multiplied.</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Inverse QFT, defined using the maths that </span>
+<span class="sd">	QFT^4 = Identity =&gt; (QFT^3)*QFT = Identity =&gt; inverse of QFT = QFT^3</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="k">def</span> <span class="nf">_iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-		<span class="c1">#Inverse fourier transform</span>
-		<span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
-			<span class="k">return</span> <span class="p">((</span><span class="n">I</span><span class="p">()</span><span class="o">&amp;</span><span class="n">H</span><span class="p">())</span><span class="o">*</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">H</span><span class="p">()</span><span class="o">&amp;</span><span class="n">I</span><span class="p">()))</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="n">g1</span> <span class="o">=</span> <span class="n">_iQFT</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">I</span><span class="p">()</span>
-			<span class="n">g2</span> <span class="o">=</span> <span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
-				<span class="n">g2</span> <span class="o">=</span> <span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">))</span><span class="o">*</span><span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">g2</span>
-			<span class="n">g3</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">H</span><span class="p">())</span><span class="o">*</span><span class="p">(</span><span class="n">I</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">R</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-			<span class="k">return</span> <span class="p">(</span><span class="n">g3</span><span class="o">*</span><span class="n">g2</span><span class="o">*</span><span class="n">g1</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">Flip</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">_iQFT</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+	<span class="n">f</span> <span class="o">=</span> <span class="n">QFT</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">noise</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">f</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">f</span>
 </pre></div>
 
   </div>
@@ -1815,21 +1881,128 @@ given a prime number to factorise</p></div>
   
       
   <div class="item">
-    <div class="name def" id="shor.shor">
-    <p>def <span class="ident">shor</span>(</p><p>N, qubits)</p>
+    <div class="name def" id="shor.noise_tests">
+    <p>def <span class="ident">noise_tests</span>(</p><p>min_qubits, max_qubits, its)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Shors algorithm for number factorisation. Not 100% sure it's correct.
-N defines the number to factorise, qubits defines the size of the QFT section</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.noise_tests', this);">Show source &equiv;</a></p>
+  <div id="source-shor.noise_tests" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">noise_tests</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">):</span>
+
+	<span class="n">max_qubits</span> <span class="o">=</span> <span class="n">max_qubits</span><span class="o">+</span><span class="mi">1</span>
+	<span class="n">noise_hadamard</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">noise_phase</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">ms</span><span class="p">,</span><span class="n">errs</span><span class="p">,</span><span class="n">ts</span><span class="p">,</span><span class="n">t_errs</span> <span class="o">=</span> <span class="n">step_test</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">)</span>
+	<span class="n">hms</span><span class="p">,</span><span class="n">herrs</span><span class="p">,</span><span class="n">hts</span><span class="p">,</span><span class="n">ht_errs</span> <span class="o">=</span> <span class="n">step_test</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">,</span><span class="n">noise_hadamard</span><span class="p">)</span>
+	<span class="n">pms</span><span class="p">,</span><span class="n">perrs</span><span class="p">,</span><span class="n">pts</span><span class="p">,</span><span class="n">pt_errs</span> <span class="o">=</span> <span class="n">step_test</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">,</span><span class="n">its</span><span class="p">,</span><span class="n">noise_phase</span><span class="p">)</span>
+	<span class="n">xs</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_qubits</span><span class="p">,</span><span class="n">max_qubits</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">ms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;No noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">hms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">herrs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hadamard noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">pms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">perrs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Phase noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+	<span class="c1">#plt.legend([&#39;clean&#39;,&#39;noise&#39;])</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Number of Qubits&quot;</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Number of QFT applications&quot;</span><span class="p">)</span>
+	<span class="c1">#plt.title(&quot;QFT applications required&quot;)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">ts</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">t_errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;No noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">hts</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">ht_errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hadamard noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">pts</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">pt_errs</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Phase noise&quot;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+	<span class="c1">#plt.legend([&#39;clean&#39;,&#39;noise&#39;])</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Number of Qubits&quot;</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Time taken (s)&quot;</span><span class="p">)</span>
+	<span class="c1">#plt.title(&quot;Shor&#39;s Runtimes&quot;)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>	
+
+
+
+
+<span class="c1">#def main():</span>
+
+
+
+
+	<span class="c1">#noise_tests(3,6,20)</span>
+
+	<span class="c1">#print(coPrimes(7,4))</span>
+	<span class="c1">#print(shor(7*5,5,noise,verbose=True))</span>
+	
+	<span class="c1">#print(isPrime(209))</span>
+	<span class="c1">#for x in range(10):</span>
+	<span class="c1">#	print(coPrimes(8))</span>
+	<span class="c1">#ls = filter(isPrime,range(1000))</span>
+	<span class="c1">#print(ls)</span>
+	<span class="c1">#a = Fraction(1.234567).limit_denominator(1000)</span>
+
+	<span class="c1">#print(a)</span>
+
+	<span class="c1">#print(extendedGCD(416,93))</span>
+	<span class="c1">#print(continued_fraction(1,93,416))</span>
+	<span class="c1">#q1 = Qubit(8)</span>
+	<span class="c1">#print(q1.ret_mod())</span>
+	<span class="c1">#q = (Hadamard(3)&amp;Identity(5))*q1</span>
+	<span class="c1">#qreg = Qubit(modexp(41,37,6))</span>
+	<span class="c1">#IO.Hist(qreg)</span>
+	<span class="c1">#noise = [0,0,0,0]</span>
+	<span class="c1">#ift = iQFT(3,noise)</span>
+	<span class="c1">#ft = QFT(3,noise)</span>
+	<span class="c1">#ift = ft*ft*ft</span>
+	<span class="c1">#IO.Display(QFT(4,noise)*QFT(4,noise)*iQFT(4,noise)*iQFT(4,noise))</span>
+	<span class="c1">#IO.Display(ft)</span>
+	<span class="c1">#IO.Display(ift)</span>
+	<span class="c1">#IO.Display(ft*ift)</span>
+	<span class="c1">#IO.Hist(ft*ift*qreg)</span>
+	
+	<span class="c1">#IO.Display(ft)</span>
+	<span class="c1">#IO.Hist(ft*qreg)</span>
+	
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	qreg = Qubit(modexp(13,29,6))</span>
+<span class="sd">	IO.Hist(qreg)</span>
+<span class="sd">	noise = [0,0,0,0]</span>
+<span class="sd">	ft = QFT(6,noise)</span>
+<span class="sd">	IO.Display(ft)</span>
+<span class="sd">	IO.Hist(ft*qreg)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="shor.shor">
+    <p>def <span class="ident">shor</span>(</p><p>N, qubits, noise=[0, 0, 0, 0], purely_quantum=False, verbose=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Shors algorithm for number factorisation. N is semiprime number to factorise.
+qubits is number of qubits to use for QFT. purely_quantum defines whether to allow
+initial guess being correct to terminate run, used mainly for checking the rest of the
+algorithm works, as often the initial guess being correct is more likely than the QFT
+factorising (especially for smaller numbers). verbose triggers various print statements</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.shor', this);">Show source &equiv;</a></p>
   <div id="source-shor.shor" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">shor</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">qubits</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Shors algorithm for number factorisation. Not 100% sure it&#39;s correct.</span>
-<span class="sd">	N defines the number to factorise, qubits defines the size of the QFT section</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">shor</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">qubits</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">purely_quantum</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Shors algorithm for number factorisation. N is semiprime number to factorise.</span>
+<span class="sd">	qubits is number of qubits to use for QFT. purely_quantum defines whether to allow</span>
+<span class="sd">	initial guess being correct to terminate run, used mainly for checking the rest of the</span>
+<span class="sd">	algorithm works, as often the initial guess being correct is more likely than the QFT</span>
+<span class="sd">	factorising (especially for smaller numbers). verbose triggers various print statements</span>
+
 <span class="sd">	&quot;&quot;&quot;</span>
 	
 	<span class="k">assert</span> <span class="n">N</span><span class="o">%</span><span class="mi">2</span><span class="o">!=</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;N must be odd&quot;</span>
@@ -1847,23 +2020,28 @@ N defines the number to factorise, qubits defines the size of the QFT section</p
 		<span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span><span class="mi">1</span>
 		<span class="n">guess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 		
-		<span class="c1">#print(guess)</span>
 		<span class="n">divisor</span> <span class="o">=</span> <span class="n">GCD</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">guess</span><span class="p">)</span>
-		<span class="c1">#print(&quot;Does &quot;+str(guess)+&quot; factor &quot;+str(N))</span>
+		<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Does &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">guess</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factor &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; ?&quot;</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">divisor</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
 			
 			<span class="c1">#If gcd(N,guess) is not 1, then guess is a factor of N. Lucky</span>
-			<span class="c1">#print(&quot;Divisor &quot;+str(divisor)+&quot; factorises &quot;+str(N)+&quot;, not found by QFT&quot;)</span>
+			<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+				<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Divisor &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">divisor</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factorises &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;, found by guessing&quot;</span><span class="p">)</span>
 			<span class="c1">#found = True</span>
-			<span class="k">pass</span>
-			<span class="c1">#return [divisor,divisor,counter]</span>
+			<span class="k">if</span> <span class="n">purely_quantum</span><span class="p">:</span>
+				<span class="k">pass</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">return</span> <span class="p">[</span><span class="n">divisor</span><span class="p">,</span><span class="n">divisor</span><span class="p">,</span><span class="n">counter</span><span class="p">]</span>
+
+			<span class="c1">#pass</span>
 
 		<span class="c1">#Run modular exponentiation with base = guess, mod = N</span>
 		<span class="n">qreg</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">modexp</span><span class="p">(</span><span class="n">guess</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">qubits</span><span class="p">))</span>
 		<span class="c1">#print(np.sum(qreg.ret_mod()))</span>
 		<span class="c1">#Apply QFT to qubit register</span>
-		<span class="n">qreg</span> <span class="o">=</span> <span class="n">iQFT</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span><span class="o">*</span><span class="n">qreg</span>
+		<span class="n">qreg</span> <span class="o">=</span> <span class="n">iQFT</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span><span class="n">noise</span><span class="p">)</span><span class="o">*</span><span class="n">qreg</span>
 		
 		<span class="c1">#qubit_profile = np.vstack((qubit_profile,qreg.ret_mod()))</span>
 		<span class="c1">#Measure qubit register to estimate frequency</span>
@@ -1875,7 +2053,8 @@ N defines the number to factorise, qubits defines the size of the QFT section</p
 		<span class="c1">#Transform frequency to nearest discrete value</span>
 		<span class="n">sample_freq</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="mi">2</span><span class="o">**</span><span class="n">qubits</span><span class="p">)</span>
 		<span class="n">p</span> <span class="o">=</span> <span class="n">sample_freq</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">denominator</span>
-		<span class="c1">#print(&quot;Period guess &quot;+str(p))</span>
+		<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Period guess &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
 
 		<span class="c1">#if period is odd or is trivial square root, start again</span>
 
@@ -1886,11 +2065,13 @@ N defines the number to factorise, qubits defines the size of the QFT section</p
 			<span class="c1">#print(g2)</span>
 
 			<span class="k">if</span> <span class="n">g1</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
-				<span class="c1">#print(str(g1)+&quot; factorises &quot;+str(N))</span>
+				<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+					<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">g1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factorises &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;, found with QFT&quot;</span><span class="p">)</span>
 				<span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
 				<span class="c1">#return</span>
 			<span class="k">if</span> <span class="n">g2</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
-				<span class="c1">#print(str(g2)+&quot; factorises &quot;+str(N))</span>
+				<span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+					<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; factorises &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;, found with QFT&quot;</span><span class="p">)</span>
 				<span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
 			<span class="k">if</span> <span class="n">g1</span><span class="o">!=</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">g2</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
 				<span class="c1">#print(str(counter)+&quot; steps&quot;)</span>
@@ -1909,7 +2090,7 @@ N defines the number to factorise, qubits defines the size of the QFT section</p
       
   <div class="item">
     <div class="name def" id="shor.step_test">
-    <p>def <span class="ident">step_test</span>(</p><p>lower, upper, its=10)</p>
+    <p>def <span class="ident">step_test</span>(</p><p>lower, upper, its=10, noise=[0, 0, 0, 0])</p>
     </div>
     
 
@@ -1922,7 +2103,7 @@ numbers to attempt to factorise at each size</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shor.step_test', this);">Show source &equiv;</a></p>
   <div id="source-shor.step_test" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">step_test</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">,</span><span class="n">its</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">step_test</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">,</span><span class="n">its</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]):</span>
 	<span class="sd">&quot;&quot;&quot;Method for testing shors on randomly generated prime products.</span>
 <span class="sd">	Plots number of QFTs applied against size of Qubit register. upper and lower</span>
 <span class="sd">	give upper and lower bounds to number of qubits in QFT. its defines how many</span>
@@ -1932,24 +2113,31 @@ numbers to attempt to factorise at each size</p></div>
 	<span class="n">misses</span> <span class="o">=</span> <span class="mi">0</span>
 	
 	<span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">its</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">))))</span>
-
+	<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">its</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">))))</span>
 	<span class="k">for</span> <span class="n">bits</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">)):</span>
-		<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Runnint tests for &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; Qubits&quot;</span><span class="p">)</span>
+		<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Running tests for &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; Qubits&quot;</span><span class="p">)</span>
 		<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">its</span><span class="p">):</span>
 			<span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 			<span class="n">coprime</span><span class="p">,</span><span class="n">prime1</span><span class="p">,</span><span class="n">prime2</span> <span class="o">=</span> <span class="n">coPrimes</span><span class="p">(</span><span class="n">bits</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">bits</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-			<span class="n">res</span> <span class="o">=</span> <span class="n">shor</span><span class="p">(</span><span class="n">coprime</span><span class="p">,</span><span class="n">bits</span><span class="p">)</span>
+			<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="n">res</span> <span class="o">=</span> <span class="n">shor</span><span class="p">(</span><span class="n">coprime</span><span class="p">,</span><span class="n">bits</span><span class="p">,</span><span class="n">noise</span><span class="p">)</span>
+			<span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 			<span class="n">steps</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">bits</span><span class="o">-</span><span class="n">lower</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+			<span class="n">times</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">bits</span><span class="o">-</span><span class="n">lower</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span><span class="o">-</span><span class="n">t1</span>
 			<span class="k">if</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">prime1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">prime2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">prime1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">prime2</span><span class="p">):</span>
 				<span class="n">hits</span> <span class="o">=</span> <span class="n">hits</span><span class="o">+</span><span class="mi">1</span>
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">misses</span> <span class="o">=</span> <span class="n">misses</span> <span class="o">+</span><span class="mi">1</span>
 	<span class="n">ms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 	<span class="n">ers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-	<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">),</span><span class="n">y</span><span class="o">=</span><span class="n">ms</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">ers</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
-	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+	<span class="n">m_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+	<span class="n">ers_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
 	<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">hits</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; succesful factorings&quot;</span><span class="p">)</span>
 	<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">misses</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; failures&quot;</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">ms</span><span class="p">,</span><span class="n">ers</span><span class="p">,</span><span class="n">m_time</span><span class="p">,</span><span class="n">ers_time</span>
 </pre></div>
 
   </div>
