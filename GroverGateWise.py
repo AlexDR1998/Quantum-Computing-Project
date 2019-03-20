@@ -27,14 +27,14 @@ def numits(n):
 
 def findBinary(n, target):
     '''
-    Finds the binary array for the target fock value as the same length as the number of
+    Finds the binary array for the target fock value as the same length of array as the number of
     qubits, this is used to find the application of PauliX gates in the Orcale for searching
     for the required target value
     '''
     print('\nConverting Fock value to binary array...')
     ti = t.time()
     B = [int(x) for x in bin(target)[2:]]
-    while len(B) != n:
+    while len(B) != n: #required to make matrices equal sizes
         B = np.insert(B, 0, 0)
     Binaryform = B
     print('Binary array was formed in ' + str(t.time()-ti) + ' s')
@@ -177,7 +177,10 @@ def run(args, noise):
     # --- Measure and Display ---
     q.measure()
     IO.printOut(q, target)
-    print('\nThis took '+str(t.time()-t1)+' s to run')
-
-    IO.Display(formOracle(Search, cZ))
-    IO.Display(formDiffusion(H, X, cZ))
+    tf = t.time()-t1
+    print('\nThis took '+str(tf)+' s to run')
+    #NOTE: Comment in to display Oracle and Diffusion matrices, can increase runtime
+    #      significantly for higher number of qubits
+    #IO.Display(formOracle(Search, cZ))
+    #IO.Display(formDiffusion(H, X, cZ))
+    return tf
