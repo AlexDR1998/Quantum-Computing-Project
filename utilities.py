@@ -2,7 +2,7 @@ import numpy as np
 import scipy as scp
 import time
 import cmath
-#from lazyarray import larray
+from lazyarray import larray
 
 """
 A file for storing various mathematical helper functions for each implementation.

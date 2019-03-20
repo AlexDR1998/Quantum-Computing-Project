@@ -13,8 +13,8 @@ Initial test file for high level implementation of Grover's Algorithm
 import numpy as np
 import math as m
 import time as t
-#from dense import *
-from sparse import *
+from dense import *
+#from sparse import *
 import InOut as IO
 
 def main():
