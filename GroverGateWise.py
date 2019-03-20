@@ -182,6 +182,6 @@ def run(args, noise):
     print('\nThis took '+str(tf)+' s to run')
     #NOTE: Comment in to display Oracle and Diffusion matrices, can increase runtime
     #      significantly for higher number of qubits
-    #IO.Display(formOracle(Search, cZ))
-    #IO.Display(formDiffusion(H, X, cZ))
+    #IO.display(formOracle(Search, cZ))
+    #IO.display(formDiffusion(H, X, cZ))
     return tf

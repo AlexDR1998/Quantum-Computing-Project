@@ -115,27 +115,41 @@ def timeplottar(x, y):
     plt.ylabel('Time, s')
     plt.show()
 
-def Hist(qreg):
+def hist(qreg):
+    '''
+    Plots a histogram of normalised measurement probabilities of a quantum register.
+    qreg is a quantum register, of any implementation
+    '''
+    qreg.normalise()
     x = range(len(qreg.ret_mod()))
     plt.bar(x,qreg.ret_mod())
     plt.show()
 
-def Graph(qreg):
+def graph(qreg):
+    '''
+    Plots a graph of normalised measurement probabilities of a quantum register.
+    qreg is a quantum register, of any implementation
+    '''
+    qreg.normalise()
 	x = range(len(qreg.ret_mod()))
 	plt.plot(x,qreg.ret_mod())
 	plt.show()
 
-def Display(Gate):
-	#Function to plot gate matrix as image.
+def display(Gate):
+	'''
+    Function to map a quantum gate matrix to an image. Gate is a quantum gate of
+    any implentation
+    '''
 	m = Gate.ret()
 	plt.imshow(complex_array_to_rgb(m),cmap="nipy_spectral")
 	plt.show()
 
 
 def complex_array_to_rgb(X, theme='dark', rmax=None):
-	#maps array of complex numbers to colours. Taken from stack overflow:
-	#https://stackoverflow.com/questions/15207255/is-there-any-way-to-use-bivariate-colormaps-in-matplotlib
-
+	'''
+    Maps array of complex numbers to colours. Taken from stack overflow:
+	https://stackoverflow.com/questions/15207255/is-there-any-way-to-use-bivariate-colormaps-in-matplotlib
+    '''
 	absmax = rmax or np.abs(X).max()
 	Y = np.zeros(X.shape + (3,), dtype='float')
 	Y[..., 0] = np.angle(X)/(2 * np.pi) % 1

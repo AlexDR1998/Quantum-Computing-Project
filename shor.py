@@ -67,30 +67,6 @@ def S(n,a,b,noise=0):
 
 #--- QFT defined recursively ---
 
-"""
-def QFT(N):
-
-	def _QFT(n):
-		#Method to return gate for n qubit fourier transform
-		if n==2:
-			#Base case
-			#return ((Identity()&Hadamard())*(R(2))*(Hadamard()&Identity()))
-			return ((H()&I())*(R(2))*(I()&H()))#*Swap(2,0,1))
-		else:
-			g1 = _QFT(n-1)&I()
-			g2 = I(n)
-			#print(range(n-2))
-			
-			for i in range(n-2):
-				#print(n-i)
-				g2 = g2*Swap(n,i,n-2)*(I(n-2)&R(n-i))*Swap(n,i,n-2)
-			#IO.Display(g2)
-			g3 = (I(n-2)&R(2))*(I(n-1)&H())
-			return (g1*g2*g3)
-	#Some ambiguity whether Flip gate is needed here. Appears to work with or without
-	return _QFT(N)*Flip(N)
-
-"""
 
 def QFT(N,noise=[0,0,0,0]):
 	"""Function to combine gates to form a Quantum Fourier Transform (QFT) on N qubits.
@@ -121,32 +97,23 @@ def iQFT(n,noise=[0,0,0,0]):
 	Returns Identity gate if 4 iQFTs are multiplied in sequence, or if 2 QFTs and 2 iQFTs are multiplied.
 	noise vector applies noise to Swap, Phase, Hadamard and Identity gates
 	"""
-	def _iQFT(n):
-		#Inverse fourier transform
-		if n==2:
-			return ((I(noise=noise[3])&H(noise=noise[2]))*(R(2,noise=noise[1]))*(H(noise=noise[2])&I(noise=noise[3])))
-		else:
-			g1 = _iQFT(n-1)&I(noise=noise[3])
-			g2 = I(n,noise=noise[3])
-			for i in range(n-2):
-				g2 = S(n,i,n-2,noise=noise[0])*(I(n-2,noise=noise[3])&R(n-i,noise=noise[1]))*S(n,i,n-2,noise=noise[0])*g2
-			g3 = (I(n-1,noise=noise[3])&H(noise=noise[2]))*(I(n-2,noise=noise[3])&R(2,noise=noise[1]))
-			return (g3*g2*g1)
-	return Flip(n,noise=noise[0])*_iQFT(n)
+	
+	f = QFT(n,noise)
+	return f*f*f
+	#def _iQFT(n):
+	#	#Inverse fourier transform
+	#	if n==2:
+	#		return ((I(noise=noise[3])&H(noise=noise[2]))*(R(2,noise=noise[1]))*(H(noise=noise[2])&I(noise=noise[3])))
+	#	else:
+	#		g1 = _iQFT(n-1)&I(noise=noise[3])
+	#		g2 = I(n,noise=noise[3])
+	#		for i in range(n-2):
+	#			g2 = S(n,i,n-2,noise=noise[0])*(I(n-2,noise=noise[3])&R(n-i,noise=noise[1]))*S(n,i,n-2,noise=noise[0])*g2
+	#		g3 = (I(n-1,noise=noise[3])&H(noise=noise[2]))*(I(n-2,noise=noise[3])&R(2,noise=noise[1]))
+	#		return (g3*g2*g1)
+	#return Flip(n,noise=noise[0])*_iQFT(n)
 
 
-"""
-
-def HardQFT3():
-	#Hard coded 3 qubit qft for testing against
-	return (H()&I(2))*(R(2)&I())*(I()&H()&I())*(Swap(3,0,1)*(I()&R(3))*Swap(3,0,1))*(I()&R(2))*(I(2)&H())*Swap(3,0,2)
-
-
-def HardQFT2():
-	#Hard coded 2 Qubit qft
-	return (H()&I())*R(2)*(I()&H())*Swap(2,0,1)
-
-"""
 
 
 
@@ -372,7 +339,7 @@ def main():
 	#qreg = modexp(2311,9123,10)
 	#q = Qubit(qreg)
 	noise = [0,0.05,0,0]
-	IO.Display(QFT(7,noise))#*QFT(7)*QFT(7)*QFT(7))
+	IO.display(QFT(7,noise))#*QFT(7)*QFT(7)*QFT(7))
 	#IO.Hist(ft*q)
 	#IO.Hist(ft*Flip(10)*q)
 	

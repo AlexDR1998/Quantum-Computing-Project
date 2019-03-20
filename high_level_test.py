@@ -26,7 +26,7 @@ def main():
 	
 	H = Hadamard(6)
 	N = Noisy(H,0)
-	#IO.Display(Noisy(H,1))
-	#IO.Display(Noisy(H,0.1)*Noisy(H,0.1))
-	IO.Display(N)
+	#IO.display(Noisy(H,1))
+	#IO.display(Noisy(H,0.1)*Noisy(H,0.1))
+	IO.display(N)
 main()
