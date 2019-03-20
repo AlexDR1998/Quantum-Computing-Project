@@ -129,8 +129,9 @@ def grover(q, Search, cZ, H, X, its):
 def run(args, noise):
     '''
     Runs the Grover simulation with the input of reg size and target fock in args and
-    a value for noise(0 if none). This is used for non test runs and has the print statements
-    to inform the current operation and timings
+    a value for noise(0 if none). This has print statements to say the current operation and timings.
+    There is an option to display the Oracle and Diffusion matrices used for the current run by
+    commenting in the lines below the NOTE.
     '''
     # --- Reg size and target value ---
     n = args[0]

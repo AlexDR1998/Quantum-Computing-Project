@@ -11,7 +11,7 @@ import GroverGateWise as G
 
 def main():
     '''
-    Main to run file
+    Main to run Grover's Simulation
     '''
     check = 'run'   #is altered for testing purposes
 
