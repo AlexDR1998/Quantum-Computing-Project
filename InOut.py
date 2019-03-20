@@ -131,9 +131,9 @@ def graph(qreg):
     qreg is a quantum register, of any implementation
     '''
     qreg.normalise()
-	x = range(len(qreg.ret_mod()))
-	plt.plot(x,qreg.ret_mod())
-	plt.show()
+    x = range(len(qreg.ret_mod()))
+    plt.plot(x,qreg.ret_mod())
+    plt.show()
 
 def display(Gate):
 	'''

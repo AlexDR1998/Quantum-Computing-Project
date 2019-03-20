@@ -1,6 +1,6 @@
 import numpy as np
-from dense import *
-#from sparse import *
+#from dense import *
+from sparse import *
 import InOut as IO
 import time
 import matplotlib.pyplot as plt
@@ -89,31 +89,13 @@ def QFT(N,noise=[0,0,0,0]):
 
 
 
-#--- Inverse QFT defined recursively ---
+
+
+
 
 def iQFT(n,noise=[0,0,0,0]):
-	"""Function to combine gates to form an inverse Quantum Fourier Transform (QFT) on N qubits.
-	Defined recursively. The same gates as QFt but in reverse order.
-	Returns Identity gate if 4 iQFTs are multiplied in sequence, or if 2 QFTs and 2 iQFTs are multiplied.
-	noise vector applies noise to Swap, Phase, Hadamard and Identity gates
-	"""
-	
 	f = QFT(n,noise)
 	return f*f*f
-	#def _iQFT(n):
-	#	#Inverse fourier transform
-	#	if n==2:
-	#		return ((I(noise=noise[3])&H(noise=noise[2]))*(R(2,noise=noise[1]))*(H(noise=noise[2])&I(noise=noise[3])))
-	#	else:
-	#		g1 = _iQFT(n-1)&I(noise=noise[3])
-	#		g2 = I(n,noise=noise[3])
-	#		for i in range(n-2):
-	#			g2 = S(n,i,n-2,noise=noise[0])*(I(n-2,noise=noise[3])&R(n-i,noise=noise[1]))*S(n,i,n-2,noise=noise[0])*g2
-	#		g3 = (I(n-1,noise=noise[3])&H(noise=noise[2]))*(I(n-2,noise=noise[3])&R(2,noise=noise[1]))
-	#		return (g3*g2*g1)
-	#return Flip(n,noise=noise[0])*_iQFT(n)
-
-
 
 
 
@@ -180,9 +162,13 @@ def modexp(b,N,qubits):
 
 
 
-def shor(N,qubits):
-	"""Shors algorithm for number factorisation. Not 100% sure it's correct.
-	N defines the number to factorise, qubits defines the size of the QFT section
+def shor(N,qubits,noise=[0,0,0,0],purely_quantum=False,verbose=False):
+	"""Shors algorithm for number factorisation. N is semiprime number to factorise.
+	qubits is number of qubits to use for QFT. purely_quantum defines whether to allow
+	initial guess being correct to terminate run, used mainly for checking the rest of the
+	algorithm works, as often the initial guess being correct is more likely than the QFT
+	factorising (especially for smaller numbers). verbose triggers various print statements
+
 	"""
 	
 	assert N%2!=0, "N must be odd"
@@ -200,23 +186,28 @@ def shor(N,qubits):
 		counter = counter +1
 		guess = np.random.randint(2,(N-1))
 		
-		#print(guess)
 		divisor = GCD(N,guess)
-		#print("Does "+str(guess)+" factor "+str(N))
+		if verbose:
+			print("Does "+str(guess)+" factor "+str(N)+" ?")
 
 		if divisor!=1:
 			
 			#If gcd(N,guess) is not 1, then guess is a factor of N. Lucky
-			#print("Divisor "+str(divisor)+" factorises "+str(N)+", not found by QFT")
+			if verbose:
+				print("Divisor "+str(divisor)+" factorises "+str(N)+", found by guessing")
 			#found = True
-			pass
-			#return [divisor,divisor,counter]
+			if purely_quantum:
+				pass
+			else:
+				return [divisor,divisor,counter]
+
+			#pass
 
 		#Run modular exponentiation with base = guess, mod = N
 		qreg = Qubit(modexp(guess,N,qubits))
 		#print(np.sum(qreg.ret_mod()))
 		#Apply QFT to qubit register
-		qreg = iQFT(qubits)*qreg
+		qreg = iQFT(qubits,noise)*qreg
 		
 		#qubit_profile = np.vstack((qubit_profile,qreg.ret_mod()))
 		#Measure qubit register to estimate frequency
@@ -228,7 +219,8 @@ def shor(N,qubits):
 		#Transform frequency to nearest discrete value
 		sample_freq = Fraction(freq,2**qubits)
 		p = sample_freq.limit_denominator(N).denominator
-		#print("Period guess "+str(p))
+		if verbose:
+			print("Period guess "+str(p))
 
 		#if period is odd or is trivial square root, start again
 
@@ -239,11 +231,13 @@ def shor(N,qubits):
 			#print(g2)
 
 			if g1!=1:
-				#print(str(g1)+" factorises "+str(N))
+				if verbose:
+					print(str(g1)+" factorises "+str(N)+", found with QFT")
 				found = True
 				#return
 			if g2!=1:
-				#print(str(g2)+" factorises "+str(N))
+				if verbose:
+					print(str(g2)+" factorises "+str(N)+", found with QFT")
 				found = True
 			if g1!=1 or g2!=1:
 				#print(str(counter)+" steps")
@@ -274,15 +268,17 @@ def coPrimes(bits,bits_lower = 1):
 	res = 0
 	while (res >2**bits) or (res < 2**(bits_lower)):
 		x = np.random.randint(0,len(primes))
-		if x==0:
+		if x==1:
 			y=0
+		elif x==0:
+			y=1
 		else:
-			y = np.random.randint(0,x+1)
+			y = np.random.randint(0,x-1)
 		res = prime_products[x,y]
 	return res,primes[x],primes[y]
 
 
-def step_test(lower,upper,its=10):
+def step_test(lower,upper,its=10,noise=[0,0,0,0]):
 	"""Method for testing shors on randomly generated prime products.
 	Plots number of QFTs applied against size of Qubit register. upper and lower
 	give upper and lower bounds to number of qubits in QFT. its defines how many
@@ -292,32 +288,89 @@ def step_test(lower,upper,its=10):
 	misses = 0
 	
 	steps = np.zeros((its,len(range(lower,upper))))
-
+	times = np.zeros((its,len(range(lower,upper))))
 	for bits in (range(lower,upper)):
-		print("Runnint tests for "+str(bits)+" Qubits")
+		print("Running tests for "+str(bits)+" Qubits")
 		for x in range(its):
 			print(x)
 			coprime,prime1,prime2 = coPrimes(bits+1,bits-2)
-			res = shor(coprime,bits)
+			t1 = time.time()
+			res = shor(coprime,bits,noise)
+			t2 = time.time()
 			steps[x,bits-lower] = res[2]
+			times[x,bits-lower] = t2-t1
 			if (res[0]==prime1) or (res[0]==prime2) or (res[1]==prime1) or (res[1]==prime2):
 				hits = hits+1
 			else:
 				misses = misses +1
 	ms = np.mean(steps,axis=0)
 	ers = np.std(steps,axis=0)
-	plt.errorbar(x=range(lower,upper),y=ms,yerr=ers,fmt='o')
-	plt.show()
+
+	m_time = np.mean(times,axis=0)
+	ers_time = np.std(times,axis=0)
+
+	#plt.errorbar(x=range(lower,upper),y=ms,yerr=ers,fmt='o')
+	#plt.xlabel("Number of Qubits")
+	#plt.ylabel("Number of QFT applications")
+	#plt.title("QFT applications required")
+	#plt.show()
+	#ms = np.mean(times,axis=0)
+	#ers = np.std(times,axis=0)
+	#plt.errorbar(x=range(lower,upper),y=ms,yerr=ers,fmt='o')
+	#plt.xlabel("Number of Qubits")
+	#plt.ylabel("Time taken")
+	#plt.title("Runtimes of Shor's algorithm")
+	#plt.show()
 	print(str(hits)+" succesful factorings")
 	print(str(misses)+" failures")
+
+	return ms,ers,m_time,ers_time
+
+
+def noise_tests(min_qubits,max_qubits,its):
+
+	max_qubits = max_qubits+1
+	noise_hadamard=[0,0,0.3,0]
+	noise_phase = [0,0.3,0,0]
+	ms,errs,ts,t_errs = step_test(min_qubits,max_qubits,its)
+	hms,herrs,hts,ht_errs = step_test(min_qubits,max_qubits,its,noise_hadamard)
+	pms,perrs,pts,pt_errs = step_test(min_qubits,max_qubits,its,noise_phase)
+	xs = range(min_qubits,max_qubits)
+	plt.errorbar(x=xs,y=ms,yerr=errs,fmt='o',label="No noise",capsize=10)
+	plt.errorbar(x=xs,y=hms,yerr=herrs,fmt='o',label="Hadamard noise",capsize=10)
+	plt.errorbar(x=xs,y=pms,yerr=perrs,fmt='o',label="Phase noise",capsize=10)
+	plt.legend()
+	#plt.legend(['clean','noise'])
+	plt.xlabel("Number of Qubits")
+	plt.ylabel("Number of QFT applications")
+	#plt.title("QFT applications required")
+	plt.show()
+
+
+
+	plt.errorbar(x=xs,y=ts,yerr=t_errs,fmt='o',label="No noise",capsize=10)
+	plt.errorbar(x=xs,y=hts,yerr=ht_errs,fmt='o',label="Hadamard noise",capsize=10)
+	plt.errorbar(x=xs,y=pts,yerr=pt_errs,fmt='o',label="Phase noise",capsize=10)
+	plt.legend()
+	#plt.legend(['clean','noise'])
+	plt.xlabel("Number of Qubits")
+	plt.ylabel("Time taken (s)")
+	#plt.title("Shor's Runtimes")
+	plt.show()	
+
 
 
 
 def main():
 
-	#step_test(4,11,20)
+
+
+
+	noise_tests(3,6,20)
+
 	#print(coPrimes(7,4))
-	#print(shor(7*17,8))
+	#print(shor(7*5,5,noise,verbose=True))
+	
 	#print(isPrime(209))
 	#for x in range(10):
 	#	print(coPrimes(8))
@@ -332,16 +385,29 @@ def main():
 	#q1 = Qubit(8)
 	#print(q1.ret_mod())
 	#q = (Hadamard(3)&Identity(5))*q1
+	#qreg = Qubit(modexp(41,37,6))
+	#IO.Hist(qreg)
+	#noise = [0,0,0,0]
+	#ift = iQFT(3,noise)
+	#ft = QFT(3,noise)
+	#ift = ft*ft*ft
+	#IO.Display(QFT(4,noise)*QFT(4,noise)*iQFT(4,noise)*iQFT(4,noise))
+	#IO.Display(ft)
+	#IO.Display(ift)
+	#IO.Display(ft*ift)
+	#IO.Hist(ft*ift*qreg)
 	
+	#IO.Display(ft)
+	#IO.Hist(ft*qreg)
 	
-	#ft = QFT(6)
-	
-	#qreg = modexp(2311,9123,10)
-	#q = Qubit(qreg)
-	noise = [0,0.05,0,0]
-	IO.display(QFT(7,noise))#*QFT(7)*QFT(7)*QFT(7))
-	#IO.Hist(ft*q)
-	#IO.Hist(ft*Flip(10)*q)
+	"""
+	qreg = Qubit(modexp(13,29,6))
+	IO.Hist(qreg)
+	noise = [0,0,0,0]
+	ft = QFT(6,noise)
+	IO.Display(ft)
+	IO.Hist(ft*qreg)
+	"""
 	
 
 main()
