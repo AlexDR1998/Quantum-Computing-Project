@@ -1,6 +1,6 @@
 import numpy as np
-#from dense import *
-from sparse import *
+from dense import *
+#from sparse import *
 import InOut as IO
 import time
 import matplotlib.pyplot as plt
@@ -94,6 +94,10 @@ def QFT(N,noise=[0,0,0,0]):
 
 
 def iQFT(n,noise=[0,0,0,0]):
+	"""
+	Inverse QFT, defined using the maths that 
+	QFT^4 = Identity => (QFT^3)*QFT = Identity => inverse of QFT = QFT^3
+	"""
 	f = QFT(n,noise)
 	return f*f*f
 
@@ -155,15 +159,14 @@ def modexp(b,N,qubits):
 	
 	xs = np.arange(0,2**qubits,1)
 	g = np.vectorize(lambda x:_modexp(b,x,N))
-	f = lambda x:(g(x))#-np.mean(x))
-	#print (np.sum(np.square(np.abs(f(xs)/np.sqrt(np.sum(np.square(xs).astype(float)))))))
+	f = lambda x:(g(x))
 	return f(xs)/np.sqrt(np.sum(np.square(xs).astype(float)))
 
 
 
 
 def shor(N,qubits,noise=[0,0,0,0],purely_quantum=False,verbose=False):
-	"""Shors algorithm for number factorisation. N is semiprime number to factorise.
+	"""Shors algorithm for number factorisation. N is non square semiprime number to factorise.
 	qubits is number of qubits to use for QFT. purely_quantum defines whether to allow
 	initial guess being correct to terminate run, used mainly for checking the rest of the
 	algorithm works, as often the initial guess being correct is more likely than the QFT
@@ -256,10 +259,10 @@ def shor(N,qubits,noise=[0,0,0,0],purely_quantum=False,verbose=False):
 #--- Methods for testing shors ---------------------------
 #---------------------------------------------------------
 
-def coPrimes(bits,bits_lower = 1):
+def semi_primes(bits,bits_lower = 1):
 	"""Randomly generates a product of 2 primes, n, such that
 	2**bits_lower < n < 2**bits
-	Also returns the 2 prime factors
+	Also returns the 2 prime factors. Very useful for testing shors
 	"""
 	#print(list(filter(isPrime,range(2**bits))))
 	primes = np.array(list(filter(isPrime,range(2**bits))))[1:]
@@ -280,9 +283,9 @@ def coPrimes(bits,bits_lower = 1):
 
 def step_test(lower,upper,its=10,noise=[0,0,0,0]):
 	"""Method for testing shors on randomly generated prime products.
-	Plots number of QFTs applied against size of Qubit register. upper and lower
-	give upper and lower bounds to number of qubits in QFT. its defines how many
-	numbers to attempt to factorise at each size
+	Returns mean number of QFTs applied and runtimes, with variances. 
+	upper and lower give upper and lower bounds to number of qubits in QFT. 
+	its defines how many numbers to attempt to factorise at each size
 	"""
 	hits = 0
 	misses = 0
@@ -293,7 +296,7 @@ def step_test(lower,upper,its=10,noise=[0,0,0,0]):
 		print("Running tests for "+str(bits)+" Qubits")
 		for x in range(its):
 			print(x)
-			coprime,prime1,prime2 = coPrimes(bits+1,bits-2)
+			coprime,prime1,prime2 = semi_primes(bits+1,bits-2)
 			t1 = time.time()
 			res = shor(coprime,bits,noise)
 			t2 = time.time()
@@ -309,18 +312,6 @@ def step_test(lower,upper,its=10,noise=[0,0,0,0]):
 	m_time = np.mean(times,axis=0)
 	ers_time = np.std(times,axis=0)
 
-	#plt.errorbar(x=range(lower,upper),y=ms,yerr=ers,fmt='o')
-	#plt.xlabel("Number of Qubits")
-	#plt.ylabel("Number of QFT applications")
-	#plt.title("QFT applications required")
-	#plt.show()
-	#ms = np.mean(times,axis=0)
-	#ers = np.std(times,axis=0)
-	#plt.errorbar(x=range(lower,upper),y=ms,yerr=ers,fmt='o')
-	#plt.xlabel("Number of Qubits")
-	#plt.ylabel("Time taken")
-	#plt.title("Runtimes of Shor's algorithm")
-	#plt.show()
 	print(str(hits)+" succesful factorings")
 	print(str(misses)+" failures")
 
@@ -340,10 +331,8 @@ def noise_tests(min_qubits,max_qubits,its):
 	plt.errorbar(x=xs,y=hms,yerr=herrs,fmt='o',label="Hadamard noise",capsize=10)
 	plt.errorbar(x=xs,y=pms,yerr=perrs,fmt='o',label="Phase noise",capsize=10)
 	plt.legend()
-	#plt.legend(['clean','noise'])
 	plt.xlabel("Number of Qubits")
 	plt.ylabel("Number of QFT applications")
-	#plt.title("QFT applications required")
 	plt.show()
 
 
@@ -352,10 +341,8 @@ def noise_tests(min_qubits,max_qubits,its):
 	plt.errorbar(x=xs,y=hts,yerr=ht_errs,fmt='o',label="Hadamard noise",capsize=10)
 	plt.errorbar(x=xs,y=pts,yerr=pt_errs,fmt='o',label="Phase noise",capsize=10)
 	plt.legend()
-	#plt.legend(['clean','noise'])
 	plt.xlabel("Number of Qubits")
 	plt.ylabel("Time taken (s)")
-	#plt.title("Shor's Runtimes")
 	plt.show()	
 
 
@@ -366,14 +353,14 @@ def main():
 
 
 
-	noise_tests(3,6,20)
-
-	#print(coPrimes(7,4))
+	#noise_tests(3,6,20)
+	noise_tests(3,6,5)
+	#print(semi_primes(7,4))
 	#print(shor(7*5,5,noise,verbose=True))
 	
 	#print(isPrime(209))
 	#for x in range(10):
-	#	print(coPrimes(8))
+	#	print(semi_primes(8))
 	#ls = filter(isPrime,range(1000))
 	#print(ls)
 	#a = Fraction(1.234567).limit_denominator(1000)

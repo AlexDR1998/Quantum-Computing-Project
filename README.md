@@ -96,3 +96,9 @@ This is the main file for governing Grover's algorithm. There are a couple of op
 # shor.py #
 
 This file contains all the functions used to implement Shor's algorithm. To run Shor's algorithm,
+import the file or insert a main method, and use shor(N,qubits,noise).
+
+qubits is the number of qubits for the QFT
+N should be a non square semi prime that is between 2^(qubits-1) and 2^(qubits)
+
+
