@@ -115,7 +115,7 @@ def grover(q, Search, cZ, H, X, its):
         q = cZ*q
         q = X*q
         q = H*q
-
+        #IO.hist(q)
         # # NOTE: Test Option - commented in to use pre determined O and D
         # q = Oracle*q
         # q = Diffusion*q
